@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintBottom_toBottomOf="parent">
+
+    <fragment
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:name="com.google.android.gms.maps.MapFragment"
+        android:id="@+id/map"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"/>
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/requestView"
+        android:layout_gravity="bottom"
+        android:layout_width="0dp"
+        android:layout_height="300dp"
+        app:cardBackgroundColor="@color/view_background_purple"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:contentPadding="10dp">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="10dp">
+
+                <TextView
+                    android:id="@+id/reject"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentTop="true"
+                    android:text="X Reject"
+                    android:textSize="14sp"
+                    android:textColor="@color/colorPrimary"
+                    android:onClick="onRejectClick"/>
+
+                <ImageView
+                    android:id="@+id/customerThumbnail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:srcCompat="@drawable/user_thumbnail" />
+
+                <TextView
+                    android:id="@+id/customerName"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:text="ADITYA BHARDWAJ"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp"
+                    android:layout_marginBottom="40dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginTop="15dp"
+                    android:layout_toRightOf="@id/customerThumbnail"/>
+
+                <ImageView
+                    android:id="@+id/fromAddressMarker"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:srcCompat="@drawable/marker_green"
+                    android:layout_marginLeft="15dp"
+                    android:layout_below="@id/customerName"/>
+
+                <TextView
+                    android:id="@+id/fromAddressLine1"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:text="ABC Company, 36B, Vardhan House,"
+                    android:textColor="#FFFFFF"
+                    android:textSize="12sp"
+                    android:layout_toRightOf="@id/fromAddressMarker"
+                    android:layout_below="@id/customerName"/>
+
+                <TextView
+                    android:id="@+id/fromAddressLine2"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:text="Kashmere Gate, Delhi - 110006"
+                    android:textColor="#FFFFFF"
+                    android:textSize="12sp"
+                    android:layout_below="@id/fromAddressLine1"
+                    android:layout_toRightOf="@id/fromAddressMarker" />
+
+                <ImageView
+                    android:id="@+id/toAddressMarker"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:srcCompat="@drawable/marker_red"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginLeft="15dp"
+                    android:layout_below="@+id/fromAddressMarker"
+                    app:layout_constraintRight_toRightOf="parent" />
+
+
+                <TextView
+                    android:id="@+id/toAddressLine1"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginLeft="20dp"
+                    android:text="ABC Company, 36B, Vardhan House,"
+                    android:textColor="#FFFFFF"
+                    android:textSize="12sp"
+                    android:layout_below="@+id/fromAddressLine2"
+                    android:layout_toRightOf="@id/toAddressMarker"/>
+
+                <TextView
+                    android:id="@+id/toAddressLine2"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:text="Kashmere Gate, Delhi - 110006"
+                    android:textColor="#FFFFFF"
+                    android:textSize="12sp"
+                    android:layout_below="@id/toAddressLine1"
+                    android:layout_toRightOf="@id/toAddressMarker" />
+
+                <TextView
+                    android:id="@+id/distance"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginTop="10dp"
+                    android:text="4.6Km"
+                    android:textColor="#765267"
+                    android:textSize="18sp"
+                    android:layout_below="@id/toAddressLine2"
+                    android:layout_toRightOf="@id/toAddressMarker" />
+
+                <ImageView
+                    android:id="@+id/loadingRequiredImage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:srcCompat="@drawable/tick_green"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginLeft="15dp"
+                    android:layout_below="@+id/distance" />
+
+                <TextView
+                    android:id="@+id/loadingUnloadingText"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginLeft="20dp"
+                    android:text="Loading/Unloading"
+                    android:textColor="#765267"
+                    android:textSize="12sp"
+                    android:layout_below="@+id/distance"
+                    android:layout_toRightOf="@id/loadingRequiredImage" />
+
+
+                <com.rodafleets.rodadriver.custom.SwipeButton
+                    android:id="@+id/makeOfferBtn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginLeft="35dp"
+                    android:layout_marginRight="35dp"
+                    android:layout_below="@+id/loadingUnloadingText"
+                    android:text="Slide to make Offer"
+                    android:background="@drawable/btn_background_purple"
+                    android:textColor="#FFFFFF" />
+
+
+                <!--<android.support.design.widget.TextInputLayout-->
+                    <!--android:id="@+id/makeOfferBtn"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_marginTop="10dp"-->
+                    <!--android:layout_marginLeft="35dp"-->
+                    <!--android:layout_marginRight="35dp"-->
+                    <!--android:layout_below="@+id/loadingUnloadingText"-->
+                    <!--android:background="@drawable/btn_background_purple"-->
+                    <!--app:hintEnabled="false">-->
+                    <!--<EditText-->
+                        <!--android:id="@+id/offerValue"-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="match_parent"-->
+                        <!--android:inputType="number"-->
+                        <!--android:textColor="#FFFFFF"-->
+                        <!--android:textSize="14sp"-->
+                        <!--android:layout_gravity="center_horizontal"-->
+                        <!--android:drawableRight="@drawable/edit_offer"-->
+                        <!--android:background="@android:color/transparent" />-->
+                <!--</android.support.design.widget.TextInputLayout>-->
+
+
+                <Button
+                    android:id="@+id/callCustomerBtn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginLeft="50dp"
+                    android:layout_marginRight="50dp"
+                    android:layout_marginStart="50dp"
+                    android:layout_marginEnd="50dp"
+                    android:text="Call Customer"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    android:background="@drawable/btn_background_green"
+                    android:onClick="onCallCustomer"
+                    android:drawableLeft="@drawable/call"
+                    android:layout_below="@id/makeOfferBtn"/>
+
+                <TextView
+                    android:id="@+id/callAdmin"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:layout_marginTop="15dp"
+                    android:text="Call Admin"
+                    android:textColor="#FFFFFF"
+                    android:textSize="12sp"
+                    android:layout_below="@+id/callCustomerBtn"
+                    android:layout_centerHorizontal="true"/>
+
+            </RelativeLayout>
+
+        </ScrollView>
+
+    </android.support.v7.widget.CardView>
+
+</android.support.constraint.ConstraintLayout>
