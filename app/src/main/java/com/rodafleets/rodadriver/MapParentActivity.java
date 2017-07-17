@@ -3,11 +3,14 @@ package com.rodafleets.rodadriver;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -119,12 +122,29 @@ public class MapParentActivity extends ParentActivity implements OnMapReadyCallb
 
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
+        int height = 30;
+        int width = 37;
+
+        Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.car_icon);
+        Bitmap smallMarker = Bitmap.createScaledBitmap(icon, width, height, false);
+
+//        Log.i(TAG, "------");
+//        Log.i(TAG, smallMarker.getWidth() + " ");
+//        Log.i(TAG, smallMarker.getHeight() + " ");
+
+
         //Place current location marker
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(latLng);
-        markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.car_icon));
+
+//         markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.car_icon));
+
+        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(smallMarker));
+
         mCurrLocationMarker = mGoogleMap.addMarker(markerOptions);
+
         builder.include(mCurrLocationMarker.getPosition());
 
         //Place pickup location marker
@@ -151,6 +171,7 @@ public class MapParentActivity extends ParentActivity implements OnMapReadyCallb
     }
 
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+
     private void checkLocationPermission() {
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
