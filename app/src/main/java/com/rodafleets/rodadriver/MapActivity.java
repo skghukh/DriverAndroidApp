@@ -8,6 +8,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
@@ -132,18 +135,36 @@ public class MapActivity extends ParentActivity
 
     @Override
     public void onLocationChanged(Location location) {
+
         mLastLocation = location;
         if (mCurrLocationMarker != null) {
             mCurrLocationMarker.remove();
         }
 
+        int height = 10;
+        int width = 18;
+
+        Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.car_icon);
+
+        Bitmap smallMarker = Bitmap.createScaledBitmap(icon, width, height, false);
+
+        Log.i(TAG, "------");
+        Log.i(TAG, smallMarker.getWidth() + " ");
+        Log.i(TAG, smallMarker.getHeight() + " ");
+
+
         //Place current location marker
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(latLng);
+
 //        markerOptions.title("Current Position");
-        markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.car_icon));
+//        markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.car_icon));
+
+        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(smallMarker));
+
         mCurrLocationMarker = mGoogleMap.addMarker(markerOptions);
+
 
         //move map camera
         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16.0f));
