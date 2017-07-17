@@ -83,4 +83,10 @@ public class RodaRestClient {
         params.put("gender", gender);
         RodaRestClient.POST("/drivers", params, responseHandler);
     }
+
+    public static void updateToken(int driverId, String token,JsonHttpResponseHandler responseHandler) {
+        RequestParams params = new RequestParams();
+        params.put("token", token);
+        RodaRestClient.POST("/drivers/" + driverId + "/updateandroidtoken", params, responseHandler);
+    }
 }
