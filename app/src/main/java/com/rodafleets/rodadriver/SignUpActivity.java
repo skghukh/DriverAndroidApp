@@ -125,12 +125,7 @@ public class SignUpActivity extends AppCompatActivity {
             progressDialog.setMessage(getString(R.string.sign_up_saving));
             progressDialog.show();
 
-            String token = ApplicationSettings.getCloudMessagingId(SignUpActivity.this);
-            if(token.equals("")) {
-                RodaRestClient.signUp(number, fName, lName, gender, responseHandler);
-            } else{
-                RodaRestClient.signUp(number, fName, lName, gender, token, responseHandler);
-            }
+            RodaRestClient.signUp(number, fName, lName, gender, responseHandler);
         }
     }
 

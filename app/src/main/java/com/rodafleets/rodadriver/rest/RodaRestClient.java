@@ -76,20 +76,11 @@ public class RodaRestClient {
         }
     };*/
 
-    public static void updateToken(int driverId, String token, JsonHttpResponseHandler responseHandler) {
+    public static void updateDeviceRegistrationId(int driverId, String token, JsonHttpResponseHandler responseHandler) {
         RequestParams params = new RequestParams();
-        params.put("token", token);
-        RodaRestClient.POST("/drivers/" + driverId + "/updateandroidtoken", params, responseHandler);
-    }
-
-    public static void signUp(String phoneNumber, String firstName, String lastName, String gender, String token, JsonHttpResponseHandler responseHandler) {
-        RequestParams params = new RequestParams();
-        params.put("phonenumber", phoneNumber);
-        params.put("firstname", firstName);
-        params.put("lastname", lastName);
-        params.put("token", token);
-        params.put("gender", gender);
-        RodaRestClient.POST("/drivers", params, responseHandler);
+        params.put("registrationid", token);
+        params.put("device_os", "android");
+        RodaRestClient.POST("/drivers/" + driverId + "/deviceregistration", params, responseHandler);
     }
 
     public static void signUp(String phoneNumber, String firstName, String lastName, String gender, JsonHttpResponseHandler responseHandler) {
@@ -106,7 +97,7 @@ public class RodaRestClient {
         params.put("password", password);
         params.put("otp", otp);
         params.put("session_id", sessionId);
-        RodaRestClient.POST("/drivers", params, responseHandler);
+        RodaRestClient.POST("/drivers/" + driverId, params, responseHandler);
     }
 
     public static void getVehicleTypes(JsonHttpResponseHandler responseHandler) {
@@ -135,10 +126,11 @@ public class RodaRestClient {
         RodaRestClient.POST("/drivers/" + driverId +"/uploaddocuments", params, responseHandler);
     }
 
-    public static void login(String phoneNumber, String password, JsonHttpResponseHandler responseHandler) {
+    public static void login(String phoneNumber, String password, String token, JsonHttpResponseHandler responseHandler) {
         RequestParams params = new RequestParams();
         params.put("phonenumber", phoneNumber);
         params.put("password", password);
+        params.put("android_registrationid", token);
         RodaRestClient.POST("/drivers/login", params, responseHandler);
     }
 

@@ -16,6 +16,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 import com.rodafleets.rodadriver.model.Driver;
@@ -119,7 +120,13 @@ public class SignInActivity extends AppCompatActivity {
             progressBar.setIndeterminate(true);
             progressBar.setVisibility(View.VISIBLE);
             Utils.enableWindowActivity(getWindow(), false);
-            RodaRestClient.login(number, pwd, signInResponseHandler);
+            String token = ApplicationSettings.getRegistrationId(this);
+            if(token.equals("")) {
+                token = FirebaseInstanceId.getInstance().getToken();
+                ApplicationSettings.setRegistrationId(this, token);
+            }
+
+            RodaRestClient.login(number, pwd, token, signInResponseHandler);
         }
     }
 
