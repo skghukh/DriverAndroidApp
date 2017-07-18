@@ -106,6 +106,7 @@ public class RodaRestClient {
         params.put("password", password);
         params.put("otp", otp);
         params.put("session_id", sessionId);
+        RodaRestClient.POST("/drivers", params, responseHandler);
     }
 
     public static void getVehicleTypes(JsonHttpResponseHandler responseHandler) {
@@ -141,9 +142,10 @@ public class RodaRestClient {
         RodaRestClient.POST("/drivers/login", params, responseHandler);
     }
 
-    public static void bidRequest(int requestId, long fareInCents, JsonHttpResponseHandler responseHandler) {
+    public static void bidRequest(int requestId, int driverId, int fareInCents, JsonHttpResponseHandler responseHandler) {
         RequestParams params = new RequestParams();
+        params.put("driver_id", driverId);
         params.put("bid_amount_in_cents", fareInCents);
-        RodaRestClient.POST("/requests/" + requestId + "/bid", params, responseHandler);
+        RodaRestClient.POST("/requests/" + requestId + "/bids", params, responseHandler);
     }
 }

@@ -87,7 +87,8 @@ public class VehicleRequestActivity extends MapActivity {
         SwipeButtonCustomItems makeOfferBtnSettings = new SwipeButtonCustomItems() {
             @Override
             public void onSwipeConfirm() {
-                RodaRestClient.bidRequest(vehicleRequest.getId(), vehicleRequest.getApproxFareInCents(), bidRequestResposeHandler);
+                int driverId = ApplicationSettings.getDriverId(VehicleRequestActivity.this);
+                RodaRestClient.bidRequest(vehicleRequest.getId(), driverId, vehicleRequest.getApproxFareInCents(), bidRequestResposeHandler);
             }
         };
 
