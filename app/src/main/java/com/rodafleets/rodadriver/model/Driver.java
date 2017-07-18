@@ -26,8 +26,7 @@ public class Driver {
         this.phoneNumber = jsonObject.getString("phoneNumber");
         this.firstName = jsonObject.getString("firstName");
         this.lastName = jsonObject.getString("lastName");
-        int v = jsonObject.getInt("verified");
-        this.verified = ((v == 0) ? false : true);
+        this.verified = jsonObject.getBoolean("verified");
         this.gender = jsonObject.getString("gender");
     }
 

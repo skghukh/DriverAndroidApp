@@ -106,6 +106,7 @@ public class RodaRestClient {
         params.put("password", password);
         params.put("otp", otp);
         params.put("session_id", sessionId);
+        RodaRestClient.POST("/drivers/" + driverId, params, responseHandler);
     }
 
     public static void getVehicleTypes(JsonHttpResponseHandler responseHandler) {
