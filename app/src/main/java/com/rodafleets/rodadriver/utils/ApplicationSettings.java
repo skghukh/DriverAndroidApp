@@ -21,6 +21,7 @@ public final class ApplicationSettings {
     private static final String VEHICLE_INFO_SAVED = "VEHICLE_INFO_SAVED";
     private static final String LOGGED_IN = "LOGGED_IN";
     private static final String CLOUD_MESSAGING_ID = "CLOUD_MESSAGING_ID";
+    private static final String VEHICLE_REQUEST = "VEHICLE_REQUEST";
 
     private static SharedPreferences getSharedPreferences(Context context) {
         return context.getSharedPreferences(SETTINGS_NAME, 0);
@@ -114,5 +115,19 @@ public final class ApplicationSettings {
 
     public static String getCloudMessagingId(Context context) {
         return getSharedPreferences(context).getString(CLOUD_MESSAGING_ID, "");
+    }
+
+    public static void setVehicleRequest(Context context, JSONObject jsonObject) {
+        SharedPreferences.Editor editor = getEditor(context);
+        if(jsonObject != null) {
+            editor.putString(VEHICLE_REQUEST, jsonObject.toString());
+        } else {
+            editor.putString(VEHICLE_REQUEST, "");
+        }
+        editor.commit();
+    }
+
+    public static String getVehicleRequest(Context context) {
+        return getSharedPreferences(context).getString(VEHICLE_REQUEST, "");
     }
 }

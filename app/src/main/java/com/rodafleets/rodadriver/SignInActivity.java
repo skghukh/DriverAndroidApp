@@ -95,7 +95,7 @@ public class SignInActivity extends AppCompatActivity {
     }
 
     private void startNextActivity() {
-        startActivity(new Intent(this, MapActivity.class));
+        startActivity(new Intent(this, VehicleRequestActivity.class));
         finish();
     }
 
@@ -119,10 +119,7 @@ public class SignInActivity extends AppCompatActivity {
             progressBar.setIndeterminate(true);
             progressBar.setVisibility(View.VISIBLE);
             Utils.enableWindowActivity(getWindow(), false);
-            RequestParams params = new RequestParams();
-            params.put("phonenumber", number);
-            params.put("password", pwd);
-            RodaRestClient.POST("/drivers/login", params, signInResponseHandler);
+            RodaRestClient.login(number, pwd, signInResponseHandler);
         }
     }
 

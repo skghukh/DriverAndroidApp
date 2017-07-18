@@ -12,8 +12,12 @@ public final class AppConstants {
 
 
     //FONTS
-
+    public  static final String FONT_SINTONY_REGULAR = "fonts/Sintony-Regular.ttf";
     public  static final String FONT_SINTONY_BOLD = "fonts/Sintony-Bold.otf";
+
     public  static final String FONT_POPPINS_REGULAR = "fonts/Poppins-Regular.ttf";
+    public  static final String FONT_POPPINS_MEDIUM = "fonts/Poppins-Medium.ttf";
+    public  static final String FONT_POPPINS_LIGHT = "fonts/Poppins-Light.ttf";
+    public  static final String FONT_POPPINS_BOLD = "fonts/Poppins-Bold.ttf";
     public  static final String FONT_POPPINS_SEMI_BOLD = "fonts/Poppins-SemiBold.ttf";
 }

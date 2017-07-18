@@ -124,19 +124,25 @@ public class SignUpActivity extends AppCompatActivity {
             progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
             progressDialog.setMessage(getString(R.string.sign_up_saving));
             progressDialog.show();
-            RodaRestClient.signUp(number, fName, lName, gender, responseHandler);
+
+            String token = ApplicationSettings.getCloudMessagingId(SignUpActivity.this);
+            if(token.equals("")) {
+                RodaRestClient.signUp(number, fName, lName, gender, responseHandler);
+            } else{
+                RodaRestClient.signUp(number, fName, lName, gender, token, responseHandler);
+            }
         }
     }
 
     private OnCheckedChangeListener onGenderChange = new OnCheckedChangeListener() {
         public void onCheckedChanged(RadioGroup group, int checkedId) {
-            // This will get the radiobutton that has changed in its check state
-            RadioButton checkedRadioButton = (RadioButton) group.findViewById(checkedId);
-            // If the radiobutton that has changed in check state is now checked...
-            if (checkedRadioButton.isChecked()) {
-                gender = checkedRadioButton.getText().toString();
-                Log.i(AppConstants.APP_NAME, "onCheckedChanged: " + gender);
-            }
+        // This will get the radiobutton that has changed in its check state
+        RadioButton checkedRadioButton = (RadioButton) group.findViewById(checkedId);
+        // If the radiobutton that has changed in check state is now checked...
+        if (checkedRadioButton.isChecked()) {
+            gender = checkedRadioButton.getText().toString();
+            Log.i(AppConstants.APP_NAME, "onCheckedChanged: " + gender);
+        }
         }
     };
 

@@ -12,13 +12,15 @@ import android.util.Log;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
-import com.rodafleets.rodadriver.MapActivity;
 import com.rodafleets.rodadriver.R;
 import com.rodafleets.rodadriver.RodaDriverApplication;
+import com.rodafleets.rodadriver.VehicleRequestActivity;
 import com.rodafleets.rodadriver.utils.AppConstants;
+import com.rodafleets.rodadriver.utils.ApplicationSettings;
 
-import java.util.ArrayList;
-import java.util.ListIterator;
+import org.json.JSONObject;
+
+import java.util.Map;
 
 public class NotificationService extends FirebaseMessagingService {
 
@@ -32,23 +34,10 @@ public class NotificationService extends FirebaseMessagingService {
     // [START receive_message]
 
     @Override
-    public void onCreate(){
+    public void onCreate() {
         Log.i(TAG, "Service Created");
 
         RodaDriverApplication.vehicleRequestService = this;
-    }
-
-    private void fireEvent(String title, String message) {
-
-        Intent intent = null;
-        if(title.equals("Request")) {
-            intent = new Intent("Vehicle_Requested");
-        } else if(title.equals("Accept")) {
-            intent = new Intent("Bid_Accepted");
-        }
-
-        intent.putExtra("message", message);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
     @Override
@@ -72,26 +61,38 @@ public class NotificationService extends FirebaseMessagingService {
             Log.d(TAG, "Message data payload: " + remoteMessage.getData());
 
             // Handle message within 10 seconds
-            handleNow();
+//            handleNow();
+            fireEvent(remoteMessage.getData(), remoteMessage.getNotification().getTitle());
         }
 
         // Check if message contains a notification payload.
         if (remoteMessage.getNotification() != null) {
             Log.d(TAG, "Message Notification Body: " + remoteMessage.getNotification().getBody());
-
-
-            //show info
-            fireEvent(remoteMessage.getNotification().getTitle(), remoteMessage.getNotification().getBody());
         }
 
         // Also if you intend on generating your own notifications as a result of a received FCM
         // message, here is where that should be initiated. See sendNotification method below.
+
+        sendNotification(remoteMessage.getNotification().getTitle(), remoteMessage.getNotification().getBody());
     }
     // [END receive_message]
 
     /**
-     * Handle time allotted to BroadcastReceivers.
+     * fire event to BroadcastReceivers.
      */
+    private void fireEvent(Map<String, String> data, String title) {
+        Intent intent = null;
+        if(title.equals("Request")) {
+            intent = new Intent("Vehicle_Requested");
+            JSONObject vehicleRequest = new JSONObject(data);
+            ApplicationSettings.setVehicleRequest(this, vehicleRequest);
+        } else if(title.equals("Accept")) {
+            intent = new Intent("Bid_Accepted");
+        }
+
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
+
     private void handleNow() {
         Log.d(TAG, "Short lived task is done.");
     }
@@ -101,8 +102,8 @@ public class NotificationService extends FirebaseMessagingService {
      *
      * @param messageBody FCM message body received.
      */
-    private void sendNotification(String messageBody) {
-        Intent intent = new Intent(this, MapActivity.class);
+    private void sendNotification(String title, String messageBody) {
+        Intent intent = new Intent(this, VehicleRequestActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
                 PendingIntent.FLAG_ONE_SHOT);
@@ -110,7 +111,7 @@ public class NotificationService extends FirebaseMessagingService {
         Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.cast_ic_notification_small_icon)
-                .setContentTitle("FCM Message")
+                .setContentTitle("FCM Message" + title)
                 .setContentText(messageBody)
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)

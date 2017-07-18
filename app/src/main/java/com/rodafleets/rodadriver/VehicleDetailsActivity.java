@@ -173,16 +173,12 @@ public class VehicleDetailsActivity extends AppCompatActivity {
         if (validated) {
             progressBar.setIndeterminate(true);
             progressBar.setVisibility(View.VISIBLE);
-            RequestParams params = new RequestParams();
-            params.put("number", vNumber);
-            params.put("vehicletype_id", selectedVehicleTypeId);
-            if(!isOwner.isChecked()) {
-                params.put("owner_firstname", fName);
-                params.put("owner_lastname", lName);
-                params.put("owner_phonenumber", pNumber);
-            }
             int driverId = ApplicationSettings.getDriverId(VehicleDetailsActivity.this);
-            RodaRestClient.POST("/drivers/" + driverId +"/vehicles", params, saveVehicleInforesponseHandler);
+            if(isOwner.isChecked()) {
+                RodaRestClient.saveVehicleInfo(driverId, vNumber, selectedVehicleTypeId, saveVehicleInfoResponseHandler);
+            } else{
+                RodaRestClient.saveVehicleInfo(driverId, vNumber, selectedVehicleTypeId, fName, lName, pNumber, saveVehicleInfoResponseHandler);
+            }
         }
     }
 
@@ -197,7 +193,7 @@ public class VehicleDetailsActivity extends AppCompatActivity {
     }
 
     private void getVehicleTypes() {
-        RodaRestClient.GET("/vehicle/types", null, getVehicleTypesResponseHanlder);
+        RodaRestClient.getVehicleTypes(getVehicleTypesResponseHanlder);
     }
 
     private AdapterView.OnItemSelectedListener vehicleTypeSelectedListener = new AdapterView.OnItemSelectedListener() {
@@ -281,7 +277,7 @@ public class VehicleDetailsActivity extends AppCompatActivity {
         }
     };
 
-    private JsonHttpResponseHandler saveVehicleInforesponseHandler = new JsonHttpResponseHandler() {
+    private JsonHttpResponseHandler saveVehicleInfoResponseHandler = new JsonHttpResponseHandler() {
         public void onSuccess(int statusCode, Header[] headers, JSONObject jsonResponseObject) {
             Log.i(AppConstants.APP_NAME, "response = " + jsonResponseObject.toString());
             ApplicationSettings.setVehicleInfoSaved(VehicleDetailsActivity.this, true);

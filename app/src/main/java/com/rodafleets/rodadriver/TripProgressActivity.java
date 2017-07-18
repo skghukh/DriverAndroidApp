@@ -1,6 +1,5 @@
 package com.rodafleets.rodadriver;
 
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.util.Log;
@@ -10,9 +9,13 @@ import android.widget.TextView;
 
 import com.rodafleets.rodadriver.custom.SwipeButton;
 import com.rodafleets.rodadriver.custom.SwipeButtonCustomItems;
+import com.rodafleets.rodadriver.model.VehicleRequest;
 import com.rodafleets.rodadriver.utils.AppConstants;
+import com.rodafleets.rodadriver.utils.ApplicationSettings;
 
-public class TripProgressActivity extends MapParentActivity {
+import org.json.JSONObject;
+
+public class TripProgressActivity extends MapActivity {
 
     public static final String TAG = AppConstants.APP_NAME;
 
@@ -23,30 +26,37 @@ public class TripProgressActivity extends MapParentActivity {
 
     // Address View
     private CardView addressView;
-    private TextView toAddressLine1;
-    private TextView toAddressLine2;
+    private TextView navigate;
+    private TextView fromAddress;
 
     //Start Loading View
     private CardView startLoadingView;
+    private TextView arrivedAtOriginTxt;
     private SwipeButton startLoadingBtn;
+    private TextView startLoadingTxt;
 
     // Start Trip View
     private CardView startTripView;
     private SwipeButton startTripBtn;
+    private TextView startTripTxt;
 
     //Start Unloading View
     private CardView startUnloadingView;
+    private TextView arrivedAtDestinationTxt;
     private SwipeButton startUnloadingBtn;
+    private TextView startUnloadingTxt;
 
     // End Trip View
     private CardView endTripView;
     private SwipeButton endTripBtn;
+    private TextView endTripTxt;
 
     // Fare Summary View
     private CardView fareSummaryView;
-    private TextView paidByText;
-    private TextView fareText;
-    private TextView customerNameText;
+    private TextView fareSummaryTxt;
+    private TextView paidByTxt;
+    private TextView fareTxt;
+    private TextView rateCustomerTxt;
     private SwipeButton goOnlineBtn;
 
 
@@ -73,11 +83,24 @@ public class TripProgressActivity extends MapParentActivity {
 
         customerName = (TextView) findViewById(R.id.customerName);
         acceptanceStatus = (TextView) findViewById(R.id.acceptanceStatus);
-        toAddressLine1 = (TextView) findViewById(R.id.toAddressLine1);
-        toAddressLine2 = (TextView) findViewById(R.id.toAddressLine2);
-        paidByText = (TextView) findViewById(R.id.paidByText);
-        fareText = (TextView) findViewById(R.id.fareText);
-        customerNameText = (TextView) findViewById(R.id.customerNameText);
+
+        navigate  = (TextView) findViewById(R.id.navigate);
+        fromAddress = (TextView) findViewById(R.id.fromAddress);
+
+        arrivedAtOriginTxt = (TextView) findViewById(R.id.arrivedAtOriginTxt);
+        startLoadingTxt = (TextView) findViewById(R.id.startLoadingTxt);
+
+        startTripTxt = (TextView) findViewById(R.id.startTripTxt);
+
+        arrivedAtDestinationTxt = (TextView) findViewById(R.id.arrivedAtDestinationTxt);
+        startUnloadingTxt = (TextView) findViewById(R.id.startUnloadingTxt);
+
+        endTripTxt = (TextView) findViewById(R.id.endTripTxt);
+
+        fareSummaryTxt = (TextView) findViewById(R.id.fareSummaryTxt);
+        paidByTxt = (TextView) findViewById(R.id.paidByTxt);
+        fareTxt = (TextView) findViewById(R.id.fareTxt);
+        rateCustomerTxt = (TextView) findViewById(R.id.rateCustomerTxt);
 
         startLoadingBtn = (SwipeButton) findViewById(R.id.startLoadingBtn);
         startTripBtn = (SwipeButton) findViewById(R.id.startTripBtn);
@@ -85,15 +108,55 @@ public class TripProgressActivity extends MapParentActivity {
         endTripBtn = (SwipeButton) findViewById(R.id.endTripBtn);
         goOnlineBtn = (SwipeButton) findViewById(R.id.goOnlineBtn);
 
-
-        Typeface poppinsRegular = Typeface.createFromAsset(getAssets(), AppConstants.FONT_POPPINS_REGULAR);
-        Typeface poppinsSemiBold = Typeface.createFromAsset(getAssets(), AppConstants.FONT_POPPINS_SEMI_BOLD);
-        Typeface sintonyBold = Typeface.createFromAsset(getAssets(), AppConstants.FONT_SINTONY_BOLD);
-
+        setFonts();
         initSwipeButtonsEvents();
+
+        try {
+            JSONObject jsonObject = new JSONObject(ApplicationSettings.getVehicleRequest(TripProgressActivity.this));
+            VehicleRequest vehicleRequest = new VehicleRequest(jsonObject);
+            Log.e(TAG, vehicleRequest.toString());
+            //₹
+            customerName.setText(vehicleRequest.getCustomerName().toUpperCase());
+            fromAddress.setText(vehicleRequest.getOriginAddress());
+
+        } catch (Exception e) {
+            //handle error
+            Log.e(TAG, "vehicleRequest jsonException = " + e.getMessage());
+        }
+    }
+
+    private void setFonts() {
+        loadFonts();
+
+        customerName.setTypeface(poppinsMedium);
+        acceptanceStatus.setTypeface(poppinsSemiBold);
+        navigate.setTypeface(poppinsRegular);
+        fromAddress.setTypeface(poppinsRegular);
+
+        arrivedAtOriginTxt.setTypeface(poppinsSemiBold);
+        startLoadingTxt.setTypeface(poppinsRegular);
+
+        startTripTxt.setTypeface(poppinsRegular);
+
+        arrivedAtDestinationTxt.setTypeface(poppinsSemiBold);
+        startUnloadingTxt.setTypeface(poppinsRegular);
+
+        endTripTxt.setTypeface(poppinsRegular);
+
+        fareSummaryTxt.setTypeface(poppinsRegular);
+        paidByTxt.setTypeface(poppinsSemiBold);
+        fareTxt.setTypeface(poppinsLight);
+        rateCustomerTxt.setTypeface(poppinsSemiBold);
+
+        startLoadingBtn.setTypeface(poppinsSemiBold);
+        startTripBtn.setTypeface(poppinsSemiBold);
+        startUnloadingBtn.setTypeface(poppinsSemiBold);
+        endTripBtn.setTypeface(poppinsSemiBold);
+        goOnlineBtn.setTypeface(poppinsSemiBold);
     }
 
     private void initSwipeButtonsEvents() {
+
         SwipeButtonCustomItems startLoadingBtnSettings = new SwipeButtonCustomItems() {
             @Override
             public void onSwipeConfirm() {

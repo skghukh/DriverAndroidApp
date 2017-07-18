@@ -1,24 +1,16 @@
 package com.rodafleets.rodadriver;
 
-import android.Manifest;
 import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
+import android.graphics.Typeface;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
-import android.view.Window;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -32,14 +24,13 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.firebase.iid.FirebaseInstanceId;
-
 import com.rodafleets.rodadriver.utils.AppConstants;
 
-public class MapActivity extends ParentActivity
-        implements OnMapReadyCallback,
+
+public class MapActivity extends ParentActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
@@ -51,21 +42,8 @@ public class MapActivity extends ParentActivity
     GoogleApiClient mGoogleApiClient;
     Location mLastLocation;
     Marker mCurrLocationMarker;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        this.requestWindowFeature(Window.FEATURE_ACTION_BAR);
-        setContentView(R.layout.activity_map);
-
-        Log.i(TAG, "Registration token = " + FirebaseInstanceId.getInstance().getToken());
-
-        MapFragment mapFragment = (MapFragment) getFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
-
-        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("Vehicle_Requested"));
-    }
+    Marker pickupPointMarker;
+    Marker dropPointMarker;
 
     @Override
     public void onPause() {
@@ -76,9 +54,9 @@ public class MapActivity extends ParentActivity
 //        }
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
+    public void initMap() {
+        MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
     }
 
     @Override
@@ -89,11 +67,12 @@ public class MapActivity extends ParentActivity
         //Initialize Google Play Services
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)
+                    android.Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED) {
                 //Location Permission already granted
                 buildGoogleApiClient();
                 mGoogleMap.setMyLocationEnabled(true);
+                mGoogleMap.getUiSettings().setMyLocationButtonEnabled(false);
             } else {
                 //Request Location Permission
                 checkLocationPermission();
@@ -121,7 +100,7 @@ public class MapActivity extends ParentActivity
         mLocationRequest.setFastestInterval(1000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
         if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION)
+                android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, MapActivity.this);
         }
@@ -135,49 +114,70 @@ public class MapActivity extends ParentActivity
 
     @Override
     public void onLocationChanged(Location location) {
-
         mLastLocation = location;
         if (mCurrLocationMarker != null) {
             mCurrLocationMarker.remove();
         }
 
-        int height = 10;
-        int width = 18;
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+
+        int height = 30;
+        int width = 37;
 
         Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.car_icon);
-
         Bitmap smallMarker = Bitmap.createScaledBitmap(icon, width, height, false);
 
-        Log.i(TAG, "------");
-        Log.i(TAG, smallMarker.getWidth() + " ");
-        Log.i(TAG, smallMarker.getHeight() + " ");
+//        Log.i(TAG, "------");
+//        Log.i(TAG, smallMarker.getWidth() + " ");
+//        Log.i(TAG, smallMarker.getHeight() + " ");
 
 
         //Place current location marker
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(latLng);
 
-//        markerOptions.title("Current Position");
-//        markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.car_icon));
+//         markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.car_icon));
 
         markerOptions.icon(BitmapDescriptorFactory.fromBitmap(smallMarker));
 
         mCurrLocationMarker = mGoogleMap.addMarker(markerOptions);
 
+        builder.include(mCurrLocationMarker.getPosition());
 
-        //move map camera
-        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16.0f));
+        //Place pickup location marker
+//        LatLng pickupPointLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+        LatLng pickupPointLatLng = new LatLng(12.964880, 77.638572);
+        MarkerOptions pickUpMarkerOptions = new MarkerOptions();
+        pickUpMarkerOptions.position(pickupPointLatLng);
+        pickUpMarkerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_green));
+        pickupPointMarker = mGoogleMap.addMarker(pickUpMarkerOptions);
+        builder.include(pickupPointMarker.getPosition());
+
+        //Place drop location marker
+//        LatLng dropPointLatlng = new LatLng(location.getLatitude(), location.getLongitude());
+        LatLng dropPointLatlng = new LatLng(12.961033, 77.656280);
+        MarkerOptions dropMarkerOptions = new MarkerOptions();
+        dropMarkerOptions.position(dropPointLatlng);
+        dropMarkerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_red));
+        dropPointMarker = mGoogleMap.addMarker(dropMarkerOptions);
+        builder.include(dropPointMarker.getPosition());
+
+        LatLngBounds bounds = builder.build();
+        int padding = 10; // offset from edges of the map in pixels
+        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, padding));
     }
 
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+
     private void checkLocationPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
 
             // Should we show an explanation?
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+                    android.Manifest.permission.ACCESS_FINE_LOCATION)) {
 
                 // Show an explanation to the user *asynchronously* -- don't block
                 // this thread waiting for the user's response! After the user
@@ -190,7 +190,7 @@ public class MapActivity extends ParentActivity
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 //Prompt the user once explanation has been shown
                                 ActivityCompat.requestPermissions(MapActivity.this,
-                                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                        new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                                         MY_PERMISSIONS_REQUEST_LOCATION );
                             }
                         })
@@ -201,7 +201,7 @@ public class MapActivity extends ParentActivity
             } else {
                 // No explanation needed, we can request the permission.
                 ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                         MY_PERMISSIONS_REQUEST_LOCATION );
             }
         }
@@ -218,7 +218,7 @@ public class MapActivity extends ParentActivity
                     // permission was granted, yay! Do the
                     // location-related task you need to do.
                     if (ContextCompat.checkSelfPermission(this,
-                            Manifest.permission.ACCESS_FINE_LOCATION)
+                            android.Manifest.permission.ACCESS_FINE_LOCATION)
                             == PackageManager.PERMISSION_GRANTED) {
 
                         if (mGoogleApiClient == null) {
@@ -240,21 +240,4 @@ public class MapActivity extends ParentActivity
             // permissions this app might request
         }
     }
-
-    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String message = intent.getStringExtra("message");
-            Log.i(TAG, "Message Received here!!");
-            Log.i(TAG, message);
-
-            startNextActivity();
-        }
-    };
-
-    private void startNextActivity(){
-        this.startActivity(new Intent(this, VehicleRequestActivity.class));
-        finish();
-    }
-
 }

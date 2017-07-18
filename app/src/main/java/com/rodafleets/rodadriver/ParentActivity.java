@@ -1,12 +1,24 @@
 package com.rodafleets.rodadriver;
 
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.rodafleets.rodadriver.utils.AppConstants;
+
 public class ParentActivity extends AppCompatActivity {
+
+    Typeface poppinsRegular;
+    Typeface poppinsMedium;
+    Typeface poppinsLight;
+    Typeface poppinsBold;
+    Typeface poppinsSemiBold;
+
+    Typeface sintonyRegular;
+    Typeface sintonyBold;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -46,6 +58,17 @@ public class ParentActivity extends AppCompatActivity {
 //                R.layout.drawer_list_item, mPlanetTitles));
 //        // Set the list's click listener
 //        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+    }
+
+    public void loadFonts() {
+        poppinsRegular = Typeface.createFromAsset(getAssets(), AppConstants.FONT_POPPINS_REGULAR);
+        poppinsMedium = Typeface.createFromAsset(getAssets(), AppConstants.FONT_POPPINS_MEDIUM);
+        poppinsLight = Typeface.createFromAsset(getAssets(), AppConstants.FONT_POPPINS_LIGHT);
+        poppinsBold = Typeface.createFromAsset(getAssets(), AppConstants.FONT_POPPINS_BOLD);
+        poppinsSemiBold = Typeface.createFromAsset(getAssets(), AppConstants.FONT_POPPINS_SEMI_BOLD);
+
+        sintonyRegular = Typeface.createFromAsset(getAssets(), AppConstants.FONT_SINTONY_REGULAR);
+        sintonyBold = Typeface.createFromAsset(getAssets(), AppConstants.FONT_SINTONY_BOLD);
     }
 
 }

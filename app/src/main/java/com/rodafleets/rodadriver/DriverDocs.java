@@ -234,7 +234,7 @@ public class DriverDocs extends AppCompatActivity implements ImageUtils.ImageAtt
             progressBar.setIndeterminate(true);
             progressBar.setVisibility(View.VISIBLE);
             int driverId = ApplicationSettings.getDriverId(DriverDocs.this);
-            RodaRestClient.POST("/drivers/" + driverId +"/uploaddocuments", params, saveDriverDocsResponseHandler);
+            RodaRestClient.uploadDriverDocuments(driverId, params, saveDriverDocsResponseHandler);
         }
     }
 

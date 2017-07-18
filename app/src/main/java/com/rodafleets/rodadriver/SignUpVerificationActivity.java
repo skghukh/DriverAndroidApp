@@ -182,12 +182,9 @@ public class SignUpVerificationActivity extends AppCompatActivity {
             progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
             progressDialog.setMessage(getString(R.string.sign_up_saving));
             progressDialog.show();
-            RequestParams params = new RequestParams();
             int driverId = ApplicationSettings.getDriverId(SignUpVerificationActivity.this);
-            params.put("password", pwd);
-            params.put("otp", otp);
-            params.put("session_id", ApplicationSettings.getOtpSessionId(SignUpVerificationActivity.this));
-            RodaRestClient.POST("/drivers/" + driverId, params, responseHandler);
+            String sessionId = ApplicationSettings.getOtpSessionId(SignUpVerificationActivity.this);
+            RodaRestClient.saveDriver(driverId, pwd, otp, sessionId, responseHandler);
         }
     }
 

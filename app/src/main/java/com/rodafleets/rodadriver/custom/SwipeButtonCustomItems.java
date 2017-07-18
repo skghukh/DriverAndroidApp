@@ -3,12 +3,12 @@ package com.rodafleets.rodadriver.custom;
 public abstract class SwipeButtonCustomItems {
     //These are the default values if we don't choose to set them later:
     public int gradientColor1 = 0xFF765267;
-    public int gradientColor2 = 0xFF6D445C;
-    public int gradientColor2Width = 100;
-    public int gradientColor3 = 0xFF765267;
+    public int gradientColor2 = 0xFF765267;
+    public int gradientColor2Width = 400;
+    public int gradientColor3 = 0xFF1C0113;
     public int postConfirmationColor = 0xFF765267;
     public double actionConfirmDistanceFraction = 0.8;
-    public String buttonPressText = "Making Offer";
+    public String buttonPressText = "Loading....";
 
     public String actionConfirmText = null;
 

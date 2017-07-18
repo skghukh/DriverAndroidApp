@@ -47,7 +47,7 @@
                 android:layout_width="wrap_content"
                 android:text="ADITYA BHARDWAJ"
                 android:textColor="#FFFFFF"
-                android:textSize="16sp"
+                android:textSize="@dimen/text_medium"
                 android:layout_marginLeft="20dp"
                 android:layout_marginTop="15dp"
                 android:layout_toRightOf="@id/customerThumbnail"/>
@@ -58,7 +58,7 @@
                 android:layout_width="wrap_content"
                 android:text="PENDING"
                 android:textColor="#765267"
-                android:textSize="14sp"
+                android:textSize="@dimen/text_medium"
                 android:layout_marginLeft="20dp"
                 android:layout_marginTop="15dp"
                 android:layout_toRightOf="@id/customerName"/>
@@ -76,34 +76,26 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/customerView"
         app:contentPadding="10dp"
-        card_view:cardCornerRadius="0dp">
+        card_view:cardCornerRadius="0dp"
+        android:visibility="gone">
 
         <RelativeLayout
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_gravity="center_horizontal"
-            tools:layout_editor_absoluteY="8dp"
-            tools:layout_editor_absoluteX="8dp">
-
-            <ImageView
-                android:id="@+id/navigate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:srcCompat="@drawable/navigate"
-                android:layout_marginLeft="15dp"
-                android:gravity="center_horizontal"/>
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal">
 
             <TextView
-                android:id="@+id/navigateText"
+                android:id="@+id/navigate"
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
                 android:text="Navigate"
                 android:textColor="#303030"
-                android:textSize="12sp"
+                android:textSize="@dimen/text_regular"
                 android:layout_marginTop="10dp"
-                android:layout_below="@id/navigate"
                 android:layout_marginLeft="5dp"
-                android:gravity="center_horizontal"/>
+                android:drawableTop="@drawable/navigate"
+                android:drawablePadding="5dp"
+                android:gravity="center_vertical" />
 
             <View
                 android:id="@+id/separator"
@@ -111,29 +103,18 @@
                 android:layout_height="match_parent"
                 android:layout_marginLeft="10dp"
                 android:background="#E5E5E5"
-                android:layout_toRightOf="@id/navigateText"/>
+                android:layout_toRightOf="@id/navigate"/>
 
             <TextView
-                android:id="@+id/toAddressLine1"
-                android:layout_height="wrap_content"
+                android:id="@+id/fromAddress"
                 android:layout_width="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_marginLeft="20dp"
                 android:text="ABC Company, 36B, Vardhan House,"
                 android:textColor="#303030"
-                android:textSize="16sp"
+                android:textSize="@dimen/text_medium"
+                android:gravity="center"
                 android:layout_toRightOf="@id/separator"/>
-
-            <TextView
-                android:id="@+id/toAddressLine2"
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                android:layout_marginLeft="20dp"
-                android:layout_marginTop="5dp"
-                android:text="Kashmere Gate, Delhi - 110006"
-                android:textColor="#303030"
-                android:textSize="16sp"
-                android:layout_toRightOf="@id/separator"
-                android:layout_below="@id/toAddressLine1"/>
 
         </RelativeLayout>
 
@@ -156,13 +137,13 @@
             android:layout_height="wrap_content">
 
             <TextView
-                android:id="@+id/arrivedAtLocationText"
+                android:id="@+id/arrivedAtOriginTxt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:text="ARRIVED AT LOCATION"
                 android:textColor="#765267"
-                android:textSize="16sp"
+                android:textSize="@dimen/text_large"
                 android:layout_centerHorizontal="true" />
 
             <com.rodafleets.rodadriver.custom.SwipeButton
@@ -175,17 +156,17 @@
                 android:text="START LOADING"
                 android:background="@drawable/btn_background_purple"
                 android:textColor="#FFFFFF"
-                android:layout_below="@id/arrivedAtLocationText"/>
+                android:layout_below="@id/arrivedAtOriginTxt"/>
 
             <TextView
-                android:id="@+id/startLoadingText"
+                android:id="@+id/startLoadingTxt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:layout_marginLeft="40dp"
                 android:text="Slide to start loading"
                 android:textColor="#FFFFFF"
-                android:textSize="14sp"
+                android:textSize="@dimen/text_regular"
                 android:layout_below="@id/startLoadingBtn"/>
 
         </RelativeLayout>
@@ -220,14 +201,14 @@
                 android:textColor="#FFFFFF" />
 
             <TextView
-                android:id="@+id/startTripText"
+                android:id="@+id/startTripTxt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:layout_marginLeft="40dp"
                 android:text="Slide to End Trip"
                 android:textColor="#FFFFFF"
-                android:textSize="14sp"
+                android:textSize="@dimen/text_regular"
                 android:layout_below="@id/startTripBtn"/>
 
         </RelativeLayout>
@@ -251,13 +232,13 @@
             android:layout_height="wrap_content">
 
             <TextView
-                android:id="@+id/arrivedAtDropPointText"
+                android:id="@+id/arrivedAtDestinationTxt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:text="ARRIVED AT DROPPING POINT"
                 android:textColor="#765267"
-                android:textSize="16sp"
+                android:textSize="@dimen/text_large"
                 android:layout_centerHorizontal="true" />
 
             <com.rodafleets.rodadriver.custom.SwipeButton
@@ -270,16 +251,17 @@
                 android:text="START LOADING"
                 android:background="@drawable/btn_background_purple"
                 android:textColor="#FFFFFF"
-                android:layout_below="@id/arrivedAtDropPointText"/>
+                android:layout_below="@id/arrivedAtDestinationTxt"/>
 
             <TextView
+                android:id="@+id/startUnloadingTxt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:layout_marginLeft="40dp"
                 android:text="Slide to Start Unloading"
                 android:textColor="#FFFFFF"
-                android:textSize="14sp"
+                android:textSize="@dimen/text_regular"
                 android:layout_below="@id/startUnloadingBtn"/>
 
         </RelativeLayout>
@@ -314,14 +296,14 @@
                 android:textColor="#FFFFFF" />
 
             <TextView
-                android:id="@+id/endTripText"
+                android:id="@+id/endTripTxt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:layout_marginLeft="40dp"
                 android:text="Slide to End Trip"
                 android:textColor="#FFFFFF"
-                android:textSize="14sp"
+                android:textSize="@dimen/text_regular"
                 android:layout_below="@id/endTripBtn"/>
 
         </RelativeLayout>
@@ -346,59 +328,59 @@
             android:layout_height="wrap_content">
 
             <TextView
-                android:id="@+id/fareSummaryText"
+                android:id="@+id/fareSummaryTxt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:layout_marginLeft="40dp"
-                android:text="Slide to End Trip"
+                android:text="FARE SUMMARY"
                 android:textColor="#FFFFFF"
-                android:textSize="14sp"
+                android:textSize="@dimen/text_medium"
                 android:layout_centerHorizontal="true" />
 
             <TextView
-                android:id="@+id/paidByText"
+                android:id="@+id/paidByTxt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="45dp"
                 android:layout_marginLeft="40dp"
                 android:text="Paid By"
                 android:textColor="#765267"
-                android:textSize="14sp"
+                android:textSize="@dimen/text_regular"
                 android:layout_centerHorizontal="true"
-                android:layout_below="@id/fareSummaryText" />
+                android:layout_below="@id/fareSummaryTxt" />
 
             <TextView
-                android:id="@+id/fareText"
+                android:id="@+id/fareTxt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:layout_marginLeft="40dp"
                 android:text="650"
                 android:textColor="#765267"
-                android:textSize="24sp"
+                android:textSize="54sp"
                 android:layout_centerHorizontal="true"
-                android:layout_below="@id/paidByText" />
+                android:layout_below="@id/paidByTxt" />
 
             <TextView
-                android:id="@+id/customerNameText"
+                android:id="@+id/rateCustomerTxt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="45dp"
                 android:layout_marginLeft="40dp"
                 android:text="Rate Aditya Bhardwaj"
                 android:textColor="#765267"
-                android:textSize="16sp"
+                android:textSize="@dimen/text_regular"
                 android:layout_centerHorizontal="true"
-                android:layout_below="@id/fareText" />
+                android:layout_below="@id/fareTxt" />
 
             <RatingBar
-                android:id="@+id/ratingBar"
+                android:id="@+id/rateCustomer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="10dp"
-                android:layout_below="@id/customerNameText"/>
+                android:layout_below="@id/rateCustomerTxt"/>
 
             <com.rodafleets.rodadriver.custom.SwipeButton
                 android:id="@+id/goOnlineBtn"
@@ -410,7 +392,7 @@
                 android:text="GO ONLINE"
                 android:background="@drawable/btn_background_yellow"
                 android:textColor="#FFFFFF"
-                android:layout_below="@id/ratingBar" />
+                android:layout_below="@id/rateCustomer" />
 
         </RelativeLayout>
 
