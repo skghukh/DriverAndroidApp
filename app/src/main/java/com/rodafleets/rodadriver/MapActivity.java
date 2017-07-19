@@ -77,8 +77,7 @@ public class MapActivity extends ParentActivity implements OnMapReadyCallback,
                 //Request Location Permission
                 checkLocationPermission();
             }
-        }
-        else {
+        } else {
             buildGoogleApiClient();
             mGoogleMap.setMyLocationEnabled(true);
         }

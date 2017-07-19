@@ -85,14 +85,6 @@ public class VehicleRequestActivity extends MapActivity {
         setFonts();
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("Vehicle_Requested"));
-
-        SwipeButtonCustomItems makeOfferBtnSettings = new SwipeButtonCustomItems() {
-            @Override
-            public void onSwipeConfirm() {
-                makeOffer();
-            }
-        };
-
         makeOfferBtnSettings
                 .setButtonPressText("Making Offer");
 
@@ -114,6 +106,11 @@ public class VehicleRequestActivity extends MapActivity {
         callAdmin.setTypeface(poppinsRegular);
     }
 
+    private void bidRequest() {
+        int driverId = ApplicationSettings.getDriverId(VehicleRequestActivity.this);
+        RodaRestClient.bidRequest(vehicleRequest.getId(), driverId, vehicleRequest.getApproxFareInCents(), bidRequestResponseHandler);
+    }
+
     public void onRejectBtnClick(View view) {
         int driverId = ApplicationSettings.getDriverId(VehicleRequestActivity.this);
         RodaRestClient.rejectRequest(vehicleRequest.getId(), driverId, rejectRequestResponseHandler);
@@ -128,10 +125,12 @@ public class VehicleRequestActivity extends MapActivity {
         finish();
     }
 
-    private void makeOffer() {
-        int driverId = ApplicationSettings.getDriverId(VehicleRequestActivity.this);
-        RodaRestClient.bidRequest(vehicleRequest.getId(), driverId, vehicleRequest.getApproxFareInCents(), bidRequestResponseHandler);
-    }
+    SwipeButtonCustomItems makeOfferBtnSettings = new SwipeButtonCustomItems() {
+        @Override
+        public void onSwipeConfirm() {
+            bidRequest();
+        }
+    };
 
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
         @Override
@@ -156,8 +155,8 @@ public class VehicleRequestActivity extends MapActivity {
 
     private JsonHttpResponseHandler bidRequestResponseHandler = new JsonHttpResponseHandler() {
 
-        public void onSuccess(int statusCode, Header[] headers, JSONArray responseArray) {
-            Log.i(AppConstants.APP_NAME, "response = " + responseArray.toString());
+        public void onSuccess(int statusCode, Header[] headers, JSONObject jsonResponseObject) {
+            Log.i(AppConstants.APP_NAME, "response = " + jsonResponseObject.toString());
             startNextActivity();
         }
 
@@ -172,8 +171,8 @@ public class VehicleRequestActivity extends MapActivity {
 
     private JsonHttpResponseHandler rejectRequestResponseHandler = new JsonHttpResponseHandler() {
 
-        public void onSuccess(int statusCode, Header[] headers, JSONArray responseArray) {
-            Log.i(AppConstants.APP_NAME, "response = " + responseArray.toString());
+        public void onSuccess(int statusCode, Header[] headers, JSONObject jsonResponseObject) {
+            Log.i(AppConstants.APP_NAME, "response = " + jsonResponseObject.toString());
             ApplicationSettings.setVehicleRequest(VehicleRequestActivity.this, null);
             requestView.setVisibility(View.GONE);
         }

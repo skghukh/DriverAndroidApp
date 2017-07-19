@@ -26,6 +26,7 @@ import com.rodafleets.rodadriver.utils.AppConstants;
 import com.rodafleets.rodadriver.utils.ApplicationSettings;
 import com.rodafleets.rodadriver.utils.Utils;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -131,11 +132,19 @@ public class SignInActivity extends AppCompatActivity {
     }
 
     private JsonHttpResponseHandler signInResponseHandler = new JsonHttpResponseHandler() {
+
         public void onSuccess(int statusCode, Header[] headers, JSONObject jsonResponseObject) {
-            Log.i(AppConstants.APP_NAME, "response = " + jsonResponseObject.toString());
-            //set driverId
-            ApplicationSettings.setLoggedIn(SignInActivity.this, true);
-            startNextActivity();
+            try {
+                Log.i(AppConstants.APP_NAME, "response = " + jsonResponseObject.toString());
+                Driver driver = new Driver(jsonResponseObject.getJSONObject("driver"));
+                ApplicationSettings.setDriverId(SignInActivity.this, driver.getId());
+                ApplicationSettings.setDriver(SignInActivity.this, jsonResponseObject.getJSONObject("driver"));
+                ApplicationSettings.setLoggedIn(SignInActivity.this, true);
+                startNextActivity();
+            } catch (JSONException e) {
+                //handle error
+                Log.e(AppConstants.APP_NAME, "jsonException = " + e.getMessage());
+            }
         }
 
         public final void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {

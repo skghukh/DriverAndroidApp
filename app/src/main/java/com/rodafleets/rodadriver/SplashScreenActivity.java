@@ -90,7 +90,9 @@ public class SplashScreenActivity extends AppCompatActivity {
     };
 
     private void startNextActivity(){
+        Log.i(AppConstants.APP_NAME, "");
         Boolean loggedIn = ApplicationSettings.getLoggedIn(SplashScreenActivity.this);
+        Log.i(AppConstants.APP_NAME, "loggedIn = " + loggedIn);
         if(loggedIn) {
             startActivity(new Intent(this, VehicleRequestActivity.class));
             finish();
