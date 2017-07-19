@@ -134,6 +134,12 @@ public class RodaRestClient {
         RodaRestClient.POST("/drivers/login", params, responseHandler);
     }
 
+    public static void rejectRequest(int requestId, int driverId,  JsonHttpResponseHandler responseHandler) {
+        RequestParams params = new RequestParams();
+        params.put("driver_id", driverId);
+        RodaRestClient.POST("/requests/" + requestId + "/reject", params, responseHandler);
+    }
+
     public static void bidRequest(int requestId, int driverId, int fareInCents, JsonHttpResponseHandler responseHandler) {
         RequestParams params = new RequestParams();
         params.put("driver_id", driverId);

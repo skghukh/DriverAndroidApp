@@ -16,6 +16,8 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.rodafleets.rodadriver.custom.SwipeButton;
 import com.rodafleets.rodadriver.custom.SwipeButtonCustomItems;
@@ -87,8 +89,7 @@ public class VehicleRequestActivity extends MapActivity {
         SwipeButtonCustomItems makeOfferBtnSettings = new SwipeButtonCustomItems() {
             @Override
             public void onSwipeConfirm() {
-                int driverId = ApplicationSettings.getDriverId(VehicleRequestActivity.this);
-                RodaRestClient.bidRequest(vehicleRequest.getId(), driverId, vehicleRequest.getApproxFareInCents(), bidRequestResposeHandler);
+                makeOffer();
             }
         };
 
@@ -114,8 +115,8 @@ public class VehicleRequestActivity extends MapActivity {
     }
 
     public void onRejectBtnClick(View view) {
-        ApplicationSettings.setVehicleRequest(VehicleRequestActivity.this, null);
-        requestView.setVisibility(View.GONE);
+        int driverId = ApplicationSettings.getDriverId(VehicleRequestActivity.this);
+        RodaRestClient.rejectRequest(vehicleRequest.getId(), driverId, rejectRequestResponseHandler);
     }
 
     public void onCallCustomerBtnClick(View view) {
@@ -127,14 +128,17 @@ public class VehicleRequestActivity extends MapActivity {
         finish();
     }
 
+    private void makeOffer() {
+        int driverId = ApplicationSettings.getDriverId(VehicleRequestActivity.this);
+        RodaRestClient.bidRequest(vehicleRequest.getId(), driverId, vehicleRequest.getApproxFareInCents(), bidRequestResponseHandler);
+    }
+
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             try {
                 JSONObject jsonObject = new JSONObject(ApplicationSettings.getVehicleRequest(VehicleRequestActivity.this));
                 vehicleRequest = new VehicleRequest(jsonObject);
-                Log.e(TAG, vehicleRequest.toString());
-                //₹
                 customerName.setText(vehicleRequest.getCustomerName().toUpperCase());
                 fromAddress.setText(vehicleRequest.getOriginAddress());
                 toAddress.setText(vehicleRequest.getDestinationAddress());
@@ -150,11 +154,28 @@ public class VehicleRequestActivity extends MapActivity {
         }
     };
 
-    private JsonHttpResponseHandler bidRequestResposeHandler = new JsonHttpResponseHandler() {
+    private JsonHttpResponseHandler bidRequestResponseHandler = new JsonHttpResponseHandler() {
 
         public void onSuccess(int statusCode, Header[] headers, JSONArray responseArray) {
             Log.i(AppConstants.APP_NAME, "response = " + responseArray.toString());
             startNextActivity();
+        }
+
+        public final void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+//            if(errorCode == ResponseCode.INVALID_CREDENTIALS) {
+//                sb = Snackbar.make(constraintLayout, getString(R.string.sign_in_invalid_credentials_error), Snackbar.LENGTH_LONG);
+//            } else {
+//                sb = Snackbar.make(constraintLayout, getString(R.string.default_error), Snackbar.LENGTH_LONG);
+//            }
+        }
+    };
+
+    private JsonHttpResponseHandler rejectRequestResponseHandler = new JsonHttpResponseHandler() {
+
+        public void onSuccess(int statusCode, Header[] headers, JSONArray responseArray) {
+            Log.i(AppConstants.APP_NAME, "response = " + responseArray.toString());
+            ApplicationSettings.setVehicleRequest(VehicleRequestActivity.this, null);
+            requestView.setVisibility(View.GONE);
         }
 
         public final void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
