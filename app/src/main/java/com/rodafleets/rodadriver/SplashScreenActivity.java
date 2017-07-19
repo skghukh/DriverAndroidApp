@@ -31,8 +31,9 @@ public class SplashScreenActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        this.requestWindowFeature(Window.FEATURE_ACTION_BAR);
-        this.getSupportActionBar().hide();
+//        this.requestWindowFeature(Window.FEATURE_ACTION_BAR);
+//        this.getSupportActionBar().hide();
+
         setContentView(R.layout.activity_splash_screen);
 
         initComponents();
@@ -90,9 +91,7 @@ public class SplashScreenActivity extends AppCompatActivity {
     };
 
     private void startNextActivity(){
-        Log.i(AppConstants.APP_NAME, "");
         Boolean loggedIn = ApplicationSettings.getLoggedIn(SplashScreenActivity.this);
-        Log.i(AppConstants.APP_NAME, "loggedIn = " + loggedIn);
         if(loggedIn) {
             startActivity(new Intent(this, VehicleRequestActivity.class));
             finish();
@@ -111,7 +110,9 @@ public class SplashScreenActivity extends AppCompatActivity {
 
     public void setLocale(Locale myLocale) {
         Configuration config = new Configuration();
+        //TODO: fix deprecation issue for locale
         config.locale = myLocale;
+//        config.setLocale(myLocale);
         getResources().updateConfiguration(config, getResources().getDisplayMetrics());
     }
 
