@@ -9,11 +9,8 @@ import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 
-import com.rodafleets.rodadriver.model.Driver;
 import com.rodafleets.rodadriver.utils.AppConstants;
 import com.rodafleets.rodadriver.utils.ApplicationSettings;
-
-import org.json.JSONObject;
 
 public class WelcomeActivity extends AppCompatActivity {
 

@@ -6,10 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
-import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
@@ -24,25 +22,15 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.iid.FirebaseInstanceId;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.rodafleets.rodadriver.custom.SwipeButton;
 import com.rodafleets.rodadriver.custom.SwipeButtonCustomItems;
-import com.rodafleets.rodadriver.custom.VehicleTypeSpinnerAdapter;
-import com.rodafleets.rodadriver.model.Driver;
 import com.rodafleets.rodadriver.model.VehicleRequest;
-import com.rodafleets.rodadriver.model.VehicleType;
-import com.rodafleets.rodadriver.rest.ResponseCode;
 import com.rodafleets.rodadriver.rest.RodaRestClient;
 import com.rodafleets.rodadriver.utils.AppConstants;
 import com.rodafleets.rodadriver.utils.ApplicationSettings;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.ArrayList;
 
 import cz.msebera.android.httpclient.Header;
 

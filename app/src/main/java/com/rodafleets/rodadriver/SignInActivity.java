@@ -1,6 +1,5 @@
 package com.rodafleets.rodadriver;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.support.constraint.ConstraintLayout;
@@ -14,11 +13,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.loopj.android.http.JsonHttpResponseHandler;
-import com.loopj.android.http.RequestParams;
 import com.rodafleets.rodadriver.model.Driver;
 import com.rodafleets.rodadriver.rest.ResponseCode;
 import com.rodafleets.rodadriver.rest.RodaRestClient;
@@ -26,7 +23,6 @@ import com.rodafleets.rodadriver.utils.AppConstants;
 import com.rodafleets.rodadriver.utils.ApplicationSettings;
 import com.rodafleets.rodadriver.utils.Utils;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
