@@ -15,14 +15,17 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.AppCompatSeekBar;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -30,6 +33,8 @@ import com.loopj.android.http.JsonHttpResponseHandler;
 import com.rodafleets.rodadriver.custom.SwipeButton;
 import com.rodafleets.rodadriver.custom.SwipeButtonCustomItems;
 import com.rodafleets.rodadriver.custom.VehicleTypeSpinnerAdapter;
+import com.rodafleets.rodadriver.custom.slideview.SlideView;
+import com.rodafleets.rodadriver.custom.slideview.Slider;
 import com.rodafleets.rodadriver.model.Driver;
 import com.rodafleets.rodadriver.model.VehicleRequest;
 import com.rodafleets.rodadriver.model.VehicleType;
@@ -62,7 +67,7 @@ public class VehicleRequestActivity extends MapActivity {
 
     private Button callCustomerBtn;
 
-    private SwipeButton makeOfferBtn;
+    private SlideView makeOfferBtn;
 
     private VehicleRequest vehicleRequest;
 
@@ -70,6 +75,7 @@ public class VehicleRequestActivity extends MapActivity {
     private ActionBarDrawerToggle mDrawerToggle;
 
     private Toolbar toolbar;
+    private Slider slider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -160,7 +166,7 @@ public class VehicleRequestActivity extends MapActivity {
 
         callCustomerBtn = (Button) findViewById(R.id.callCustomerBtn);
         callAdmin = (TextView) findViewById(R.id.callAdmin);
-        makeOfferBtn = (SwipeButton) findViewById(R.id.makeOfferBtn);
+        makeOfferBtn = (SlideView) findViewById(R.id.makeOfferBtn);
 
         initMap();
         setFonts();
@@ -178,8 +184,42 @@ public class VehicleRequestActivity extends MapActivity {
                 .setButtonPressText("Making Offer");
 
         if (makeOfferBtn != null) {
-            makeOfferBtn.setSwipeButtonCustomItems(makeOfferBtnSettings);
+//            makeOfferBtn.setSwipeButtonCustomItems(makeOfferBtnSettings);
         }
+
+        makeOfferBtn.getSlider().setOnTouchListener(new AppCompatSeekBar.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+
+                int action = event.getAction();
+
+                switch (action)
+                {
+                    case MotionEvent.ACTION_DOWN:
+                        // Disallow ScrollView to intercept touch events.
+                        v.getParent().requestDisallowInterceptTouchEvent(true);
+                        break;
+
+                    case MotionEvent.ACTION_UP:
+                        // Allow ScrollView to intercept touch events.
+                        v.getParent().requestDisallowInterceptTouchEvent(false);
+                        break;
+                }
+
+                v.onTouchEvent(event);
+
+                makeOfferBtn.getSlider().onTouchEvent(event);
+
+                return false;
+            }
+        });
+
+        makeOfferBtn.setOnSlideCompleteListener(new SlideView.OnSlideCompleteListener() {
+            @Override
+            public void onSlideComplete(SlideView slideView) {
+                Toast.makeText(VehicleRequestActivity.this, "Yo Slide Completed Yo!", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void setFonts() {
@@ -189,7 +229,7 @@ public class VehicleRequestActivity extends MapActivity {
         toAddress.setTypeface(poppinsRegular);
         distance.setTypeface(poppinsLight);
         loadingUnloadingTxt.setTypeface(poppinsSemiBold);
-        makeOfferBtn.setTypeface(poppinsSemiBold);
+//        makeOfferBtn.setTypeface(poppinsSemiBold);
         makeOfferTxt.setTypeface(poppinsRegular);
         callCustomerBtn.setTypeface(poppinsMedium);
         callAdmin.setTypeface(poppinsRegular);
