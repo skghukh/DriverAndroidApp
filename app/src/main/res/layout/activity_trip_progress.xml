@@ -130,7 +130,8 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:contentPadding="10dp"
-        android:visibility="visible">
+        android:visibility="gone"
+        android:layout_marginBottom="-2dp">
 
         <RelativeLayout
             android:layout_width="match_parent"

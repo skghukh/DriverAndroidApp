@@ -6,15 +6,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true" >
-    <!-- The main content view -->
-    <!--<FrameLayout-->
-        <!--android:id="@+id/content_frame"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent" />-->
-    <!---->
+
     <android.support.constraint.ConstraintLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:card_view="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -29,6 +25,7 @@
             tools:layout_editor_absoluteY="25dp"
             tools:layout_editor_absoluteX="8dp" />
 
+
         <fragment
             xmlns:android="http://schemas.android.com/apk/res/android"
             android:name="com.google.android.gms.maps.MapFragment"
@@ -37,19 +34,21 @@
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@+id/toolbar"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent" />
+            app:layout_constraintRight_toRightOf="parent"/>
 
         <android.support.v7.widget.CardView
             android:id="@+id/requestView"
             android:layout_gravity="bottom"
             android:layout_width="0dp"
-            android:layout_height="400dp"
+            android:layout_height="0dp"
             app:cardBackgroundColor="@color/view_background_purple"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:contentPadding="10dp"
-            android:visibility="visible" >
+            android:visibility="gone"
+            card_view:cardCornerRadius="7dp">
+
 
             <ScrollView
                 android:layout_width="match_parent"
@@ -68,7 +67,7 @@
                         android:layout_alignParentRight="true"
                         android:layout_alignParentTop="true"
                         android:text="X Reject"
-                        android:textSize="14sp"
+                        android:textSize="@dimen/text_medium"
                         android:textColor="@color/colorPrimary"
                         android:onClick="onRejectBtnClick"/>
 
@@ -84,20 +83,11 @@
                         android:layout_width="wrap_content"
                         android:text="ADITYA BHARDWAJ"
                         android:textColor="#FFFFFF"
-                        android:textSize="14sp"
+                        android:textSize="@dimen/text_medium"
                         android:layout_marginBottom="40dp"
                         android:layout_marginLeft="20dp"
                         android:layout_marginTop="15dp"
                         android:layout_toRightOf="@id/customerThumbnail"/>
-
-                    <!--<ImageView-->
-                        <!--android:id="@+id/fromAddressMarker"-->
-                        <!--android:layout_width="wrap_content"-->
-                        <!--android:layout_height="wrap_content"-->
-                        <!--app:srcCompat="@drawable/marker_green"-->
-                        <!--android:layout_marginLeft="15dp"-->
-                        <!--android:layout_gravity="center_vertical|left"-->
-                        <!--android:layout_below="@id/customerName"/>-->
 
                     <TextView
                         android:id="@+id/fromAddress"
@@ -106,7 +96,7 @@
                         android:layout_marginLeft="10dp"
                         android:text="ABC Company, 36B, Vardhan House,"
                         android:textColor="#FFFFFF"
-                        android:textSize="12sp"
+                        android:textSize="@dimen/text_regular"
                         android:gravity="center_vertical"
                         android:drawableLeft="@drawable/marker_green"
                         android:drawablePadding="15dp"
@@ -120,7 +110,7 @@
                         android:layout_marginLeft="10dp"
                         android:text="ABC Company, 36B, Vardhan House,"
                         android:textColor="#FFFFFF"
-                        android:textSize="12sp"
+                        android:textSize="@dimen/text_regular"
                         android:gravity="center_vertical"
                         android:drawableLeft="@drawable/marker_red"
                         android:drawablePadding="15dp"
@@ -145,7 +135,7 @@
                         android:layout_marginLeft="25dp"
                         android:text="Loading / Unloading"
                         android:textColor="#765267"
-                        android:textSize="12sp"
+                        android:textSize="@dimen/text_regular"
                         android:gravity="center_vertical"
                         android:drawableLeft="@drawable/tick_green"
                         android:drawablePadding="15dp"
@@ -193,35 +183,34 @@
                         android:layout_marginLeft="40dp"
                         android:text="Slide to make an offer"
                         android:textColor="#FFFFFF"
-                        android:textSize="12sp"
+                        android:textSize="@dimen/text_regular"
                         android:layout_below="@id/makeOfferBtn"/>
 
                     <Button
                         android:id="@+id/callCustomerBtn"
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="20dp"
-                        android:layout_marginLeft="50dp"
-                        android:layout_marginRight="50dp"
-                        android:layout_marginStart="50dp"
-                        android:layout_marginEnd="50dp"
+                        android:padding="15dp"
                         android:text="Call Customer"
                         android:textColor="@color/white"
                         android:textSize="16sp"
                         android:background="@drawable/btn_background_green"
                         android:onClick="onCallCustomerBtnClick"
                         android:drawableLeft="@drawable/call"
-                        android:drawablePadding="10dp"
-                        android:layout_below="@id/makeOfferTxt"/>
+                        android:drawablePadding="5dp"
+                        android:layout_below="@id/makeOfferTxt"
+                        android:layout_centerHorizontal="true"/>
 
                     <TextView
                         android:id="@+id/callAdmin"
                         android:layout_height="wrap_content"
                         android:layout_width="wrap_content"
                         android:layout_marginTop="15dp"
+                        android:layout_marginBottom="10dp"
                         android:text="Call Admin"
                         android:textColor="#FFFFFF"
-                        android:textSize="12sp"
+                        android:textSize="@dimen/text_regular"
                         android:layout_below="@+id/callCustomerBtn"
                         android:layout_centerHorizontal="true" />
 
@@ -232,25 +221,24 @@
         </android.support.v7.widget.CardView>
 
     </android.support.constraint.ConstraintLayout>
-
     <!-- The navigation drawer -->
     <ListView android:id="@+id/left_drawer"
-        android:layout_width="260dp"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:choiceMode="singleChoice"
-        android:divider="@android:color/transparent"
-        android:dividerHeight="0dp"
-        android:background="#111"/>
+              android:layout_width="260dp"
+              android:layout_height="match_parent"
+              android:layout_gravity="start"
+              android:choiceMode="singleChoice"
+              android:divider="@android:color/transparent"
+              android:dividerHeight="0dp"
+              android:background="#111"/>
 
     <!-- The navigation drawer -->
     <ListView android:id="@+id/right_drawer"
-        android:layout_width="260dp"
-        android:layout_height="match_parent"
-        android:layout_gravity="end"
-        android:choiceMode="singleChoice"
-        android:divider="@android:color/transparent"
-        android:dividerHeight="0dp"
-        android:background="#111"/>
+              android:layout_width="260dp"
+              android:layout_height="match_parent"
+              android:layout_gravity="end"
+              android:choiceMode="singleChoice"
+              android:divider="@android:color/transparent"
+              android:dividerHeight="0dp"
+              android:background="#111"/>
 
 </android.support.v4.widget.DrawerLayout>
