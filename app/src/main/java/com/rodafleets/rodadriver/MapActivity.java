@@ -45,6 +45,10 @@ public class MapActivity extends ParentActivity implements OnMapReadyCallback,
     Marker pickupPointMarker;
     Marker dropPointMarker;
 
+    private Bitmap redIcon;
+    private Bitmap greenIcon;
+    private Bitmap carIcon;
+
     @Override
     public void onPause() {
         super.onPause();
@@ -81,6 +85,8 @@ public class MapActivity extends ParentActivity implements OnMapReadyCallback,
             buildGoogleApiClient();
             mGoogleMap.setMyLocationEnabled(true);
         }
+
+        initMarkerBitmaps();
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -111,6 +117,24 @@ public class MapActivity extends ParentActivity implements OnMapReadyCallback,
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {}
 
+    private void initMarkerBitmaps(){
+
+        int marker_height = 45;
+        int marker_width = 32;
+
+        int car_height = 30;
+        int car_width = 37;
+
+        greenIcon = BitmapFactory.decodeResource(getResources(), R.drawable.marker_green);
+        redIcon = BitmapFactory.decodeResource(getResources(), R.drawable.marker_red);
+        carIcon = BitmapFactory.decodeResource(getResources(), R.drawable.car_icon);
+
+        greenIcon = Bitmap.createScaledBitmap(greenIcon, marker_width, marker_height, false);
+        redIcon = Bitmap.createScaledBitmap(redIcon, marker_width, marker_height, false);
+        carIcon = Bitmap.createScaledBitmap(carIcon, car_width, car_height, false);
+
+    }
+
     @Override
     public void onLocationChanged(Location location) {
         mLastLocation = location;
@@ -120,17 +144,6 @@ public class MapActivity extends ParentActivity implements OnMapReadyCallback,
 
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
-        int height = 30;
-        int width = 37;
-
-        Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.car_icon);
-        Bitmap smallMarker = Bitmap.createScaledBitmap(icon, width, height, false);
-
-//        Log.i(TAG, "------");
-//        Log.i(TAG, smallMarker.getWidth() + " ");
-//        Log.i(TAG, smallMarker.getHeight() + " ");
-
-
         //Place current location marker
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
 
@@ -139,7 +152,7 @@ public class MapActivity extends ParentActivity implements OnMapReadyCallback,
 
 //         markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.car_icon));
 
-        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(smallMarker));
+        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(carIcon));
 
         mCurrLocationMarker = mGoogleMap.addMarker(markerOptions);
 
@@ -147,24 +160,31 @@ public class MapActivity extends ParentActivity implements OnMapReadyCallback,
 
         //Place pickup location marker
 //        LatLng pickupPointLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+
         LatLng pickupPointLatLng = new LatLng(12.964880, 77.638572);
+
         MarkerOptions pickUpMarkerOptions = new MarkerOptions();
         pickUpMarkerOptions.position(pickupPointLatLng);
-        pickUpMarkerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_green));
+        pickUpMarkerOptions.icon(BitmapDescriptorFactory.fromBitmap(greenIcon));
+
         pickupPointMarker = mGoogleMap.addMarker(pickUpMarkerOptions);
         builder.include(pickupPointMarker.getPosition());
 
         //Place drop location marker
 //        LatLng dropPointLatlng = new LatLng(location.getLatitude(), location.getLongitude());
+
         LatLng dropPointLatlng = new LatLng(12.961033, 77.656280);
         MarkerOptions dropMarkerOptions = new MarkerOptions();
+
         dropMarkerOptions.position(dropPointLatlng);
-        dropMarkerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_red));
+        dropMarkerOptions.icon(BitmapDescriptorFactory.fromBitmap(redIcon));
+
         dropPointMarker = mGoogleMap.addMarker(dropMarkerOptions);
         builder.include(dropPointMarker.getPosition());
 
         LatLngBounds bounds = builder.build();
-        int padding = 10; // offset from edges of the map in pixels
+
+        int padding = 30; // offset from edges of the map in pixels
         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, padding));
 
         mGoogleMap.setMyLocationEnabled(false);
