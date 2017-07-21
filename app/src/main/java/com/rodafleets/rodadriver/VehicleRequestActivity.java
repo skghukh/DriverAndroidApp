@@ -4,7 +4,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.AppCompatSeekBar;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
@@ -75,7 +77,7 @@ public class VehicleRequestActivity extends MapActivity {
         initMap();
         setFonts();
 
-//        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("Vehicle_Requested"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("Vehicle_Requested"));
 
         makeOfferBtn.getSlider().setOnTouchListener(new AppCompatSeekBar.OnTouchListener() {
             @Override
@@ -151,16 +153,28 @@ public class VehicleRequestActivity extends MapActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             try {
+                Log.i(TAG, "-------AAAAAA------");
+
                 JSONObject jsonObject = new JSONObject(ApplicationSettings.getVehicleRequest(VehicleRequestActivity.this));
+
                 vehicleRequest = new VehicleRequest(jsonObject);
+
                 customerName.setText(vehicleRequest.getCustomerName().toUpperCase());
                 fromAddress.setText(vehicleRequest.getOriginAddress());
                 toAddress.setText(vehicleRequest.getDestinationAddress());
                 distance.setText(vehicleRequest.getDistance());
 
                 long fare = vehicleRequest.getApproxFareInCents()/100;
+
                 makeOfferBtn.setText("₹" + fare);
+
+                if(requestView == null) {
+                    Log.i(TAG, "is null");
+                } else {
+                    Log.i(TAG, "not null");
+                }
                 requestView.setVisibility(View.VISIBLE);
+
             } catch (Exception e) {
                 //handle error
                 Log.e(TAG, "vehicleRequest jsonException = " + e.getMessage());

@@ -40,7 +40,7 @@
             android:id="@+id/requestView"
             android:layout_gravity="bottom"
             android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_height="400dp"
             app:cardBackgroundColor="@color/view_background_purple"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"

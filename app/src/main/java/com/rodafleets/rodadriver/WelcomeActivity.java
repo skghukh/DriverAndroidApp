@@ -34,7 +34,8 @@ public class WelcomeActivity extends AppCompatActivity {
     public void signIn(View view){
         Boolean loggedIn = ApplicationSettings.getLoggedIn(WelcomeActivity.this);
         if(loggedIn) {
-            startActivity(new Intent(this, VehicleRequestListActivity.class));
+//            startActivity(new Intent(this, VehicleRequestListActivity.class));
+            startActivity(new Intent(this, VehicleRequestActivity.class));
             finish();
         } else {
             startActivity(new Intent(this, SignInActivity.class));

@@ -89,7 +89,7 @@ public class SignInActivity extends AppCompatActivity {
     }
 
     private void startNextActivity() {
-        startActivity(new Intent(this, VehicleRequestListActivity.class));
+        startActivity(new Intent(this, VehicleRequestActivity.class));
         finish();
     }
 
@@ -133,15 +133,7 @@ public class SignInActivity extends AppCompatActivity {
                 ApplicationSettings.setDriverId(SignInActivity.this, driver.getId());
                 ApplicationSettings.setDriver(SignInActivity.this, driverJson);
                 ApplicationSettings.setLoggedIn(SignInActivity.this, true);
-
-
-                Log.e(AppConstants.APP_NAME, "jsonString = " + ApplicationSettings.getDriver(SignInActivity.this));
-                JSONObject jsonObject = new JSONObject(ApplicationSettings.getDriver(SignInActivity.this));
-                Log.e(AppConstants.APP_NAME, "jsonObject created");
-
-                Driver driver1 = new Driver(jsonObject);
-//                vehicleRequestList = driver1.getVehicleRequests();
-//                startNextActivity();
+                startNextActivity();
             } catch (JSONException e) {
                 //handle error
                 Log.e(AppConstants.APP_NAME, "jsonException = " + e.getMessage());

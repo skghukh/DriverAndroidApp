@@ -24,6 +24,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.rodafleets.rodadriver.R;
 import com.rodafleets.rodadriver.model.VehicleRequest;
 import com.rodafleets.rodadriver.model.VehicleType;
+import com.rodafleets.rodadriver.utils.AppConstants;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -32,7 +33,8 @@ public class VehicleRequestListAdapter extends ArrayAdapter<VehicleRequest> {
 
     // Initialise custom font, for example:
     private Context context;
-    private Typeface font;
+    private Typeface poppinsRegular;
+    private Typeface poppinsSemiBold;
 
     private Bitmap greenIcon;
     private Bitmap redIcon;
@@ -41,13 +43,14 @@ public class VehicleRequestListAdapter extends ArrayAdapter<VehicleRequest> {
 
     private final HashSet<MapView> mMaps = new HashSet<MapView>();
 
-    public VehicleRequestListAdapter(Context context, int resource, ArrayList<VehicleRequest> items, Typeface font) {
+    public VehicleRequestListAdapter(Context context, int resource, ArrayList<VehicleRequest> items) {
         super(context, resource, items);
         this.context = context;
         this.vehicleRequests = items;
-        this.font = font;
 
         initMarkerBitmaps();
+
+        initFonts();
     }
 
 
@@ -61,6 +64,11 @@ public class VehicleRequestListAdapter extends ArrayAdapter<VehicleRequest> {
 
         greenIcon = Bitmap.createScaledBitmap(greenIcon, width, height, false);
         redIcon = Bitmap.createScaledBitmap(redIcon, width, height, false);
+    }
+
+    private void initFonts() {
+        poppinsRegular = Typeface.createFromAsset(context.getAssets(), AppConstants.FONT_POPPINS_REGULAR);
+        poppinsSemiBold = Typeface.createFromAsset(context.getAssets(), AppConstants.FONT_POPPINS_SEMI_BOLD);
     }
 
     /*private view holder class*/
@@ -102,12 +110,6 @@ public class VehicleRequestListAdapter extends ArrayAdapter<VehicleRequest> {
     }
 
     private void setMapLocation(GoogleMap map, VehicleRequest vehicleRequest) {
-        // Add a marker for this item and set the camera
-//        map.moveCamera(CameraUpdateFactory.newLatLngZoom(data.location, 13f));
-
-//        map.addMarker(new MarkerOptions().position(data.location));
-
-        // Set the map type back to normal.
 
         if (vehicleRequest != null) {
 
@@ -118,7 +120,6 @@ public class VehicleRequestListAdapter extends ArrayAdapter<VehicleRequest> {
             MarkerOptions originMarkerOptions = new MarkerOptions();
 
             originMarkerOptions.position(originLatLng);
-//            originMarkerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_green));
             originMarkerOptions.icon(BitmapDescriptorFactory.fromBitmap(greenIcon));
 
             Marker originMarker = map.addMarker(originMarkerOptions);
@@ -127,13 +128,9 @@ public class VehicleRequestListAdapter extends ArrayAdapter<VehicleRequest> {
 
             LatLng destinationLatLng = new LatLng(vehicleRequest.getDropPointLat(), vehicleRequest.getDropPointLng());
 
-            Log.i("RODA", vehicleRequest.getDropPointLat() + "");
-            Log.i("RODA", vehicleRequest.getDropPointLng() + "");
-
             MarkerOptions destinationMarkerOptions = new MarkerOptions();
 
             destinationMarkerOptions.position(destinationLatLng);
-//            destinationMarkerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_red));
             destinationMarkerOptions.icon(BitmapDescriptorFactory.fromBitmap(redIcon));
 
             Marker destinationMarker = map.addMarker(destinationMarkerOptions);
@@ -141,7 +138,7 @@ public class VehicleRequestListAdapter extends ArrayAdapter<VehicleRequest> {
 
             LatLngBounds bounds = builder.build();
 
-            int padding = 20; // offset from edges of the map in pixels
+            int padding = 10; // offset from edges of the map in pixels
 
             map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, padding));
 
@@ -152,16 +149,10 @@ public class VehicleRequestListAdapter extends ArrayAdapter<VehicleRequest> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+
         ViewHolder holder = null;
 
-        Log.i("RODA", "POSITION = " + position);
         VehicleRequest request = vehicleRequests.get(position);
-
-        if(request == null) {
-            Log.i("RODA", "request is null");
-        } else {
-            Log.i("RODA", "request >>>>>>> " + request.getCustomerName());
-        }
 
         View rowView = convertView;
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -170,8 +161,16 @@ public class VehicleRequestListAdapter extends ArrayAdapter<VehicleRequest> {
             rowView = inflater.inflate(R.layout.vehicle_request_list_view_item, parent, false);
 
             holder = new ViewHolder();
-            holder.customerName = (TextView) rowView.findViewById(R.id.vehicle_request_customer_name);
             holder.mapView = (MapView) rowView.findViewById(R.id.vehicle_request_map);
+            holder.customerName = (TextView) rowView.findViewById(R.id.vehicle_request_customer_name);
+            holder.amount = (TextView) rowView.findViewById(R.id.vehicle_request_amount);
+            holder.requestDate = (TextView) rowView.findViewById(R.id.vehicle_request_date);
+            holder.distance = (TextView) rowView.findViewById(R.id.vehicle_request_distance);
+
+            holder.customerName.setTypeface(poppinsRegular);
+            holder.amount.setTypeface(poppinsSemiBold);
+            holder.requestDate.setTypeface(poppinsRegular);
+            holder.distance.setTypeface(poppinsRegular);
 
             rowView.setTag(holder);
 

@@ -43,7 +43,7 @@ public class VehicleRequestListActivity extends ParentActivity {
         vehicleRequestListView = (ListView) findViewById(R.id.vehicleRequestListView);
         //setFonts();
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("Vehicle_Requested"));
+//        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("Vehicle_Requested"));
 
         loadVehicleRequests();
     }
@@ -64,7 +64,7 @@ public class VehicleRequestListActivity extends ParentActivity {
             vehicleRequestList = driver.getVehicleRequests();
 
             Log.e(TAG, "%%%%%%%%%%%% = " + vehicleRequestList.size());
-            VehicleRequestListAdapter adapter = new VehicleRequestListAdapter(VehicleRequestListActivity.this, R.layout.vehicle_request_list_view_item, vehicleRequestList, poppinsRegular);
+            VehicleRequestListAdapter adapter = new VehicleRequestListAdapter(VehicleRequestListActivity.this, R.layout.vehicle_request_list_view_item, vehicleRequestList);
             vehicleRequestListView.setAdapter(adapter);
 
             vehicleRequestListView.setOnItemClickListener(itemClickListener);
