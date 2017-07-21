@@ -82,6 +82,7 @@ public class VehicleRequestListActivity extends ParentActivity {
         public void onItemClick(AdapterView<?> parent, final View view, int position, long id) {
             Log.i("LIST", "items clicked");
             selectedVehicleRequest = vehicleRequestList.get(position);
+//            startNext
         }
 
     };

@@ -8,7 +8,7 @@
     app:layout_constraintTop_toTopOf="parent"
     app:layout_constraintBottom_toBottomOf="parent"
     android:elevation="2dp"
-    android:background="@drawable/vehicle_request_list_item_background">
+    android:background="@color/view_background_white">
 
     <com.google.android.gms.maps.MapView
         android:id="@+id/vehicle_request_map"
@@ -24,11 +24,49 @@
         android:id="@+id/vehicle_request_customer_name"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
-        android:text="ADITYA BHARDWAJ"
-        android:textColor="#FFFFFF"
-        android:textSize="@dimen/text_medium"
+        android:text="Aditya Bhardwaj"
+        android:textColor="#303030"
+        android:textSize="@dimen/text_regular"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="10dp"
         app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/vehicle_request_map" />
+
+    <TextView
+        android:id="@+id/vehicle_request_amount"
+        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:text="ADITYA BHARDWAJ"
+        android:textColor="#303030"
+        android:textSize="@dimen/text_regular"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="10dp"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/vehicle_request_map" />
+
+    <TextView
+        android:id="@+id/vehicle_request_date"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:text="22-06-17,  7:07 PM"
+        android:textColor="#303030"
+        android:textSize="@dimen/text_regular"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="10dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/vehicle_request_customer_name" />
+
+    <TextView
+        android:id="@+id/vehicle_request_distance"
+        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:text="ADITYA BHARDWAJ"
+        android:textColor="#303030"
+        android:textSize="@dimen/text_regular"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="10dp"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/vehicle_request_amount" />
+
 
 </android.support.constraint.ConstraintLayout>
