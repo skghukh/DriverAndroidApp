@@ -69,7 +69,7 @@ public class TripProgressActivity extends MapActivity {
         initComponents();
     }
 
-    private void initComponents() {
+    protected void initComponents() {
 
         initMap();
 

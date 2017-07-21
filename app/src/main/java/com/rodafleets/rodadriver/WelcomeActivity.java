@@ -17,13 +17,9 @@ public class WelcomeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        this.requestWindowFeature(Window.FEATURE_ACTION_BAR);
-        this.getSupportActionBar().hide();
         setContentView(R.layout.activity_welcome);
 
         initComponents();
-
     }
 
     private void initComponents(){
@@ -38,7 +34,7 @@ public class WelcomeActivity extends AppCompatActivity {
     public void signIn(View view){
         Boolean loggedIn = ApplicationSettings.getLoggedIn(WelcomeActivity.this);
         if(loggedIn) {
-            startActivity(new Intent(this, VehicleRequestActivity.class));
+            startActivity(new Intent(this, VehicleRequestListActivity.class));
             finish();
         } else {
             startActivity(new Intent(this, SignInActivity.class));

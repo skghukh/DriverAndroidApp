@@ -19,9 +19,12 @@
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_height="wrap_content"
-            android:layout_width="match_parent"
+            android:layout_width="395dp"
             android:minHeight="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"/>
+            android:background="?attr/colorPrimary"
+            tools:layout_editor_absoluteY="25dp"
+            tools:layout_editor_absoluteX="8dp" />
+
 
         <fragment
             xmlns:android="http://schemas.android.com/apk/res/android"
@@ -45,6 +48,7 @@
             app:contentPadding="10dp"
             android:visibility="gone"
             card_view:cardCornerRadius="7dp">
+
 
             <ScrollView
                 android:layout_width="match_parent"
@@ -128,7 +132,7 @@
                         android:layout_height="wrap_content"
                         android:layout_width="wrap_content"
                         android:layout_marginTop="10dp"
-                        android:layout_marginLeft="10dp"
+                        android:layout_marginLeft="25dp"
                         android:text="Loading / Unloading"
                         android:textColor="#765267"
                         android:textSize="@dimen/text_regular"
@@ -138,17 +142,38 @@
                         android:layout_below="@+id/distance"/>
 
 
-                    <com.rodafleets.rodadriver.custom.SwipeButton
+                    <!--<com.rodafleets.rodadriver.custom.SwipeButton-->
+                        <!--android:id="@+id/makeOfferBtn"-->
+                        <!--android:layout_width="match_parent"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:layout_marginTop="10dp"-->
+                        <!--android:layout_marginLeft="35dp"-->
+                        <!--android:layout_marginRight="35dp"-->
+                        <!--android:layout_below="@+id/loadingUnloadingTxt"-->
+                        <!--android:text="Slide to make Offer"-->
+                        <!--android:background="@drawable/btn_background_purple"-->
+                        <!--android:textColor="#FFFFFF" />-->
+
+                    <com.rodafleets.rodadriver.custom.slideview.SlideView
                         android:id="@+id/makeOfferBtn"
+
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+
+                        app:buttonBackgroundColor="#6D445C"
+                        app:slideBackgroundColor="#765267"
+                        app:slideText="Slide to make Offer"
+                        app:slideTextColor="#FFFFFF"
+                        app:slideTextSize="20sp"
+                        app:animateSlideText="true"
+                        app:reverseSlide="false"
+
                         android:layout_marginTop="10dp"
-                        android:layout_marginLeft="35dp"
-                        android:layout_marginRight="35dp"
-                        android:layout_below="@+id/loadingUnloadingTxt"
-                        android:text="Slide to make Offer"
-                        android:background="@drawable/btn_background_purple"
-                        android:textColor="#FFFFFF" />
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginRight="20dp"
+
+                        android:gravity="center_vertical"
+                        android:layout_below="@+id/loadingUnloadingTxt" />
 
                     <TextView
                         android:id="@+id/makeOfferTxt"

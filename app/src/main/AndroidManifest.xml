@@ -28,6 +28,7 @@
         <activity android:name=".SignUpVerificationActivity" />
         <activity android:name=".VehicleDetailsActivity" />
         <activity android:name=".DriverDocs" />
+        <activity android:name=".VehicleRequestListActivity" />
         <activity android:name=".VehicleRequestActivity" />
         <activity android:name=".TripProgressActivity" />
 

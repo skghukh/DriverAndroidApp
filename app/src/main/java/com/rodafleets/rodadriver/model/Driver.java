@@ -11,6 +11,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Driver {
 
@@ -20,6 +22,7 @@ public class Driver {
     private String lastName;
     private String gender;
     private Boolean verified;
+    private ArrayList<VehicleRequest> vehicleRequests;
 
     public Driver(JSONObject jsonObject) throws JSONException {
         this.id = jsonObject.getInt("id");
@@ -28,10 +31,7 @@ public class Driver {
         this.lastName = jsonObject.getString("lastName");
         this.verified = jsonObject.getBoolean("verified");
         this.gender = jsonObject.getString("gender");
-    }
-
-    public Driver(String jsonString) {
-//        Log.i("DRIVER", "Driver: " + jsonString);
+        this.vehicleRequests = Utils.toVehicleRequestArrayList(jsonObject.getJSONArray("vehicleRequests"));
     }
 
     public int getId() {
@@ -82,34 +82,38 @@ public class Driver {
         this.verified = verified;
     }
 
-    public static String serializeObject(Driver driver) {
-        String serializedObject = "";
-        // serialize the object
-        try {
-            ByteArrayOutputStream bo = new ByteArrayOutputStream();
-            ObjectOutputStream so = new ObjectOutputStream(bo);
-            so.writeObject(driver);
-            so.flush();
-            serializedObject = bo.toString();
-        } catch (Exception e) {
-
-        }
-
-        return serializedObject;
+    public ArrayList<VehicleRequest> getVehicleRequests() {
+        return vehicleRequests;
     }
 
-    public static Driver deSerializeObject(String serializedString) {
-        Driver driver = null;
-        // deserialize the object
-        try {
-            byte b[] = serializedString.getBytes();
-            ByteArrayInputStream bi = new ByteArrayInputStream(b);
-            ObjectInputStream si = new ObjectInputStream(bi);
-            driver = (Driver) si.readObject();
-        } catch (Exception e) {
-
-        }
-
-        return driver;
-    }
+//    public static String serializeObject(Driver driver) {
+//        String serializedObject = "";
+//        // serialize the object
+//        try {
+//            ByteArrayOutputStream bo = new ByteArrayOutputStream();
+//            ObjectOutputStream so = new ObjectOutputStream(bo);
+//            so.writeObject(driver);
+//            so.flush();
+//            serializedObject = bo.toString();
+//        } catch (Exception e) {
+//
+//        }
+//
+//        return serializedObject;
+//    }
+//
+//    public static Driver deSerializeObject(String serializedString) {
+//        Driver driver = null;
+//        // deserialize the object
+//        try {
+//            byte b[] = serializedString.getBytes();
+//            ByteArrayInputStream bi = new ByteArrayInputStream(b);
+//            ObjectInputStream si = new ObjectInputStream(bi);
+//            driver = (Driver) si.readObject();
+//        } catch (Exception e) {
+//
+//        }
+//
+//        return driver;
+//    }
 }

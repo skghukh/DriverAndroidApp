@@ -13,13 +13,10 @@ import java.util.ArrayList;
 
 public class VehicleTypeSpinnerAdapter extends ArrayAdapter {
 
-
     // Initialise custom font, for example:
     Typeface font;
     private ArrayList<VehicleType> vehicleTypes;
 
-    // (In reality I used a manager which caches the Typeface objects)
-    // Typeface font = FontManager.getInstance().getFont(getContext(), BLAMBOT);
 
     public VehicleTypeSpinnerAdapter(Context context, int resource, ArrayList<VehicleType> items, Typeface font) {
         super(context, resource, items);

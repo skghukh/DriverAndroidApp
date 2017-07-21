@@ -47,11 +47,7 @@ public class SignInActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        this.requestWindowFeature(Window.FEATURE_ACTION_BAR);
-        this.getSupportActionBar().hide();
         setContentView(R.layout.activity_sign_in);
-
         initComponents();
     }
 
@@ -93,7 +89,7 @@ public class SignInActivity extends AppCompatActivity {
     }
 
     private void startNextActivity() {
-        startActivity(new Intent(this, VehicleRequestActivity.class));
+        startActivity(new Intent(this, VehicleRequestListActivity.class));
         finish();
     }
 
@@ -132,11 +128,20 @@ public class SignInActivity extends AppCompatActivity {
         public void onSuccess(int statusCode, Header[] headers, JSONObject jsonResponseObject) {
             try {
                 Log.i(AppConstants.APP_NAME, "response = " + jsonResponseObject.toString());
-                Driver driver = new Driver(jsonResponseObject.getJSONObject("driver"));
+                JSONObject driverJson = jsonResponseObject.getJSONObject("driver");
+                Driver driver = new Driver(driverJson);
                 ApplicationSettings.setDriverId(SignInActivity.this, driver.getId());
-                ApplicationSettings.setDriver(SignInActivity.this, jsonResponseObject.getJSONObject("driver"));
+                ApplicationSettings.setDriver(SignInActivity.this, driverJson);
                 ApplicationSettings.setLoggedIn(SignInActivity.this, true);
-                startNextActivity();
+
+
+                Log.e(AppConstants.APP_NAME, "jsonString = " + ApplicationSettings.getDriver(SignInActivity.this));
+                JSONObject jsonObject = new JSONObject(ApplicationSettings.getDriver(SignInActivity.this));
+                Log.e(AppConstants.APP_NAME, "jsonObject created");
+
+                Driver driver1 = new Driver(jsonObject);
+//                vehicleRequestList = driver1.getVehicleRequests();
+//                startNextActivity();
             } catch (JSONException e) {
                 //handle error
                 Log.e(AppConstants.APP_NAME, "jsonException = " + e.getMessage());

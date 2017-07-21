@@ -55,9 +55,6 @@ public class SignUpVerificationActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        this.requestWindowFeature(Window.FEATURE_ACTION_BAR);
-//        this.getSupportActionBar().hide();
         setContentView(R.layout.activity_sign_up_verification);
 
         initComponents();

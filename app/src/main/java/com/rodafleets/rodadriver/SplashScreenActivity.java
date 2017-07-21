@@ -25,10 +25,6 @@ public class SplashScreenActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-//        this.requestWindowFeature(Window.FEATURE_ACTION_BAR);
-//        this.getSupportActionBar().hide();
-
         setContentView(R.layout.activity_splash_screen);
 
         initComponents();
@@ -88,7 +84,7 @@ public class SplashScreenActivity extends AppCompatActivity {
     private void startNextActivity(){
         Boolean loggedIn = ApplicationSettings.getLoggedIn(SplashScreenActivity.this);
         if(loggedIn) {
-            startActivity(new Intent(this, VehicleRequestActivity.class));
+            startActivity(new Intent(this, VehicleRequestListActivity.class));
             finish();
         } else {
             this.startActivity(new Intent(this, WelcomeActivity.class));
