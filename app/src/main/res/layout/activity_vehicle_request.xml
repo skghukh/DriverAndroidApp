@@ -89,32 +89,49 @@
                         android:layout_marginTop="15dp"
                         android:layout_toRightOf="@id/customerThumbnail"/>
 
+                    <ImageView
+                        android:id="@+id/markerGreenImage"
+                        android:layout_width="21dp"
+                        android:layout_height="30dp"
+                        android:layout_marginTop="20dp"
+                        android:layout_marginLeft="10dp"
+                        android:src="@drawable/marker_green"
+                        android:layout_below="@+id/customerThumbnail" />
+
                     <TextView
                         android:id="@+id/fromAddress"
                         android:layout_height="wrap_content"
                         android:layout_width="wrap_content"
-                        android:layout_marginLeft="10dp"
                         android:text="ABC Company, 36B, Vardhan House,"
                         android:textColor="#FFFFFF"
                         android:textSize="@dimen/text_regular"
                         android:gravity="center_vertical"
-                        android:drawableLeft="@drawable/marker_green"
-                        android:drawablePadding="15dp"
-                        android:layout_below="@id/customerName"/>
+                        android:layout_marginTop="25dp"
+                        android:layout_below="@id/customerThumbnail"
+                        android:layout_marginLeft="15dp"
+                        android:layout_toRightOf="@+id/markerRedImage"/>
+
+                    <ImageView
+                        android:id="@+id/markerRedImage"
+                        android:layout_width="21dp"
+                        android:layout_height="30dp"
+                        android:layout_marginTop="20dp"
+                        android:layout_marginLeft="10dp"
+                        android:src="@drawable/marker_red"
+                        android:layout_below="@+id/fromAddress" />
 
                     <TextView
                         android:id="@+id/toAddress"
                         android:layout_height="wrap_content"
                         android:layout_width="wrap_content"
-                        android:layout_marginTop="20dp"
-                        android:layout_marginLeft="10dp"
+                        android:layout_marginTop="25dp"
                         android:text="ABC Company, 36B, Vardhan House,"
                         android:textColor="#FFFFFF"
                         android:textSize="@dimen/text_regular"
                         android:gravity="center_vertical"
-                        android:drawableLeft="@drawable/marker_red"
-                        android:drawablePadding="15dp"
-                        android:layout_below="@+id/fromAddress" />
+                        android:layout_below="@+id/fromAddress"
+                        android:layout_marginLeft="15dp"
+                        android:layout_toRightOf="@+id/markerRedImage"/>
 
                     <TextView
                         android:id="@+id/distance"
