@@ -54,48 +54,41 @@ public class NotificationService extends FirebaseMessagingService {
 
         // TODO(developer): Handle FCM messages here.
         // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
+
+        String notificationTitle = "";
+        String notificationBody = "";
+        Map<String, String> data = null;
         Log.d(TAG, "From: " + remoteMessage.getFrom());
 
         // Check if message contains a data payload.
         if (remoteMessage.getData().size() > 0) {
             Log.d(TAG, "Message data payload: " + remoteMessage.getData());
-
-            // Handle message within 10 seconds
-//            handleNow();
-            fireEvent(remoteMessage.getData(), remoteMessage.getNotification().getTitle());
+            data = remoteMessage.getData();
         }
 
         // Check if message contains a notification payload.
         if (remoteMessage.getNotification() != null) {
             Log.d(TAG, "Message Notification Body: " + remoteMessage.getNotification().getBody());
+            notificationTitle = remoteMessage.getNotification().getTitle();
+            notificationBody = remoteMessage.getNotification().getBody();
         }
 
-        // Also if you intend on generating your own notifications as a result of a received FCM
-        // message, here is where that should be initiated. See sendNotification method below.
-
-        sendNotification(remoteMessage.getNotification().getTitle(), remoteMessage.getNotification().getBody());
-    }
-    // [END receive_message]
-
-    /**
-     * fire event to BroadcastReceivers.
-     */
-    private void fireEvent(Map<String, String> data, String title) {
         Intent intent = null;
-        if(title.equals("Request")) {
+        if(notificationTitle.equals("Request")) {
             intent = new Intent("Vehicle_Requested");
             JSONObject vehicleRequest = new JSONObject(data);
             ApplicationSettings.setVehicleRequest(this, vehicleRequest);
-        } else if(title.equals("Accept")) {
+        } else if(notificationTitle.equals("Accept")) {
             intent = new Intent("Bid_Accepted");
         }
 
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
 
-    private void handleNow() {
-        Log.d(TAG, "Short lived task is done.");
+        // Also if you intend on generating your own notifications as a result of a received FCM
+        // message, here is where that should be initiated. See sendNotification method below.
+        sendNotification(notificationTitle, notificationBody);
     }
+    // [END receive_message]
 
     /**
      * Create and show a simple notification containing the received FCM message.
@@ -111,7 +104,7 @@ public class NotificationService extends FirebaseMessagingService {
         Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.cast_ic_notification_small_icon)
-                .setContentTitle("FCM Message" + title)
+                .setContentTitle(title)
                 .setContentText(messageBody)
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)

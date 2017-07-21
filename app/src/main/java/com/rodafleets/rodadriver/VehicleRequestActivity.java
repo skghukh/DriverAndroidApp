@@ -109,7 +109,6 @@ public class VehicleRequestActivity extends MapActivity {
             @Override
             public void onSlideComplete(SlideView slideView) {
                 bidRequest();
-                //Toast.makeText(VehicleRequestActivity.this, "Yo Slide Completed Yo!", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -167,12 +166,6 @@ public class VehicleRequestActivity extends MapActivity {
                 long fare = vehicleRequest.getApproxFareInCents()/100;
 
                 makeOfferBtn.setText("₹" + fare);
-
-                if(requestView == null) {
-                    Log.i(TAG, "is null");
-                } else {
-                    Log.i(TAG, "not null");
-                }
                 requestView.setVisibility(View.VISIBLE);
 
             } catch (Exception e) {

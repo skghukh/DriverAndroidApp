@@ -1,14 +1,23 @@
 package com.rodafleets.rodadriver;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.widget.AppCompatSeekBar;
 import android.support.v7.widget.CardView;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.widget.TextView;
 
 import com.rodafleets.rodadriver.custom.SwipeButton;
 import com.rodafleets.rodadriver.custom.SwipeButtonCustomItems;
+import com.rodafleets.rodadriver.custom.slideview.SlideView;
 import com.rodafleets.rodadriver.model.VehicleRequest;
 import com.rodafleets.rodadriver.utils.AppConstants;
 import com.rodafleets.rodadriver.utils.ApplicationSettings;
@@ -32,23 +41,23 @@ public class TripProgressActivity extends MapActivity {
     //Start Loading View
     private CardView startLoadingView;
     private TextView arrivedAtOriginTxt;
-    private SwipeButton startLoadingBtn;
+    private SlideView startLoadingBtn;
     private TextView startLoadingTxt;
 
     // Start Trip View
     private CardView startTripView;
-    private SwipeButton startTripBtn;
+    private SlideView startTripBtn;
     private TextView startTripTxt;
 
     //Start Unloading View
     private CardView startUnloadingView;
     private TextView arrivedAtDestinationTxt;
-    private SwipeButton startUnloadingBtn;
+    private SlideView startUnloadingBtn;
     private TextView startUnloadingTxt;
 
     // End Trip View
     private CardView endTripView;
-    private SwipeButton endTripBtn;
+    private SlideView endTripBtn;
     private TextView endTripTxt;
 
     // Fare Summary View
@@ -57,19 +66,22 @@ public class TripProgressActivity extends MapActivity {
     private TextView paidByTxt;
     private TextView fareTxt;
     private TextView rateCustomerTxt;
-    private SwipeButton goOnlineBtn;
+    private SlideView goOnlineBtn;
+
+    private VehicleRequest vehicleRequest;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.requestWindowFeature(Window.FEATURE_ACTION_BAR);
         setContentView(R.layout.activity_trip_progress);
 
         initComponents();
     }
 
     protected void initComponents() {
+
+        super.initComponents();
 
         initMap();
 
@@ -102,14 +114,16 @@ public class TripProgressActivity extends MapActivity {
         fareTxt = (TextView) findViewById(R.id.fareTxt);
         rateCustomerTxt = (TextView) findViewById(R.id.rateCustomerTxt);
 
-        startLoadingBtn = (SwipeButton) findViewById(R.id.startLoadingBtn);
-        startTripBtn = (SwipeButton) findViewById(R.id.startTripBtn);
-        startUnloadingBtn = (SwipeButton) findViewById(R.id.startUnloadingBtn);
-        endTripBtn = (SwipeButton) findViewById(R.id.endTripBtn);
-        goOnlineBtn = (SwipeButton) findViewById(R.id.goOnlineBtn);
+        startLoadingBtn = (SlideView) findViewById(R.id.startLoadingBtn);
+        startTripBtn = (SlideView) findViewById(R.id.startTripBtn);
+        startUnloadingBtn = (SlideView) findViewById(R.id.startUnloadingBtn);
+        endTripBtn = (SlideView) findViewById(R.id.endTripBtn);
+        goOnlineBtn = (SlideView) findViewById(R.id.goOnlineBtn);
 
         setFonts();
-        initSwipeButtonsEvents();
+        initSwipeButtonEvents();
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("Bid_Accepted"));
 
         try {
             JSONObject jsonObject = new JSONObject(ApplicationSettings.getVehicleRequest(TripProgressActivity.this));
@@ -148,76 +162,210 @@ public class TripProgressActivity extends MapActivity {
         fareTxt.setTypeface(poppinsLight);
         rateCustomerTxt.setTypeface(poppinsSemiBold);
 
-        startLoadingBtn.setTypeface(poppinsSemiBold);
-        startTripBtn.setTypeface(poppinsSemiBold);
-        startUnloadingBtn.setTypeface(poppinsSemiBold);
-        endTripBtn.setTypeface(poppinsSemiBold);
-        goOnlineBtn.setTypeface(poppinsSemiBold);
+//        startLoadingBtn.setTypeface(poppinsSemiBold);
+//        startTripBtn.setTypeface(poppinsSemiBold);
+//        startUnloadingBtn.setTypeface(poppinsSemiBold);
+//        endTripBtn.setTypeface(poppinsSemiBold);
+//        goOnlineBtn.setTypeface(poppinsSemiBold);
     }
 
-    private void initSwipeButtonsEvents() {
+    private void initSwipeButtonEvents() {
 
-        SwipeButtonCustomItems startLoadingBtnSettings = new SwipeButtonCustomItems() {
+        initStartLoadingBtn();
+        initStartTripBtn();
+        initStartUnloadingBtn();
+        initEndTripBtn();
+        initGoOnlineBtn();
+
+    }
+
+    private void initStartLoadingBtn() {
+
+        startLoadingBtn.getSlider().setOnTouchListener(new AppCompatSeekBar.OnTouchListener() {
             @Override
-            public void onSwipeConfirm() {
+            public boolean onTouch(View v, MotionEvent event) {
+
+                int action = event.getAction();
+
+                switch (action) {
+                    case MotionEvent.ACTION_DOWN:
+                        // Disallow ScrollView to intercept touch events.
+                        v.getParent().requestDisallowInterceptTouchEvent(true);
+                        break;
+
+                    case MotionEvent.ACTION_UP:
+                        // Allow ScrollView to intercept touch events.
+                        v.getParent().requestDisallowInterceptTouchEvent(false);
+                        break;
+                }
+
+                v.onTouchEvent(event);
+
+                startLoadingBtn.getSlider().onTouchEvent(event);
+
+                return false;
+            }
+        });
+
+        startLoadingBtn.setOnSlideCompleteListener(new SlideView.OnSlideCompleteListener() {
+            @Override
+            public void onSlideComplete(SlideView slideView) {
                 hideAllViews();
                 startTripView.setVisibility(View.VISIBLE);
             }
-        };
+        });
+    }
 
-        if (startLoadingBtn != null) {
-            startLoadingBtn.setSwipeButtonCustomItems(startLoadingBtnSettings);
-        }
+    private void initStartTripBtn() {
 
-
-
-        SwipeButtonCustomItems startTripBtnSettings = new SwipeButtonCustomItems() {
+        startTripBtn.getSlider().setOnTouchListener(new AppCompatSeekBar.OnTouchListener() {
             @Override
-            public void onSwipeConfirm() {
+            public boolean onTouch(View v, MotionEvent event) {
+
+                int action = event.getAction();
+
+                switch (action) {
+                    case MotionEvent.ACTION_DOWN:
+                        // Disallow ScrollView to intercept touch events.
+                        v.getParent().requestDisallowInterceptTouchEvent(true);
+                        break;
+
+                    case MotionEvent.ACTION_UP:
+                        // Allow ScrollView to intercept touch events.
+                        v.getParent().requestDisallowInterceptTouchEvent(false);
+                        break;
+                }
+
+                v.onTouchEvent(event);
+
+                startTripBtn.getSlider().onTouchEvent(event);
+
+                return false;
+            }
+        });
+
+        startTripBtn.setOnSlideCompleteListener(new SlideView.OnSlideCompleteListener() {
+            @Override
+            public void onSlideComplete(SlideView slideView) {
                 hideAllViews();
                 startUnloadingView.setVisibility(View.VISIBLE);
             }
-        };
-        if (startTripBtn != null) {
-            startTripBtn.setSwipeButtonCustomItems(startTripBtnSettings);
-        }
+        });
+    }
 
+    private void initStartUnloadingBtn() {
 
-
-        SwipeButtonCustomItems startUnloadingBtnSettings = new SwipeButtonCustomItems() {
+        startUnloadingBtn.getSlider().setOnTouchListener(new AppCompatSeekBar.OnTouchListener() {
             @Override
-            public void onSwipeConfirm() {
+            public boolean onTouch(View v, MotionEvent event) {
+
+                int action = event.getAction();
+
+                switch (action) {
+                    case MotionEvent.ACTION_DOWN:
+                        // Disallow ScrollView to intercept touch events.
+                        v.getParent().requestDisallowInterceptTouchEvent(true);
+                        break;
+
+                    case MotionEvent.ACTION_UP:
+                        // Allow ScrollView to intercept touch events.
+                        v.getParent().requestDisallowInterceptTouchEvent(false);
+                        break;
+                }
+
+                v.onTouchEvent(event);
+
+                startUnloadingBtn.getSlider().onTouchEvent(event);
+
+                return false;
+            }
+        });
+
+        startUnloadingBtn.setOnSlideCompleteListener(new SlideView.OnSlideCompleteListener() {
+            @Override
+            public void onSlideComplete(SlideView slideView) {
                 hideAllViews();
                 endTripView.setVisibility(View.VISIBLE);
             }
-        };
-        if (startUnloadingBtn != null) {
-            startUnloadingBtn.setSwipeButtonCustomItems(startUnloadingBtnSettings);
-        }
+        });
+    }
 
+    private void initEndTripBtn () {
 
-
-        SwipeButtonCustomItems endTripBtnSettings = new SwipeButtonCustomItems() {
+        endTripBtn.getSlider().setOnTouchListener(new AppCompatSeekBar.OnTouchListener() {
             @Override
-            public void onSwipeConfirm() {
+            public boolean onTouch(View v, MotionEvent event) {
+
+                int action = event.getAction();
+
+                switch (action) {
+                    case MotionEvent.ACTION_DOWN:
+                        // Disallow ScrollView to intercept touch events.
+                        v.getParent().requestDisallowInterceptTouchEvent(true);
+                        break;
+
+                    case MotionEvent.ACTION_UP:
+                        // Allow ScrollView to intercept touch events.
+                        v.getParent().requestDisallowInterceptTouchEvent(false);
+                        break;
+                }
+
+                v.onTouchEvent(event);
+
+                endTripBtn.getSlider().onTouchEvent(event);
+
+                return false;
+            }
+        });
+
+        endTripBtn.setOnSlideCompleteListener(new SlideView.OnSlideCompleteListener() {
+            @Override
+            public void onSlideComplete(SlideView slideView) {
                 hideAllViews();
+                paidByTxt.setText("Payment made by e-wallet");
+                long fare = vehicleRequest.getApproxFareInCents()/100;
+                fareTxt.setText("₹" + fare);
                 fareSummaryView.setVisibility(View.VISIBLE);
             }
-        };
-        if (endTripBtn != null) {
-            endTripBtn.setSwipeButtonCustomItems(endTripBtnSettings);
-        }
+        });
+    }
 
-        SwipeButtonCustomItems goOnlineBtnSettings = new SwipeButtonCustomItems() {
+    private void initGoOnlineBtn() {
+        goOnlineBtn.getSlider().setOnTouchListener(new AppCompatSeekBar.OnTouchListener() {
             @Override
-            public void onSwipeConfirm() {
-                //
-            }
-        };
-        if (goOnlineBtn != null) {
-            goOnlineBtn.setSwipeButtonCustomItems(goOnlineBtnSettings);
-        }
+            public boolean onTouch(View v, MotionEvent event) {
 
+                int action = event.getAction();
+
+                switch (action) {
+                    case MotionEvent.ACTION_DOWN:
+                        // Disallow ScrollView to intercept touch events.
+                        v.getParent().requestDisallowInterceptTouchEvent(true);
+                        break;
+
+                    case MotionEvent.ACTION_UP:
+                        // Allow ScrollView to intercept touch events.
+                        v.getParent().requestDisallowInterceptTouchEvent(false);
+                        break;
+                }
+
+                v.onTouchEvent(event);
+
+                goOnlineBtn.getSlider().onTouchEvent(event);
+
+                return false;
+            }
+        });
+
+        goOnlineBtn.setOnSlideCompleteListener(new SlideView.OnSlideCompleteListener() {
+            @Override
+            public void onSlideComplete(SlideView slideView) {
+                //hideAllViews();
+                //startTripView.setVisibility(View.VISIBLE);
+
+
+            }
+        });
     }
 
     private void hideAllViews() {
@@ -228,4 +376,37 @@ public class TripProgressActivity extends MapActivity {
         startUnloadingView.setVisibility(View.GONE);
         endTripView.setVisibility(View.GONE);
     }
+
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            try {
+                Log.i(TAG, "-------AAAAAA------");
+
+                JSONObject jsonObject = new JSONObject(ApplicationSettings.getVehicleRequest(TripProgressActivity.this));
+
+                vehicleRequest = new VehicleRequest(jsonObject);
+
+                customerName.setText(vehicleRequest.getCustomerName().toUpperCase());
+                fromAddress.setText(vehicleRequest.getOriginAddress());
+                //toAddress.setText(vehicleRequest.getDestinationAddress());
+                //distance.setText(vehicleRequest.getDistance());
+
+                acceptanceStatus.setText("ACCEPTED");
+                Handler h = new Handler();
+                h.postDelayed(new Runnable(){
+                    public void run(){
+                        customerView.setVisibility(View.GONE);
+                        addressView.setVisibility(View.VISIBLE);
+                        startLoadingView.setVisibility(View.VISIBLE);
+                    }
+                }, 2000);
+
+
+            } catch (Exception e) {
+                //handle error
+                Log.e(TAG, "vehicleRequest jsonException = " + e.getMessage());
+            }
+        }
+    };
 }
