@@ -66,6 +66,7 @@ public class VehicleRequestListActivity extends ParentActivity {
             Log.e(TAG, "%%%%%%%%%%%% = " + vehicleRequestList.size());
             VehicleRequestListAdapter adapter = new VehicleRequestListAdapter(VehicleRequestListActivity.this, R.layout.vehicle_request_list_view_item, vehicleRequestList, poppinsRegular);
             vehicleRequestListView.setAdapter(adapter);
+
             vehicleRequestListView.setOnItemClickListener(itemClickListener);
 
         } catch (Exception e) {
@@ -79,8 +80,8 @@ public class VehicleRequestListActivity extends ParentActivity {
 
         @Override
         public void onItemClick(AdapterView<?> parent, final View view, int position, long id) {
-            selectedVehicleRequest = vehicleRequestList.get(position);
             Log.i("LIST", "items clicked");
+            selectedVehicleRequest = vehicleRequestList.get(position);
         }
 
     };

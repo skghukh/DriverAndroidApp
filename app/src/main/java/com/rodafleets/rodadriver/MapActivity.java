@@ -166,6 +166,9 @@ public class MapActivity extends ParentActivity implements OnMapReadyCallback,
         LatLngBounds bounds = builder.build();
         int padding = 10; // offset from edges of the map in pixels
         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, padding));
+
+        mGoogleMap.setMyLocationEnabled(false);
+        mGoogleMap.getUiSettings().setMyLocationButtonEnabled(false);
     }
 
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;

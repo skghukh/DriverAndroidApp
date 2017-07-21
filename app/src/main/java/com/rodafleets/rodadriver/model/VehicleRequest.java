@@ -21,11 +21,12 @@ public class VehicleRequest {
     private String customerName;
 
     public VehicleRequest(JSONObject jsonObject) throws JSONException {
+
         this.id = jsonObject.getInt("id");
         this.originLat = ((jsonObject.isNull("originLat")) ? 0 : jsonObject.getDouble("originLat"));
         this.originLng = ((jsonObject.isNull("originLng")) ? 0 : jsonObject.getDouble("originLng"));
         this.destinationLat =((jsonObject.isNull("destinationLat")) ? 0 :  jsonObject.getDouble("destinationLat"));
-        this.destinationLng = ((jsonObject.isNull("destinationLat")) ? 0 : jsonObject.getDouble("destinationLat"));
+        this.destinationLng = ((jsonObject.isNull("destinationLng")) ? 0 : jsonObject.getDouble("destinationLng"));
         this.approxFareInCents = ((jsonObject.isNull("approxFareInCents")) ? 0 : jsonObject.getInt("approxFareInCents"));
         this.originAddress = ((jsonObject.isNull("originAddress")) ? "" : jsonObject.getString("originAddress"));
         this.destinationAddress = ((jsonObject.isNull("destinationAddress")) ? "" : jsonObject.getString("destinationAddress"));
