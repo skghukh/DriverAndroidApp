@@ -72,35 +72,35 @@ public class VehicleRequest {
         this.vehicleTypeId = vehicleTypeId;
     }
 
-    public double getPickupPointLat() {
+    public double getOriginLat() {
         return originLat;
     }
 
-    public void setPickupPointLat(double pickupPointLat) {
+    public void setOriginLat(double pickupPointLat) {
         this.originLat = pickupPointLat;
     }
 
-    public double getPickupPointLng() {
+    public double getOriginLng() {
         return originLng;
     }
 
-    public void setPickupPointLng(double pickupPointLng) {
+    public void setOriginLng(double pickupPointLng) {
         this.originLng = pickupPointLng;
     }
 
-    public double getDropPointLat() {
+    public double getDestinationLat() {
         return destinationLat;
     }
 
-    public void setDropPointLat(double dropPointLat) {
+    public void setDestinationLat(double dropPointLat) {
         this.destinationLat = dropPointLat;
     }
 
-    public double getDropPointLng() {
+    public double getDestinationLng() {
         return destinationLng;
     }
 
-    public void setDropPointLng(double dropPointLng) {
+    public void setDestinationLng(double dropPointLng) {
         this.destinationLng = dropPointLng;
     }
 

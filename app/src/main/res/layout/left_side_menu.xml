@@ -167,7 +167,7 @@
         android:layout_height="wrap_content"
         android:paddingBottom="25dp"
         android:paddingLeft="20dp"
-        android:text="Trips"
+        android:text="Legal"
         android:textColor="#1C0113"
         android:textSize="@dimen/text_large"
         app:layout_constraintLeft_toLeftOf="parent"

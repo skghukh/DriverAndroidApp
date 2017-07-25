@@ -18,4 +18,7 @@
     <color name="slider_color_default">#3F51B5</color>
     <color name="button_color_default">#FFFFFF</color>
     <color name="stroke_color_default">#FFFFFF</color>
+
+    <color name="rating_bar">#FFFFFF</color>
+    <color name="rating_bar_selected">#FF960B</color>
 </resources>

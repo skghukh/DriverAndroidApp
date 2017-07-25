@@ -115,7 +115,7 @@ public class VehicleRequestListAdapter extends ArrayAdapter<VehicleRequest> {
 
             LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
-            LatLng originLatLng = new LatLng(vehicleRequest.getPickupPointLat(), vehicleRequest.getPickupPointLng());
+            LatLng originLatLng = new LatLng(vehicleRequest.getOriginLat(), vehicleRequest.getOriginLng());
 
             MarkerOptions originMarkerOptions = new MarkerOptions();
 
@@ -126,7 +126,7 @@ public class VehicleRequestListAdapter extends ArrayAdapter<VehicleRequest> {
 
             builder.include(originMarker.getPosition());
 
-            LatLng destinationLatLng = new LatLng(vehicleRequest.getDropPointLat(), vehicleRequest.getDropPointLng());
+            LatLng destinationLatLng = new LatLng(vehicleRequest.getDestinationLat(), vehicleRequest.getDestinationLng());
 
             MarkerOptions destinationMarkerOptions = new MarkerOptions();
 

@@ -87,18 +87,18 @@
         <android.support.v7.widget.CardView
             android:id="@+id/addressView"
             android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_height="100dp"
             app:cardBackgroundColor="@color/view_background_white"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/customerView"
             app:contentPadding="10dp"
             card_view:cardCornerRadius="0dp"
-            android:visibility="gone">
+            android:visibility="visible">
 
             <RelativeLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_gravity="center_horizontal">
 
                 <TextView
@@ -434,7 +434,8 @@
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
                     android:layout_marginTop="10dp"
-                    android:layout_below="@id/rateCustomerTxt"/>
+                    android:layout_below="@id/rateCustomerTxt"
+                    android:theme="@style/RatingBar" />
 
                 <com.rodafleets.rodadriver.custom.slideview.SlideView
                     android:id="@+id/goOnlineBtn"
@@ -442,8 +443,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
 
-                    app:buttonBackgroundColor="#6D445C"
-                    app:slideBackgroundColor="#765267"
+                    app:buttonBackgroundColor="#FF960B"
+                    app:slideBackgroundColor="#FFB900"
                     app:slideText="GO ONLINE"
                     app:slideTextColor="#FFFFFF"
                     app:slideTextSize="20sp"

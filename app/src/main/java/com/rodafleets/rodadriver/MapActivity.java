@@ -9,8 +9,11 @@ import android.graphics.Typeface;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -27,8 +30,11 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.rodafleets.rodadriver.model.VehicleRequest;
 import com.rodafleets.rodadriver.utils.AppConstants;
+import com.rodafleets.rodadriver.utils.ApplicationSettings;
 
+import org.json.JSONObject;
 
 public class MapActivity extends ParentActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
@@ -61,6 +67,10 @@ public class MapActivity extends ParentActivity implements OnMapReadyCallback,
     public void initMap() {
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+    }
+
+    public void clearMap() {
+        mGoogleMap.clear();
     }
 
     @Override
@@ -142,50 +152,60 @@ public class MapActivity extends ParentActivity implements OnMapReadyCallback,
             mCurrLocationMarker.remove();
         }
 
-        LatLngBounds.Builder builder = new LatLngBounds.Builder();
-
         //Place current location marker
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
 
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(latLng);
 
-//         markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.car_icon));
-
         markerOptions.icon(BitmapDescriptorFactory.fromBitmap(carIcon));
 
         mCurrLocationMarker = mGoogleMap.addMarker(markerOptions);
 
-        builder.include(mCurrLocationMarker.getPosition());
 
-        //Place pickup location marker
-//        LatLng pickupPointLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+        if(!ApplicationSettings.getVehicleRequest(this).equals("")) {
 
-        LatLng pickupPointLatLng = new LatLng(12.964880, 77.638572);
+            VehicleRequest vehicleRequest;
+            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+            int padding = 30; // offset from edges of the map in pixels
 
-        MarkerOptions pickUpMarkerOptions = new MarkerOptions();
-        pickUpMarkerOptions.position(pickupPointLatLng);
-        pickUpMarkerOptions.icon(BitmapDescriptorFactory.fromBitmap(greenIcon));
+            builder.include(mCurrLocationMarker.getPosition());
+            try {
 
-        pickupPointMarker = mGoogleMap.addMarker(pickUpMarkerOptions);
-        builder.include(pickupPointMarker.getPosition());
+                JSONObject jsonObject = new JSONObject(ApplicationSettings.getVehicleRequest(MapActivity.this));
 
-        //Place drop location marker
-//        LatLng dropPointLatlng = new LatLng(location.getLatitude(), location.getLongitude());
+                vehicleRequest = new VehicleRequest(jsonObject);
 
-        LatLng dropPointLatlng = new LatLng(12.961033, 77.656280);
-        MarkerOptions dropMarkerOptions = new MarkerOptions();
+                //Place pickup location marker
+                LatLng pickupPointLatLng = new LatLng(vehicleRequest.getOriginLat(), vehicleRequest.getOriginLng());
 
-        dropMarkerOptions.position(dropPointLatlng);
-        dropMarkerOptions.icon(BitmapDescriptorFactory.fromBitmap(redIcon));
+                MarkerOptions pickUpMarkerOptions = new MarkerOptions();
+                pickUpMarkerOptions.position(pickupPointLatLng);
+                pickUpMarkerOptions.icon(BitmapDescriptorFactory.fromBitmap(greenIcon));
 
-        dropPointMarker = mGoogleMap.addMarker(dropMarkerOptions);
-        builder.include(dropPointMarker.getPosition());
+                pickupPointMarker = mGoogleMap.addMarker(pickUpMarkerOptions);
+                builder.include(pickupPointMarker.getPosition());
 
-        LatLngBounds bounds = builder.build();
+                //Place drop location marker
+                LatLng dropPointLatlng = new LatLng(vehicleRequest.getDestinationLat(), vehicleRequest.getDestinationLng());
+                MarkerOptions dropMarkerOptions = new MarkerOptions();
 
-        int padding = 30; // offset from edges of the map in pixels
-        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, padding));
+                dropMarkerOptions.position(dropPointLatlng);
+                dropMarkerOptions.icon(BitmapDescriptorFactory.fromBitmap(redIcon));
+
+                dropPointMarker = mGoogleMap.addMarker(dropMarkerOptions);
+                builder.include(dropPointMarker.getPosition());
+
+            } catch (Exception e) {
+                //handle error
+                Log.e(TAG, "vehicleRequest jsonException in MapActivity = " + e.getMessage());
+            }
+
+            LatLngBounds bounds = builder.build();
+            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, padding));
+        } else {
+            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f));
+        }
 
         mGoogleMap.setMyLocationEnabled(false);
         mGoogleMap.getUiSettings().setMyLocationButtonEnabled(false);

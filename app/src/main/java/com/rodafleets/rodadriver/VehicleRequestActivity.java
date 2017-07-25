@@ -18,12 +18,10 @@ import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import com.rodafleets.rodadriver.custom.slideview.SlideView;
-import com.rodafleets.rodadriver.custom.slideview.Slider;
 import com.rodafleets.rodadriver.model.VehicleRequest;
 import com.rodafleets.rodadriver.rest.RodaRestClient;
 import com.rodafleets.rodadriver.utils.AppConstants;
@@ -58,7 +56,6 @@ public class VehicleRequestActivity extends MapActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vehicle_request);
-
         initComponents();
     }
 
@@ -79,9 +76,31 @@ public class VehicleRequestActivity extends MapActivity {
 
         initMap();
         setFonts();
+        initMakeOfferBtn();
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("Vehicle_Requested"));
 
+        boolean fromNotification = getIntent().getBooleanExtra("FROM_NOTIFICATION", false);
+        if(fromNotification) {
+            Log.i(TAG, "opened from notification");
+            showVehicleRequest();
+        }
+    }
+
+    private void setFonts() {
+        loadFonts();
+        customerName.setTypeface(poppinsMedium);
+        fromAddress.setTypeface(poppinsRegular);
+        toAddress.setTypeface(poppinsRegular);
+        distance.setTypeface(poppinsLight);
+        loadingUnloadingTxt.setTypeface(poppinsSemiBold);
+//        makeOfferBtn.setTypeface(poppinsSemiBold);
+        makeOfferTxt.setTypeface(poppinsRegular);
+        callCustomerBtn.setTypeface(poppinsMedium);
+        callAdmin.setTypeface(poppinsRegular);
+    }
+
+    private void initMakeOfferBtn() {
         makeOfferBtn.getSlider().setOnTouchListener(new AppCompatSeekBar.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -116,19 +135,6 @@ public class VehicleRequestActivity extends MapActivity {
         });
     }
 
-    private void setFonts() {
-        loadFonts();
-        customerName.setTypeface(poppinsMedium);
-        fromAddress.setTypeface(poppinsRegular);
-        toAddress.setTypeface(poppinsRegular);
-        distance.setTypeface(poppinsLight);
-        loadingUnloadingTxt.setTypeface(poppinsSemiBold);
-//        makeOfferBtn.setTypeface(poppinsSemiBold);
-        makeOfferTxt.setTypeface(poppinsRegular);
-        callCustomerBtn.setTypeface(poppinsMedium);
-        callAdmin.setTypeface(poppinsRegular);
-    }
-
     private void bidRequest() {
         int driverId = ApplicationSettings.getDriverId(VehicleRequestActivity.this);
         RodaRestClient.bidRequest(vehicleRequest.getId(), driverId, vehicleRequest.getApproxFareInCents(), bidRequestResponseHandler);
@@ -136,9 +142,6 @@ public class VehicleRequestActivity extends MapActivity {
 
     public void onRejectBtnClick(View view) {
         int driverId = ApplicationSettings.getDriverId(VehicleRequestActivity.this);
-
-        Log.i(TAG, driverId + "");
-
         RodaRestClient.rejectRequest(vehicleRequest.getId(), driverId, rejectRequestResponseHandler);
     }
 
@@ -154,29 +157,32 @@ public class VehicleRequestActivity extends MapActivity {
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            try {
-                Log.i(TAG, "-------AAAAAA------");
-
-                JSONObject jsonObject = new JSONObject(ApplicationSettings.getVehicleRequest(VehicleRequestActivity.this));
-
-                vehicleRequest = new VehicleRequest(jsonObject);
-
-                customerName.setText(vehicleRequest.getCustomerName().toUpperCase());
-                fromAddress.setText(vehicleRequest.getOriginAddress());
-                toAddress.setText(vehicleRequest.getDestinationAddress());
-                distance.setText(vehicleRequest.getDistance());
-
-                long fare = vehicleRequest.getApproxFareInCents()/100;
-
-                makeOfferBtn.setText("₹" + fare);
-                requestView.setVisibility(View.VISIBLE);
-
-            } catch (Exception e) {
-                //handle error
-                Log.e(TAG, "vehicleRequest jsonException = " + e.getMessage());
-            }
+            showVehicleRequest();
         }
     };
+
+    private void showVehicleRequest() {
+        try {
+
+            JSONObject jsonObject = new JSONObject(ApplicationSettings.getVehicleRequest(VehicleRequestActivity.this));
+
+            vehicleRequest = new VehicleRequest(jsonObject);
+
+            customerName.setText(vehicleRequest.getCustomerName().toUpperCase());
+            fromAddress.setText(vehicleRequest.getOriginAddress());
+            toAddress.setText(vehicleRequest.getDestinationAddress());
+            distance.setText(vehicleRequest.getDistance());
+
+            long fare = vehicleRequest.getApproxFareInCents()/100;
+
+            makeOfferBtn.setText("₹" + fare);
+            requestView.setVisibility(View.VISIBLE);
+
+        } catch (Exception e) {
+            //handle error
+            Log.e(TAG, "vehicleRequest jsonException = " + e.getMessage());
+        }
+    }
 
     private JsonHttpResponseHandler bidRequestResponseHandler = new JsonHttpResponseHandler() {
 
@@ -199,6 +205,7 @@ public class VehicleRequestActivity extends MapActivity {
         public void onSuccess(int statusCode, Header[] headers, JSONObject jsonResponseObject) {
             Log.i(AppConstants.APP_NAME, "response = " + jsonResponseObject.toString());
             ApplicationSettings.setVehicleRequest(VehicleRequestActivity.this, null);
+            clearMap();
             requestView.setVisibility(View.GONE);
         }
 

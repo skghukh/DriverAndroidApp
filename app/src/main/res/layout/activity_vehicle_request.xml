@@ -46,7 +46,7 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:contentPadding="10dp"
-            android:visibility="visible"
+            android:visibility="gone"
             card_view:cardCornerRadius="7dp">
 
 

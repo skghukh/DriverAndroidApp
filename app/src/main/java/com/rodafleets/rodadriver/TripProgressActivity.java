@@ -322,6 +322,7 @@ public class TripProgressActivity extends MapActivity {
             @Override
             public void onSlideComplete(SlideView slideView) {
                 hideAllViews();
+                rateCustomerTxt.setText("Rate " + vehicleRequest.getCustomerName());
                 paidByTxt.setText("Payment made by e-wallet");
                 long fare = vehicleRequest.getApproxFareInCents()/100;
                 fareTxt.setText("₹" + fare);
@@ -360,10 +361,7 @@ public class TripProgressActivity extends MapActivity {
         goOnlineBtn.setOnSlideCompleteListener(new SlideView.OnSlideCompleteListener() {
             @Override
             public void onSlideComplete(SlideView slideView) {
-                //hideAllViews();
-                //startTripView.setVisibility(View.VISIBLE);
-
-
+                startNextActivity();
             }
         });
     }
@@ -375,6 +373,12 @@ public class TripProgressActivity extends MapActivity {
         startTripView.setVisibility(View.GONE);
         startUnloadingView.setVisibility(View.GONE);
         endTripView.setVisibility(View.GONE);
+    }
+
+    private void startNextActivity() {
+        ApplicationSettings.setVehicleRequest(this, null);
+        this.startActivity(new Intent(this, VehicleRequestActivity.class));
+        finish();
     }
 
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
@@ -389,9 +393,6 @@ public class TripProgressActivity extends MapActivity {
 
                 customerName.setText(vehicleRequest.getCustomerName().toUpperCase());
                 fromAddress.setText(vehicleRequest.getOriginAddress());
-                //toAddress.setText(vehicleRequest.getDestinationAddress());
-                //distance.setText(vehicleRequest.getDistance());
-
                 acceptanceStatus.setText("ACCEPTED");
                 Handler h = new Handler();
                 h.postDelayed(new Runnable(){
