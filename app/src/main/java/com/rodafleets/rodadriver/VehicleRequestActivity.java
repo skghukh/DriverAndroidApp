@@ -22,12 +22,15 @@ import android.widget.TextView;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import com.rodafleets.rodadriver.custom.slideview.SlideView;
+import com.rodafleets.rodadriver.model.Driver;
 import com.rodafleets.rodadriver.model.VehicleRequest;
 import com.rodafleets.rodadriver.rest.RodaRestClient;
 import com.rodafleets.rodadriver.utils.AppConstants;
 import com.rodafleets.rodadriver.utils.ApplicationSettings;
 
 import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 import cz.msebera.android.httpclient.Header;
 
@@ -167,6 +170,8 @@ public class VehicleRequestActivity extends MapActivity {
             JSONObject jsonObject = new JSONObject(ApplicationSettings.getVehicleRequest(VehicleRequestActivity.this));
 
             vehicleRequest = new VehicleRequest(jsonObject);
+
+            RodaDriverApplication.vehicleRequests.add(vehicleRequest);
 
             customerName.setText(vehicleRequest.getCustomerName().toUpperCase());
             fromAddress.setText(vehicleRequest.getOriginAddress());

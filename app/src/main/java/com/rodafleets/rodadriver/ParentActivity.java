@@ -4,7 +4,10 @@ import android.content.res.Configuration;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -18,7 +21,7 @@ import android.widget.Toast;
 
 import com.rodafleets.rodadriver.utils.AppConstants;
 
-public class ParentActivity extends AppCompatActivity {
+public class ParentActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     Typeface poppinsRegular;
     Typeface poppinsMedium;
@@ -99,17 +102,30 @@ public class ParentActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Pass the event to ActionBarDrawerToggle, if it returns
-        // true, then it has handled the app icon touch event
-        if (mDrawerToggle.onOptionsItemSelected(item)) {
-//            Log.i(TAG, "xx");
-            return true;
-        }
-        // Handle your other action bar items...
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        // Handle navigation view item clicks here.
+        switch (item.getItemId()) {
 
-        return super.onOptionsItemSelected(item);
+            case R.id.menu_trip: {
+                Log.i("Menu", "trip clicked");
+                break;
+            }
+
+            case R.id.menu_payment: {
+                //do somthing
+                break;
+            }
+
+            case R.id.menu_settings: {
+                //do somthing
+                break;
+            }
+        }
+        //close navigation drawer
+        mDrawerLayout.closeDrawer(GravityCompat.START);
+        return true;
     }
+
 
     public void loadFonts() {
         poppinsRegular = Typeface.createFromAsset(getAssets(), AppConstants.FONT_POPPINS_REGULAR);

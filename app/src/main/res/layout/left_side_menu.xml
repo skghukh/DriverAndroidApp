@@ -62,7 +62,7 @@
         app:layout_constraintTop_toBottomOf="@+id/driverView">
 
         <TextView
-            android:id="@+id/menuTrip"
+            android:id="@+id/menu_trip"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
@@ -72,34 +72,34 @@
             android:textSize="@dimen/text_large" />
 
         <TextView
-            android:id="@+id/menuPayment"
+            android:id="@+id/menu_payment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="10dp"
             android:text="Payment"
             android:textColor="#1C0113"
             android:textSize="@dimen/text_large"
-            android:layout_below="@+id/menuTrip"/>
+            android:layout_below="@+id/menu_trip"/>
 
         <TextView
-            android:id="@+id/menuSettings"
+            android:id="@+id/menu_settings"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="10dp"
             android:text="Settings"
             android:textColor="#1C0113"
             android:textSize="@dimen/text_large"
-            android:layout_below="@+id/menuPayment"/>
+            android:layout_below="@+id/menu_payment"/>
 
         <TextView
-            android:id="@+id/menuSupport"
+            android:id="@+id/menu_support"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="10dp"
             android:text="Support"
             android:textColor="#1C0113"
             android:textSize="@dimen/text_large"
-            android:layout_below="@+id/menuSettings"/>
+            android:layout_below="@+id/menu_settings"/>
 
     </RelativeLayout>
 
@@ -140,7 +140,7 @@
             android:layout_below="@+id/driverRatingViewTxt"/>
 
         <TextView
-            android:id="@+id/driverRating"
+            android:id="@+id/driver_rating"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:text="4.2"
