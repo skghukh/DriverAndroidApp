@@ -31,7 +31,7 @@ public class Driver {
         this.lastName = jsonObject.getString("lastName");
         this.verified = jsonObject.getBoolean("verified");
         this.gender = jsonObject.getString("gender");
-        this.vehicleRequests = Utils.toVehicleRequestArrayList(jsonObject.getJSONArray("vehicleRequests"));
+      //  this.vehicleRequests = Utils.toVehicleRequestArrayList(jsonObject.getJSONArray("vehicleRequests"));
     }
 
     public int getId() {
