@@ -182,6 +182,7 @@ public class VehicleRequestActivity extends MapActivity {
 
             makeOfferBtn.setText("₹" + fare);
             requestView.setVisibility(View.VISIBLE);
+            requestView.bringToFront();
 
         } catch (Exception e) {
             //handle error

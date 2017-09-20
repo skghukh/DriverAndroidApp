@@ -82,11 +82,11 @@ public class NotificationService extends FirebaseMessagingService {
             intent = new Intent("Bid_Accepted");
         }
 
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+        boolean isListened = LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 
         // Also if you intend on generating your own notifications as a result of a received FCM
         // message, here is where that should be initiated. See sendNotification method below.
-        sendNotification(notificationTitle, notificationBody);
+        //sendNotification(notificationTitle, notificationBody);
     }
     // [END receive_message]
 

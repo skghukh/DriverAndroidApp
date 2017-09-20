@@ -22,7 +22,7 @@
             android:layout_width="match_parent"
             android:minHeight="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            tools:layout_editor_absoluteY="25dp"
+            tools:layout_editor_absoluteY="75dp"
             tools:layout_editor_absoluteX="8dp" />
 
 
@@ -40,7 +40,7 @@
             android:id="@+id/requestView"
             android:layout_gravity="bottom"
             android:layout_width="0dp"
-            android:layout_height="400dp"
+            android:layout_height="wrap_content"
             app:cardBackgroundColor="@color/view_background_purple"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
