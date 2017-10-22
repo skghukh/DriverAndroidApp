@@ -84,7 +84,7 @@ public class VehicleRequestActivity extends MapActivity {
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("Vehicle_Requested"));
 
         boolean fromNotification = getIntent().getBooleanExtra("FROM_NOTIFICATION", false);
-        if(fromNotification) {
+        if (fromNotification) {
             Log.i(TAG, "opened from notification");
             showVehicleRequest();
         }
@@ -178,7 +178,7 @@ public class VehicleRequestActivity extends MapActivity {
             toAddress.setText(vehicleRequest.getDestinationAddress());
             distance.setText(vehicleRequest.getDistance());
 
-            long fare = vehicleRequest.getApproxFareInCents()/100;
+            long fare = vehicleRequest.getApproxFareInCents() / 100;
 
             makeOfferBtn.setText("₹" + fare);
             requestView.setVisibility(View.VISIBLE);

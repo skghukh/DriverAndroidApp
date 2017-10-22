@@ -1,5 +1,6 @@
 package com.rodafleets.rodadriver.rest;
 
+import android.location.Location;
 import android.util.Log;
 
 import com.loopj.android.http.AsyncHttpClient;
@@ -146,4 +147,18 @@ public class RodaRestClient {
         params.put("bid_amount_in_cents", fareInCents);
         RodaRestClient.POST("/requests/" + requestId + "/bids", params, responseHandler);
     }
+
+    public static void getDriverLocation(int driverId, JsonHttpResponseHandler responseHandler) {
+        String url = "/location/" + driverId;
+        RequestParams params = new RequestParams();
+        RodaRestClient.GET(url, params, responseHandler);
+    }
+
+    public static void updateDriverLocation(int driverId, Double lat, Double lan , JsonHttpResponseHandler responseHandler) {
+        String url = "/location/"+driverId+"/update/langtitude/"+lat+"/longtitude/"+lan;
+        RequestParams params = new RequestParams();
+        RodaRestClient.POST(url, params, responseHandler);
+    }
+
+
 }

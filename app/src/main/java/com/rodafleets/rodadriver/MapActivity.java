@@ -2,6 +2,7 @@ package com.rodafleets.rodadriver;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -31,6 +32,7 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.rodafleets.rodadriver.model.VehicleRequest;
+import com.rodafleets.rodadriver.services.LocationUpdateService;
 import com.rodafleets.rodadriver.utils.AppConstants;
 import com.rodafleets.rodadriver.utils.ApplicationSettings;
 
@@ -97,6 +99,9 @@ public class MapActivity extends ParentActivity implements OnMapReadyCallback,
         }
 
         initMarkerBitmaps();
+        Intent background = new Intent(this, LocationUpdateService.class);
+        background.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
+        this.startService(background);
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -161,7 +166,6 @@ public class MapActivity extends ParentActivity implements OnMapReadyCallback,
         markerOptions.icon(BitmapDescriptorFactory.fromBitmap(carIcon));
 
         mCurrLocationMarker = mGoogleMap.addMarker(markerOptions);
-
 
         if(!ApplicationSettings.getVehicleRequest(this).equals("")) {
 

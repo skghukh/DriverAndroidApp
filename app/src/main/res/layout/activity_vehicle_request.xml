@@ -81,7 +81,7 @@
                         android:id="@+id/customerName"
                         android:layout_height="wrap_content"
                         android:layout_width="wrap_content"
-                        android:text="ADITYA BHARDWAJ"
+                        android:text="Shailendra Verma"
                         android:textColor="#FFFFFF"
                         android:textSize="@dimen/text_medium"
                         android:layout_marginBottom="40dp"
