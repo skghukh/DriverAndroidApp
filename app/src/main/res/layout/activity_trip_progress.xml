@@ -38,7 +38,7 @@
 
         <android.support.v7.widget.CardView
             android:id="@+id/customerView"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="75dp"
             app:cardBackgroundColor="@color/view_background_purple"
             app:layout_constraintLeft_toLeftOf="parent"
