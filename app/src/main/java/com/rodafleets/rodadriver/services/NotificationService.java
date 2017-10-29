@@ -32,7 +32,6 @@ public class NotificationService extends FirebaseMessagingService {
      * @param @remoteMessage Object representing the message received from Firebase Cloud Messaging.
      */
     // [START receive_message]
-
     @Override
     public void onCreate() {
         Log.i(TAG, "Service Created");
@@ -74,12 +73,17 @@ public class NotificationService extends FirebaseMessagingService {
         }
 
         Intent intent = null;
-        if(notificationTitle.equals("Request")) {
+        if (notificationTitle.equals("Request")) {
             intent = new Intent("Vehicle_Requested");
             JSONObject vehicleRequest = new JSONObject(data);
             ApplicationSettings.setVehicleRequest(this, vehicleRequest);
-        } else if(notificationTitle.equals("Accept")) {
+        } else if (notificationTitle.equals("Accept")) {
             intent = new Intent("Bid_Accepted");
+            if (remoteMessage.getData().size() > 0) {
+                Map<String, String> dataMessage = remoteMessage.getData();
+                intent.putExtra("tripId", dataMessage.get("tripId"));
+                intent.putExtra("requestId", dataMessage.get("requestId"));
+            }
         }
 
         boolean isListened = LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
@@ -101,7 +105,7 @@ public class NotificationService extends FirebaseMessagingService {
         intent.putExtra("FROM_NOTIFICATION", true);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent, PendingIntent.FLAG_ONE_SHOT);
 
-        Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.logo)
                 .setContentTitle(title)

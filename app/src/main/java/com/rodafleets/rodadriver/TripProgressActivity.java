@@ -14,15 +14,20 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.loopj.android.http.JsonHttpResponseHandler;
 import com.rodafleets.rodadriver.custom.SwipeButton;
 import com.rodafleets.rodadriver.custom.SwipeButtonCustomItems;
 import com.rodafleets.rodadriver.custom.slideview.SlideView;
 import com.rodafleets.rodadriver.model.VehicleRequest;
+import com.rodafleets.rodadriver.rest.RodaRestClient;
 import com.rodafleets.rodadriver.utils.AppConstants;
 import com.rodafleets.rodadriver.utils.ApplicationSettings;
 
 import org.json.JSONObject;
+
+import cz.msebera.android.httpclient.Header;
 
 public class TripProgressActivity extends MapActivity {
 
@@ -70,6 +75,8 @@ public class TripProgressActivity extends MapActivity {
 
     private VehicleRequest vehicleRequest;
 
+    private Handler mHandler = new Handler();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,7 +103,7 @@ public class TripProgressActivity extends MapActivity {
         customerName = (TextView) findViewById(R.id.customerName);
         acceptanceStatus = (TextView) findViewById(R.id.acceptanceStatus);
 
-        navigate  = (TextView) findViewById(R.id.navigate);
+        navigate = (TextView) findViewById(R.id.navigate);
         fromAddress = (TextView) findViewById(R.id.fromAddress);
 
         arrivedAtOriginTxt = (TextView) findViewById(R.id.arrivedAtOriginTxt);
@@ -212,6 +219,13 @@ public class TripProgressActivity extends MapActivity {
             public void onSlideComplete(SlideView slideView) {
                 hideAllViews();
                 startTripView.setVisibility(View.VISIBLE);
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        RodaRestClient.updateTripStatus(ApplicationSettings.getTripId(), ApplicationSettings.getRequestId(), 1, tripStatusUpdateHandler);
+                    }
+                });
+
             }
         });
     }
@@ -249,9 +263,16 @@ public class TripProgressActivity extends MapActivity {
             public void onSlideComplete(SlideView slideView) {
                 hideAllViews();
                 startUnloadingView.setVisibility(View.VISIBLE);
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        RodaRestClient.updateTripStatus(ApplicationSettings.getTripId(), ApplicationSettings.getRequestId(), 2, tripStatusUpdateHandler);
+                    }
+                });
             }
         });
     }
+
 
     private void initStartUnloadingBtn() {
 
@@ -286,11 +307,17 @@ public class TripProgressActivity extends MapActivity {
             public void onSlideComplete(SlideView slideView) {
                 hideAllViews();
                 endTripView.setVisibility(View.VISIBLE);
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        RodaRestClient.updateTripStatus(ApplicationSettings.getTripId(), ApplicationSettings.getRequestId(), 3, tripStatusUpdateHandler);
+                    }
+                });
             }
         });
     }
 
-    private void initEndTripBtn () {
+    private void initEndTripBtn() {
 
         endTripBtn.getSlider().setOnTouchListener(new AppCompatSeekBar.OnTouchListener() {
             @Override
@@ -324,9 +351,15 @@ public class TripProgressActivity extends MapActivity {
                 hideAllViews();
                 rateCustomerTxt.setText("Rate " + vehicleRequest.getCustomerName());
                 paidByTxt.setText("Payment made by e-wallet");
-                long fare = vehicleRequest.getApproxFareInCents()/100;
+                long fare = vehicleRequest.getApproxFareInCents() / 100;
                 fareTxt.setText("₹" + fare);
                 fareSummaryView.setVisibility(View.VISIBLE);
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        RodaRestClient.updateTripStatus(ApplicationSettings.getTripId(), ApplicationSettings.getRequestId(), 10, tripStatusUpdateHandler);
+                    }
+                });
             }
         });
     }
@@ -390,13 +423,16 @@ public class TripProgressActivity extends MapActivity {
                 JSONObject jsonObject = new JSONObject(ApplicationSettings.getVehicleRequest(TripProgressActivity.this));
 
                 vehicleRequest = new VehicleRequest(jsonObject);
-
+                final String tripId = intent.getStringExtra("tripId");
+                final String requestId = intent.getStringExtra("requestId");
+                ApplicationSettings.setRequestId(Long.parseLong(requestId));
+                ApplicationSettings.setTripId(Long.parseLong(tripId));
                 customerName.setText(vehicleRequest.getCustomerName().toUpperCase());
                 fromAddress.setText(vehicleRequest.getOriginAddress());
                 acceptanceStatus.setText("ACCEPTED");
                 Handler h = new Handler();
-                h.postDelayed(new Runnable(){
-                    public void run(){
+                h.postDelayed(new Runnable() {
+                    public void run() {
                         customerView.setVisibility(View.GONE);
                         addressView.setVisibility(View.VISIBLE);
                         startLoadingView.setVisibility(View.VISIBLE);
@@ -408,6 +444,19 @@ public class TripProgressActivity extends MapActivity {
                 //handle error
                 Log.e(TAG, "vehicleRequest jsonException = " + e.getMessage());
             }
+        }
+    };
+
+    private JsonHttpResponseHandler tripStatusUpdateHandler = new JsonHttpResponseHandler() {
+        @Override
+        public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+            Toast.makeText(TripProgressActivity.this, "Trip Status Updated", Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+            super.onFailure(statusCode, headers, throwable, errorResponse);
+            Toast.makeText(TripProgressActivity.this, "Not able to update Trip Status!", Toast.LENGTH_SHORT).show();
         }
     };
 }

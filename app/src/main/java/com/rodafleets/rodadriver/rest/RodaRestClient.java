@@ -15,14 +15,14 @@ public class RodaRestClient {
 
     private static final String API_VERSION = "0.1";
 
-//    private static final String API_BASE_URL = "https://api.rodafleets.com/" + API_VERSION;
+    //    private static final String API_BASE_URL = "https://api.rodafleets.com/" + API_VERSION;
     private static final String API_BASE_URL = "http://192.168.0.12:8080/" + API_VERSION;
 
     private static AsyncHttpClient client = new AsyncHttpClient();
 
     public static void GET(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
 
-        if(params != null) {
+        if (params != null) {
             Log.i(AppConstants.APP_NAME, "Api params = " + params.toString());
         }
         client.setMaxRetriesAndTimeout(AppConstants.HTTP_CONNECTION_RETRIES, AsyncHttpClient.DEFAULT_RETRY_SLEEP_TIME_MILLIS);
@@ -31,7 +31,7 @@ public class RodaRestClient {
 
     public static void POST(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
         client.setMaxRetriesAndTimeout(AppConstants.HTTP_CONNECTION_RETRIES, AsyncHttpClient.DEFAULT_RETRY_SLEEP_TIME_MILLIS);
-        client.setTimeout(20*1000);
+        client.setTimeout(20 * 1000);
         client.post(getAbsoluteUrl(url), params, responseHandler);
     }
 
@@ -109,7 +109,7 @@ public class RodaRestClient {
         RequestParams params = new RequestParams();
         params.put("number", vehicleNumber);
         params.put("vehicletype_id", vehicleTypeId);
-        RodaRestClient.POST("/drivers/" + driverId +"/vehicles", params, responseHandler);
+        RodaRestClient.POST("/drivers/" + driverId + "/vehicles", params, responseHandler);
     }
 
     public static void saveVehicleInfo(int driverId, String vehicleNumber, int vehicleTypeId, String ownerFirstName, String ownerLastName, String ownerPhoneNumber, JsonHttpResponseHandler responseHandler) {
@@ -120,11 +120,11 @@ public class RodaRestClient {
         params.put("owner_lastname", ownerLastName);
         params.put("owner_phonenumber", ownerPhoneNumber);
 
-        RodaRestClient.POST("/drivers/" + driverId +"/vehicles", params, responseHandler);
+        RodaRestClient.POST("/drivers/" + driverId + "/vehicles", params, responseHandler);
     }
 
     public static void uploadDriverDocuments(int driverId, RequestParams params, JsonHttpResponseHandler responseHandler) {
-        RodaRestClient.POST("/drivers/" + driverId +"/uploaddocuments", params, responseHandler);
+        RodaRestClient.POST("/drivers/" + driverId + "/uploaddocuments", params, responseHandler);
     }
 
     public static void login(String phoneNumber, String password, String token, JsonHttpResponseHandler responseHandler) {
@@ -135,7 +135,7 @@ public class RodaRestClient {
         RodaRestClient.POST("/drivers/login", params, responseHandler);
     }
 
-    public static void rejectRequest(int requestId, int driverId,  JsonHttpResponseHandler responseHandler) {
+    public static void rejectRequest(int requestId, int driverId, JsonHttpResponseHandler responseHandler) {
         RequestParams params = new RequestParams();
         params.put("driver_id", driverId);
         RodaRestClient.POST("/requests/" + requestId + "/reject", params, responseHandler);
@@ -154,10 +154,16 @@ public class RodaRestClient {
         RodaRestClient.GET(url, params, responseHandler);
     }
 
-    public static void updateDriverLocation(int driverId, Double lat, Double lan , JsonHttpResponseHandler responseHandler) {
-        String url = "/location/"+driverId+"/update/langtitude/"+lat+"/longtitude/"+lan;
+    public static void updateDriverLocation(int driverId, Double lat, Double lan, JsonHttpResponseHandler responseHandler) {
+        String url = "/location/" + driverId + "/update/langtitude/" + lat + "/longtitude/" + lan;
         RequestParams params = new RequestParams();
         RodaRestClient.POST(url, params, responseHandler);
+    }
+
+    public static void updateTripStatus(long tripId, long requestId, int status, JsonHttpResponseHandler responseHandler) {
+        String url = "/trip/" + tripId + "/request/" + requestId + "/update/" + status;
+        RequestParams params = new RequestParams();
+        RodaRestClient.GET(url, params, responseHandler);
     }
 
 

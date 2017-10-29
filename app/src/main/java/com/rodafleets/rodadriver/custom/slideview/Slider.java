@@ -48,6 +48,8 @@ public class Slider extends AppCompatSeekBar {
     void setOnSlideCompleteListenerInternal(SlideView.OnSlideCompleteListener listener, SlideView slideView) {
         this.listener = listener;
         this.slideView = slideView;
+
+        //THis is slide completed listener
     }
 
     @Override

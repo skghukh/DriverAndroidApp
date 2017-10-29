@@ -22,6 +22,8 @@ public final class ApplicationSettings {
     private static final String LOGGED_IN = "LOGGED_IN";
     private static final String REGISTRATION_ID = "REGISTRATION_ID";
     private static final String VEHICLE_REQUEST = "VEHICLE_REQUEST";
+    private static long REQUEST_ID;
+    private static long TRIP_ID;
 
     private static SharedPreferences getSharedPreferences(Context context) {
         return context.getSharedPreferences(SETTINGS_NAME, 0);
@@ -119,7 +121,7 @@ public final class ApplicationSettings {
 
     public static void setVehicleRequest(Context context, JSONObject jsonObject) {
         SharedPreferences.Editor editor = getEditor(context);
-        if(jsonObject != null) {
+        if (jsonObject != null) {
             editor.putString(VEHICLE_REQUEST, jsonObject.toString());
         } else {
             editor.putString(VEHICLE_REQUEST, "");
@@ -129,5 +131,22 @@ public final class ApplicationSettings {
 
     public static String getVehicleRequest(Context context) {
         return getSharedPreferences(context).getString(VEHICLE_REQUEST, "");
+    }
+
+    public static long getRequestId() {
+        return REQUEST_ID;
+    }
+
+    public static void setRequestId(long requestId) {
+        REQUEST_ID = requestId;
+    }
+
+    public static long getTripId() {
+        return TRIP_ID;
+
+    }
+
+    public static void setTripId(long tripId) {
+        TRIP_ID = tripId;
     }
 }
