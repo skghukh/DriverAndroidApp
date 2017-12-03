@@ -16,7 +16,8 @@ public class RodaRestClient {
     private static final String API_VERSION = "0.1";
 
     //    private static final String API_BASE_URL = "https://api.rodafleets.com/" + API_VERSION;
-    private static final String API_BASE_URL = "http://192.168.0.12:8080/" + API_VERSION;
+    //private static final String API_BASE_URL = "http://192.168.0.12:8080/" + API_VERSION;
+    private static final String API_BASE_URL = "http://104.198.208.172:8080/" + API_VERSION;
 
     private static AsyncHttpClient client = new AsyncHttpClient();
 
