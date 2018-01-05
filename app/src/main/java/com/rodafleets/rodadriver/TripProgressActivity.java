@@ -16,16 +16,26 @@ import android.view.Window;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.rodafleets.rodadriver.custom.SwipeButton;
 import com.rodafleets.rodadriver.custom.SwipeButtonCustomItems;
 import com.rodafleets.rodadriver.custom.slideview.SlideView;
+import com.rodafleets.rodadriver.model.FBVehicleRequest;
+import com.rodafleets.rodadriver.model.TripRequest;
 import com.rodafleets.rodadriver.model.VehicleRequest;
 import com.rodafleets.rodadriver.rest.RodaRestClient;
+import com.rodafleets.rodadriver.services.FirebaseReferenceService;
 import com.rodafleets.rodadriver.utils.AppConstants;
 import com.rodafleets.rodadriver.utils.ApplicationSettings;
 
 import org.json.JSONObject;
+
+import java.util.HashMap;
 
 import cz.msebera.android.httpclient.Header;
 
@@ -74,6 +84,7 @@ public class TripProgressActivity extends MapActivity {
     private SlideView goOnlineBtn;
 
     private VehicleRequest vehicleRequest;
+    private TripRequest tripReq;
 
     private Handler mHandler = new Handler();
 
@@ -82,8 +93,60 @@ public class TripProgressActivity extends MapActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trip_progress);
-
+        final String tripstatus = getIntent().getStringExtra("tripstatus");
         initComponents();
+        this.tripReq = ApplicationSettings.getTripReq();
+        if (null == tripstatus) {
+            setTripStatusListener();
+        } else {
+            resumeViewForCurrentTrip(tripstatus);
+        }
+    }
+
+    private void resumeViewForCurrentTrip(String tripstatus) {
+        tripstatus = tripstatus.toLowerCase();
+        if (tripstatus.equalsIgnoreCase("loading")) {
+            resumeStartLoading();
+        }
+        if (tripstatus.equalsIgnoreCase("inprogress")) {
+            resumeStartTrip();
+        }
+        if (tripstatus.equalsIgnoreCase("unloading")) {
+            resumestartUnloading();
+        }
+        if (tripstatus.equalsIgnoreCase("completed")) {
+            resumeFinishTrip();
+        }
+    }
+
+    private void setTripStatusListener() {
+        final DatabaseReference statusRef = tripReq.getStatusRef();
+        final ValueEventListener tripStatusListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (null == dataSnapshot || null == dataSnapshot.getValue()) {
+                    return;
+                }
+                final String newStatus = (String) dataSnapshot.getValue();
+                final String[] status = newStatus.split("\\_");
+                if (status[1].equalsIgnoreCase(ApplicationSettings.getDriverEid(TripProgressActivity.this)) && (status[0].equalsIgnoreCase("scheduled") || status[0].equalsIgnoreCase("inprogress") || status[0].equalsIgnoreCase("completed"))) {
+                    //Check if this driver is carrier.
+                    onTripConfirmOperation();
+                    statusRef.removeEventListener(this);
+                } else if (newStatus == "cancelled" || newStatus.equalsIgnoreCase("expired")) {
+                    //Stop listening for this trip.
+                    //TODO:- remove current trip from driver.
+                    statusRef.removeEventListener(this);
+                    finish();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+        statusRef.addValueEventListener(tripStatusListener);
     }
 
     protected void initComponents() {
@@ -222,7 +285,8 @@ public class TripProgressActivity extends MapActivity {
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        RodaRestClient.updateTripStatus(ApplicationSettings.getTripId(), ApplicationSettings.getRequestId(), 1, tripStatusUpdateHandler);
+                        updateTripStatus(ApplicationSettings.getTripReq().getCustId(), ApplicationSettings.getTripReq().getTripId(), "Loading");
+                        //RodaRestClient.updateTripStatus(ApplicationSettings.getTripId(), ApplicationSettings.getRequestId(), 1, tripStatusUpdateHandler);
                     }
                 });
 
@@ -266,7 +330,8 @@ public class TripProgressActivity extends MapActivity {
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        RodaRestClient.updateTripStatus(ApplicationSettings.getTripId(), ApplicationSettings.getRequestId(), 2, tripStatusUpdateHandler);
+                        updateTripStatus(ApplicationSettings.getTripReq().getCustId(), ApplicationSettings.getTripReq().getTripId(), "Inprogress");
+                        //RodaRestClient.updateTripStatus(ApplicationSettings.getTripId(), ApplicationSettings.getRequestId(), 2, tripStatusUpdateHandler);
                     }
                 });
             }
@@ -310,7 +375,8 @@ public class TripProgressActivity extends MapActivity {
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        RodaRestClient.updateTripStatus(ApplicationSettings.getTripId(), ApplicationSettings.getRequestId(), 3, tripStatusUpdateHandler);
+                        updateTripStatus(ApplicationSettings.getTripReq().getCustId(), ApplicationSettings.getTripReq().getTripId(), "UnLoading");
+                        //RodaRestClient.updateTripStatus(ApplicationSettings.getTripId(), ApplicationSettings.getRequestId(), 3, tripStatusUpdateHandler);
                     }
                 });
             }
@@ -349,6 +415,7 @@ public class TripProgressActivity extends MapActivity {
             @Override
             public void onSlideComplete(SlideView slideView) {
                 hideAllViews();
+                final VehicleRequest vehicleRequest = ApplicationSettings.getVehicleRequest();
                 rateCustomerTxt.setText("Rate " + vehicleRequest.getCustomerName());
                 paidByTxt.setText("Payment made by e-wallet");
                 long fare = vehicleRequest.getApproxFareInCents() / 100;
@@ -357,7 +424,8 @@ public class TripProgressActivity extends MapActivity {
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        RodaRestClient.updateTripStatus(ApplicationSettings.getTripId(), ApplicationSettings.getRequestId(), 10, tripStatusUpdateHandler);
+                        updateTripStatus(ApplicationSettings.getTripReq().getCustId(), ApplicationSettings.getTripReq().getTripId(), "Completed");
+                        // RodaRestClient.updateTripStatus(ApplicationSettings.getTripId(), ApplicationSettings.getRequestId(), 10, tripStatusUpdateHandler);
                     }
                 });
             }
@@ -447,6 +515,52 @@ public class TripProgressActivity extends MapActivity {
         }
     };
 
+    private void onTripConfirmOperation() {
+        final VehicleRequest vehicleRequest = ApplicationSettings.getVehicleRequest();
+        customerName.setText(vehicleRequest.getCustomerName().toUpperCase());
+        fromAddress.setText(vehicleRequest.getOriginAddress());
+        acceptanceStatus.setText("ACCEPTED");
+        FirebaseReferenceService.addDriversCurrentTrip(ApplicationSettings.getDriverEid(TripProgressActivity.this), tripReq.getTripId(), tripReq.getCustId());
+        Handler h = new Handler();
+        h.postDelayed(new Runnable() {
+            public void run() {
+                customerView.setVisibility(View.GONE);
+                addressView.setVisibility(View.VISIBLE);
+                startLoadingView.setVisibility(View.VISIBLE);
+            }
+        }, 2000);
+
+    }
+
+    private void resumeStartLoading() {
+        customerView.setVisibility(View.GONE);
+        addressView.setVisibility(View.VISIBLE);
+        startLoadingView.setVisibility(View.VISIBLE);
+    }
+
+    private void resumeStartTrip() {
+        customerView.setVisibility(View.GONE);
+        addressView.setVisibility(View.VISIBLE);
+        startTripView.setVisibility(View.VISIBLE);
+    }
+
+    private void resumestartUnloading() {
+        customerView.setVisibility(View.GONE);
+        addressView.setVisibility(View.VISIBLE);
+        startUnloadingView.setVisibility(View.VISIBLE);
+    }
+
+    private void resumeFinishTrip() {
+        customerView.setVisibility(View.GONE);
+        addressView.setVisibility(View.VISIBLE);
+        endTripView.setVisibility(View.VISIBLE);
+    }
+
+    private void updateTripStatus(String custId, String tripId, String status) {
+        DatabaseReference tripStatusRef = FirebaseReferenceService.getFBInstance().getReference("vehicleRequests/" + custId + "/" + tripId + "/status");//getString(R.string.firebase_path));
+        tripStatusRef.setValue(status + "_" + ApplicationSettings.getDriverEid(TripProgressActivity.this));
+    }
+
     private JsonHttpResponseHandler tripStatusUpdateHandler = new JsonHttpResponseHandler() {
         @Override
         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -458,5 +572,6 @@ public class TripProgressActivity extends MapActivity {
             super.onFailure(statusCode, headers, throwable, errorResponse);
             Toast.makeText(TripProgressActivity.this, "Not able to update Trip Status!", Toast.LENGTH_SHORT).show();
         }
+
     };
 }

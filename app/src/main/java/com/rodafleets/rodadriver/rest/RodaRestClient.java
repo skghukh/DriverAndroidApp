@@ -1,23 +1,20 @@
 package com.rodafleets.rodadriver.rest;
 
-import android.location.Location;
 import android.util.Log;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
-import com.rodafleets.rodadriver.SignUpVerificationActivity;
 import com.rodafleets.rodadriver.utils.AppConstants;
-import com.rodafleets.rodadriver.utils.ApplicationSettings;
 
 public class RodaRestClient {
 
     private static final String API_VERSION = "0.1";
 
     //    private static final String API_BASE_URL = "https://api.rodafleets.com/" + API_VERSION;
-    //private static final String API_BASE_URL = "http://192.168.0.12:8080/" + API_VERSION;
-    private static final String API_BASE_URL = "http://104.198.208.172:8080/" + API_VERSION;
+    //private static final String API_BASE_URL = "http://104.198.208.172:8080/" + API_VERSION;
+    private static final String API_BASE_URL = "http://192.168.0.12:8080/" + API_VERSION;
 
     private static AsyncHttpClient client = new AsyncHttpClient();
 
@@ -78,11 +75,13 @@ public class RodaRestClient {
         }
     };*/
 
+
     public static void updateDeviceRegistrationId(int driverId, String token, JsonHttpResponseHandler responseHandler) {
         RequestParams params = new RequestParams();
         params.put("registrationid", token);
         params.put("device_os", "android");
-        RodaRestClient.POST("/drivers/" + driverId + "/deviceregistration", params, responseHandler);
+
+       // RodaRestClient.POST("/drivers/" + driverId + "/deviceregistration", params, responseHandler);
     }
 
     public static void signUp(String phoneNumber, String firstName, String lastName, String gender, JsonHttpResponseHandler responseHandler) {
@@ -125,7 +124,8 @@ public class RodaRestClient {
     }
 
     public static void uploadDriverDocuments(int driverId, RequestParams params, JsonHttpResponseHandler responseHandler) {
-        RodaRestClient.POST("/drivers/" + driverId + "/uploaddocuments", params, responseHandler);
+       // RodaRestClient.POST("/drivers/" + driverId + "/uploaddocuments", params, responseHandler);
+        RodaRestClient.POST("https://firebasestorage.clients6.google.com/v0/b/bustling-wharf-159214.appspot.com/o?name=slide_5.jpg",params,responseHandler);
     }
 
     public static void login(String phoneNumber, String password, String token, JsonHttpResponseHandler responseHandler) {
@@ -167,5 +167,19 @@ public class RodaRestClient {
         RodaRestClient.GET(url, params, responseHandler);
     }
 
+    public static void sendNumberVerificationRequest(String phoneNumber, JsonHttpResponseHandler responseHandler){
+        String url = "/verification";
+        RequestParams param = new RequestParams();
+        param.put("phoneNumber", phoneNumber);
+        RodaRestClient.GET(url,param,responseHandler);
+    }
+
+    public static void verifyOTP(String sessionId, String otp, JsonHttpResponseHandler responseHandler){
+        String url = "/verification";
+        RequestParams requestParams = new RequestParams();
+        requestParams.put("sessionId",sessionId);
+        requestParams.put("otp",otp);
+        RodaRestClient.GET(url,requestParams,responseHandler);
+    }
 
 }

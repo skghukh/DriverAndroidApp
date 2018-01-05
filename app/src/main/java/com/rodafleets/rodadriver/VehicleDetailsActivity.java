@@ -1,6 +1,5 @@
 package com.rodafleets.rodadriver;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -10,7 +9,6 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -20,15 +18,15 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.loopj.android.http.JsonHttpResponseHandler;
-import com.loopj.android.http.RequestParams;
 import com.rodafleets.rodadriver.custom.VehicleTypeSpinnerAdapter;
 import com.rodafleets.rodadriver.model.Driver;
+import com.rodafleets.rodadriver.model.FBVehicle;
 import com.rodafleets.rodadriver.model.VehicleType;
 import com.rodafleets.rodadriver.rest.ResponseCode;
 import com.rodafleets.rodadriver.rest.RodaRestClient;
+import com.rodafleets.rodadriver.services.FirebaseReferenceService;
 import com.rodafleets.rodadriver.utils.AppConstants;
 import com.rodafleets.rodadriver.utils.ApplicationSettings;
 
@@ -73,12 +71,23 @@ public class VehicleDetailsActivity extends AppCompatActivity {
 
     private ConstraintLayout constraintLayout;
 
+    private String mDFirstName;
+    private String mDLastName;
+    private String mDNumber;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vehicle_details);
-
         initComponents();
+        getDriverDetails(getIntent());
+    }
+
+    private void getDriverDetails(Intent intent) {
+        if (null == intent) return;
+        mDFirstName = intent.getStringExtra("fname");
+        mDLastName = intent.getStringExtra("lname");
+        mDNumber = intent.getStringExtra("number");
     }
 
     private void initComponents() {
@@ -143,7 +152,7 @@ public class VehicleDetailsActivity extends AppCompatActivity {
             vehicleNumberLayout.setErrorEnabled(false);
         }
 
-        if(!isOwner.isChecked()) {
+        if (!isOwner.isChecked()) {
             if (fName.equals("")) {
                 validated = false;
                 ownerFirstNameLayout.setError(getString(R.string.sign_up_owner_first_name_required_error));
@@ -171,12 +180,22 @@ public class VehicleDetailsActivity extends AppCompatActivity {
             progressBar.setIndeterminate(true);
             progressBar.setVisibility(View.VISIBLE);
             int driverId = ApplicationSettings.getDriverId(VehicleDetailsActivity.this);
-            if(isOwner.isChecked()) {
-                RodaRestClient.saveVehicleInfo(driverId, vNumber, selectedVehicleTypeId, saveVehicleInfoResponseHandler);
-            } else{
-                RodaRestClient.saveVehicleInfo(driverId, vNumber, selectedVehicleTypeId, fName, lName, pNumber, saveVehicleInfoResponseHandler);
+
+
+            if (isOwner.isChecked()) {
+                FBVehicle vehicle = new FBVehicle(vNumber, selectedVehicleTypeId, "defMan", "defModel", mDFirstName, mDLastName, mDNumber);
+                saveVehicleDetails(mDNumber, vehicle);
+            } else {
+                FBVehicle vehicle = new FBVehicle(vNumber, selectedVehicleTypeId, "defMan", "defModel", fName, lName, pNumber);
+                saveVehicleDetails(mDNumber, vehicle);
+                // RodaRestClient.saveVehicleInfo(driverId, vNumber, selectedVehicleTypeId, fName, lName, pNumber, saveVehicleInfoResponseHandler);
             }
         }
+    }
+
+    private void saveVehicleDetails(String driverId, FBVehicle vehicle) {
+        FirebaseReferenceService.addVehicleDetails(driverId, vehicle);
+        startNextActivity();
     }
 
     public void signIn(View view) {
@@ -185,7 +204,9 @@ public class VehicleDetailsActivity extends AppCompatActivity {
     }
 
     private void startNextActivity() {
-        this.startActivity(new Intent(this, DriverDocs.class));
+        final Intent intent = new Intent(this, DriverDocs.class);
+        intent.putExtra("driverNumber",mDNumber);
+        this.startActivity(intent);
         finish();
     }
 
@@ -209,8 +230,7 @@ public class VehicleDetailsActivity extends AppCompatActivity {
 
     private OnCheckedChangeListener onIsOwnerClicked = new OnCheckedChangeListener() {
         @Override
-        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
-        {
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
             //clear info
             ownerFirstName.setEnabled(true);
             ownerLastName.setEnabled(true);
@@ -219,7 +239,7 @@ public class VehicleDetailsActivity extends AppCompatActivity {
                 JSONObject jsonObject = new JSONObject(ApplicationSettings.getDriver(VehicleDetailsActivity.this));
                 Driver driver = new Driver(jsonObject);
 
-                if (isChecked){
+                if (isChecked) {
                     ownerFirstName.setText(driver.getFirstname());
                     ownerLastName.setText(driver.getLastname());
                     ownerPhoneNumber.setText(driver.getPhoneNumber());
@@ -255,7 +275,7 @@ public class VehicleDetailsActivity extends AppCompatActivity {
             Log.i(AppConstants.APP_NAME, "response = " + responseArray.toString());
 
             vehicleTypes = new ArrayList<VehicleType>();
-            for (int i=0; i<responseArray.length(); i++) {
+            for (int i = 0; i < responseArray.length(); i++) {
                 try {
                     VehicleType vehicleType = new VehicleType(responseArray.getJSONObject(i));
                     vehicleTypes.add(vehicleType);
@@ -288,14 +308,14 @@ public class VehicleDetailsActivity extends AppCompatActivity {
                 int errorCode = errorResponse.getInt("errorCode");
                 Log.i(AppConstants.APP_NAME, "errorCode = " + errorCode);
 
-                if(errorCode == ResponseCode.DUPLICATE_ENTRY) {
+                if (errorCode == ResponseCode.DUPLICATE_ENTRY) {
                     sb = Snackbar.make(constraintLayout, getString(R.string.sign_up_vehicle_number_already_added_error), Snackbar.LENGTH_LONG);
                 } else {
                     sb = Snackbar.make(constraintLayout, getString(R.string.sign_up_default_error), Snackbar.LENGTH_LONG);
                 }
             } catch (Exception e) {
                 Log.e(AppConstants.APP_NAME, "api exception = " + e.getMessage());
-                if ( e.getCause() instanceof ConnectTimeoutException) {
+                if (e.getCause() instanceof ConnectTimeoutException) {
                     sb = Snackbar.make(constraintLayout, getString(R.string.internet_error), Snackbar.LENGTH_LONG);
                 } else {
                     sb = Snackbar.make(constraintLayout, getString(R.string.sign_up_default_error), Snackbar.LENGTH_LONG);

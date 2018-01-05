@@ -16,32 +16,37 @@ import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.FirebaseException;
+import com.google.firebase.FirebaseTooManyRequestsException;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.PhoneAuthCredential;
+import com.google.firebase.auth.PhoneAuthProvider;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 import com.rodafleets.rodadriver.model.Driver;
 import com.rodafleets.rodadriver.rest.ResponseCode;
 import com.rodafleets.rodadriver.rest.RodaRestClient;
+import com.rodafleets.rodadriver.services.LoginService;
 import com.rodafleets.rodadriver.utils.AppConstants;
 import com.rodafleets.rodadriver.utils.ApplicationSettings;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.concurrent.TimeUnit;
+
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.conn.ConnectTimeoutException;
 
 public class SignUpActivity extends AppCompatActivity {
 
+    private static final String TAG = AppConstants.APP_NAME;
     private Button signUpBtn;
-
     private EditText firstName;
     private EditText lastName;
     private EditText phoneNumber;
-
     private RadioGroup radioGroup;
-
     private TextView existingDriver;
-
     private String gender;
 
     private ProgressDialog progressDialog;
@@ -87,8 +92,19 @@ public class SignUpActivity extends AppCompatActivity {
         finish();
     }
 
-    private void startNextActivity(){
+    private void startNextActivity() {
         this.startActivity(new Intent(this, SignUpVerificationActivity.class));
+        finish();
+    }
+
+    private void startNextActivity(String sessionId, String firstName, String lastName, String phoneNumber, String gender) {
+        final Intent verificationIntent = new Intent(this, SignUpVerificationActivity.class);
+        verificationIntent.putExtra("sessionId", sessionId);
+        verificationIntent.putExtra("firstName", firstName);
+        verificationIntent.putExtra("lastName", lastName);
+        verificationIntent.putExtra("gender", gender);
+        verificationIntent.putExtra("phoneNumber", phoneNumber);
+        this.startActivity(verificationIntent);
         finish();
     }
 
@@ -123,19 +139,36 @@ public class SignUpActivity extends AppCompatActivity {
             progressDialog.setMessage(getString(R.string.sign_up_saving));
             progressDialog.show();
 
-            RodaRestClient.signUp(number, fName, lName, gender, responseHandler);
+            //RodaRestClient.signUp(number, fName, lName, gender, responseHandler);
+            RodaRestClient.sendNumberVerificationRequest(number, numberVerificationHandler);
+            //LoginService.signUpByGoogleAuth(this, number ,getPhoneVerificationCallback() );
         }
     }
 
+
     private OnCheckedChangeListener onGenderChange = new OnCheckedChangeListener() {
         public void onCheckedChanged(RadioGroup group, int checkedId) {
-        // This will get the radiobutton that has changed in its check state
-        RadioButton checkedRadioButton = (RadioButton) group.findViewById(checkedId);
-        // If the radiobutton that has changed in check state is now checked...
-        if (checkedRadioButton.isChecked()) {
-            gender = checkedRadioButton.getText().toString();
-            Log.i(AppConstants.APP_NAME, "onCheckedChanged: " + gender);
+            // This will get the radiobutton that has changed in its check state
+            RadioButton checkedRadioButton = (RadioButton) group.findViewById(checkedId);
+            // If the radiobutton that has changed in check state is now checked...
+            if (checkedRadioButton.isChecked()) {
+                gender = checkedRadioButton.getText().toString();
+                Log.i(AppConstants.APP_NAME, "onCheckedChanged: " + gender);
+            }
         }
+    };
+
+    private JsonHttpResponseHandler numberVerificationHandler = new JsonHttpResponseHandler() {
+        public void onSuccess(int statusCode, Header[] headers, JSONObject jsonResponseObject) {
+            try {
+                Log.i(AppConstants.APP_NAME, "response = " + jsonResponseObject.toString());
+                String sessionId = jsonResponseObject.getString("sessionId");
+                startNextActivity(sessionId, firstName.getText().toString(), lastName.getText().toString(), phoneNumber.getText().toString(), gender);
+            } catch (JSONException e) {
+                //handle error
+                Log.e(AppConstants.APP_NAME, "jsonException = " + e.getMessage());
+                Toast.makeText(SignUpActivity.this, getString(R.string.sign_up_default_error), Toast.LENGTH_LONG).show();
+            }
         }
     };
 
@@ -146,7 +179,7 @@ public class SignUpActivity extends AppCompatActivity {
                 Log.i(AppConstants.APP_NAME, "response = " + jsonResponseObject.toString());
                 Driver newDriver = new Driver(jsonResponseObject.getJSONObject("driver"));
                 ApplicationSettings.setDriverId(SignUpActivity.this, newDriver.getId());
-                ApplicationSettings.setOtpSessionId(SignUpActivity.this, jsonResponseObject.getString("sessionId"));
+               // ApplicationSettings.setOtpSessionId(SignUpActivity.this, jsonResponseObject.getString("sessionId"));
                 ApplicationSettings.setDriver(SignUpActivity.this, jsonResponseObject.getJSONObject("driver"));
                 progressDialog.dismiss();
                 startNextActivity();
@@ -184,13 +217,12 @@ public class SignUpActivity extends AppCompatActivity {
 
             } catch (Exception e) {
                 Log.e(AppConstants.APP_NAME, "api exception = " + e.getMessage());
-                if ( e.getCause() instanceof ConnectTimeoutException ) {
+                if (e.getCause() instanceof ConnectTimeoutException) {
                     Toast.makeText(SignUpActivity.this, getString(R.string.internet_error), Toast.LENGTH_LONG).show();
                 } else {
                     Toast.makeText(SignUpActivity.this, getString(R.string.sign_up_default_error), Toast.LENGTH_LONG).show();
                 }
             }
-
             progressDialog.dismiss();
         }
     };

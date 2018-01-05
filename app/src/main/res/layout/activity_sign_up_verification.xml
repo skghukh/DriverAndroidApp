@@ -177,6 +177,30 @@
             android:background="@drawable/otp_txt_background_white"
             android:gravity="center_horizontal"/>
 
+       <!-- <EditText
+            android:id="@+id/otpDigit5"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:inputType="number"
+            android:maxLength="1"
+            android:textColor="#303030"
+            android:textSize="14sp"
+            android:background="@drawable/otp_txt_background_white"
+            android:gravity="center_horizontal"/>
+
+        <EditText
+            android:id="@+id/otpDigit6"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:inputType="number"
+            android:maxLength="1"
+            android:textColor="#303030"
+            android:textSize="14sp"
+            android:background="@drawable/otp_txt_background_white"
+            android:gravity="center_horizontal"/>-->
+
     </LinearLayout>
 
     <TextView

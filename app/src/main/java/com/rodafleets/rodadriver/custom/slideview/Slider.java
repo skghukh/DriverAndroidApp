@@ -26,7 +26,7 @@ public class Slider extends AppCompatSeekBar {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        Log.i("--","sliderTouched");
+       // Log.i("--","sliderTouched");
 
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
             if (thumb.getBounds().contains((int) event.getX(), (int) event.getY())) {

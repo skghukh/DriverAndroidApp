@@ -13,6 +13,7 @@ import android.widget.ListView;
 
 import com.rodafleets.rodadriver.custom.VehicleRequestListAdapter;
 import com.rodafleets.rodadriver.model.Driver;
+import com.rodafleets.rodadriver.model.FBVehicleRequest;
 import com.rodafleets.rodadriver.model.VehicleRequest;
 import com.rodafleets.rodadriver.utils.AppConstants;
 import com.rodafleets.rodadriver.utils.ApplicationSettings;

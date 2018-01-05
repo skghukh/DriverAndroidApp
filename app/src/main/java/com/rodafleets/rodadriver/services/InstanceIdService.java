@@ -5,7 +5,6 @@ import android.util.Log;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.FirebaseInstanceIdService;
 import com.loopj.android.http.JsonHttpResponseHandler;
-import com.rodafleets.rodadriver.rest.RodaRestClient;
 import com.rodafleets.rodadriver.utils.AppConstants;
 import com.rodafleets.rodadriver.utils.ApplicationSettings;
 
@@ -22,9 +21,10 @@ public class InstanceIdService extends FirebaseInstanceIdService {
         Log.i(AppConstants.APP_NAME, "Refreshed token: " + refreshedToken);
         ApplicationSettings.setRegistrationId(this, refreshedToken);
 
-        int driverId = ApplicationSettings.getDriverId(this);
-        if(driverId != 0) {
-            RodaRestClient.updateDeviceRegistrationId(driverId, refreshedToken, responseHandler);
+        String driverEId = ApplicationSettings.getDriverEid(this);
+        if(driverEId != null) {
+            FirebaseReferenceService.updateDriverToken(driverEId.split("\\@")[0],refreshedToken);
+            //RodaRestClient.updateDeviceRegistrationId(Integer.parseInt(driverEId.split("\\@")[0]), refreshedToken, responseHandler);
         }
     }
 

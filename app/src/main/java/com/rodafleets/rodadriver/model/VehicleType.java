@@ -6,7 +6,6 @@ import org.json.JSONObject;
 
 public class VehicleType {
     private long id;
-
     private String name;
     private int capacityInKgs;
     private String dimensions;

@@ -6,15 +6,13 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Typeface;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -31,8 +29,19 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.rodafleets.rodadriver.model.TripRequest;
 import com.rodafleets.rodadriver.model.VehicleRequest;
-import com.rodafleets.rodadriver.services.LocationUpdateService;
+import com.rodafleets.rodadriver.services.FirebaseReferenceService;
 import com.rodafleets.rodadriver.utils.AppConstants;
 import com.rodafleets.rodadriver.utils.ApplicationSettings;
 
@@ -44,6 +53,7 @@ public class MapActivity extends ParentActivity implements OnMapReadyCallback,
         LocationListener {
 
     public static final String TAG = AppConstants.APP_NAME;
+    private static final int PERMISSIONS_REQUEST = 1;
 
     GoogleMap mGoogleMap;
     LocationRequest mLocationRequest;
@@ -56,6 +66,8 @@ public class MapActivity extends ParentActivity implements OnMapReadyCallback,
     private Bitmap redIcon;
     private Bitmap greenIcon;
     private Bitmap carIcon;
+    protected VehicleRequest vehicleRequest;
+    TripRequest tripReq;
 
     @Override
     public void onPause() {
@@ -77,7 +89,7 @@ public class MapActivity extends ParentActivity implements OnMapReadyCallback,
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        mGoogleMap=googleMap;
+        mGoogleMap = googleMap;
         mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
         //Initialize Google Play Services
@@ -97,12 +109,77 @@ public class MapActivity extends ParentActivity implements OnMapReadyCallback,
             buildGoogleApiClient();
             mGoogleMap.setMyLocationEnabled(true);
         }
-
         initMarkerBitmaps();
-        Intent background = new Intent(this, LocationUpdateService.class);
-        background.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
-        this.startService(background);
+        startLocationService();
+        // loginToFirebase();
     }
+
+
+
+
+    protected void subscribeForTripUpdate(String custId, String tripId, final Runnable callback) {
+        if (null == tripReq) {
+            DatabaseReference tripRef = FirebaseReferenceService.getTripReferece(custId, tripId);
+            tripReq = new TripRequest(custId, tripId, tripRef);
+            tripRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    final VehicleRequest request = dataSnapshot.getValue(VehicleRequest.class);
+                    System.out.println(request);
+                    vehicleRequest = request;
+                    ApplicationSettings.setVehicleRequest(vehicleRequest);
+                    MapActivity.this.runOnUiThread(callback);
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    System.out.println("The read failed: " + databaseError.getCode());
+                    vehicleRequest = null;
+                }
+            });
+        } else {
+            //TODO: Show error message that already waiting for 1 trip
+        }
+    }
+
+
+    private void startLocationService() {
+        //This is mysql based tracker.
+        // Intent background = new Intent(this, LocationUpdateService.class);
+        // background.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
+        //this.startService(background);
+
+        //Below is Firebase based tracker.
+        GetLocationRequestAndStartTrackerService();
+    }
+
+    private void GetLocationRequestAndStartTrackerService() {
+        LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
+        if (!lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            Toast.makeText(this, "Please enable location services", Toast.LENGTH_SHORT).show();
+            finish();
+        }
+        // Check location permission is granted - if it is, start
+        // the service, otherwise request the permission
+        int permission = ContextCompat.checkSelfPermission(this,
+                android.Manifest.permission.ACCESS_FINE_LOCATION);
+        if (permission == PackageManager.PERMISSION_GRANTED) {
+            startTrackerService();
+        } else {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                    PERMISSIONS_REQUEST);
+        }
+    }
+
+    private void startTrackerService() {
+        Intent trackerServieStartIntent = new Intent(this, TrackerService.class);
+        trackerServieStartIntent.putExtra("driverEId", ApplicationSettings.getDriverEid(MapActivity.this));
+        System.out.println("Setting location update service for driverId " + ApplicationSettings.getDriverEid(this));
+        startService(trackerServieStartIntent);
+        //finish();
+    }
+
 
     protected synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -127,12 +204,14 @@ public class MapActivity extends ParentActivity implements OnMapReadyCallback,
     }
 
     @Override
-    public void onConnectionSuspended(int i) {}
+    public void onConnectionSuspended(int i) {
+    }
 
     @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {}
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+    }
 
-    private void initMarkerBitmaps(){
+    private void initMarkerBitmaps() {
 
         int marker_height = 45;
         int marker_width = 32;
@@ -167,7 +246,7 @@ public class MapActivity extends ParentActivity implements OnMapReadyCallback,
 
         mCurrLocationMarker = mGoogleMap.addMarker(markerOptions);
 
-        if(!ApplicationSettings.getVehicleRequest(this).equals("")) {
+        if (!ApplicationSettings.getVehicleRequest(this).equals("")) {
 
             VehicleRequest vehicleRequest;
             LatLngBounds.Builder builder = new LatLngBounds.Builder();
@@ -237,7 +316,7 @@ public class MapActivity extends ParentActivity implements OnMapReadyCallback,
                                 //Prompt the user once explanation has been shown
                                 ActivityCompat.requestPermissions(MapActivity.this,
                                         new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                                        MY_PERMISSIONS_REQUEST_LOCATION );
+                                        MY_PERMISSIONS_REQUEST_LOCATION);
                             }
                         })
                         .create()
@@ -248,7 +327,7 @@ public class MapActivity extends ParentActivity implements OnMapReadyCallback,
                 // No explanation needed, we can request the permission.
                 ActivityCompat.requestPermissions(this,
                         new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_LOCATION );
+                        MY_PERMISSIONS_REQUEST_LOCATION);
             }
         }
     }
@@ -280,10 +359,19 @@ public class MapActivity extends ParentActivity implements OnMapReadyCallback,
                     Toast.makeText(this, "permission denied", Toast.LENGTH_LONG).show();
                 }
                 return;
+
+
             }
 
-            // other 'case' lines to check for other
-            // permissions this app might request
+            case PERMISSIONS_REQUEST: {
+                if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Start the service when the permission is granted
+                    startTrackerService();
+                } else {
+                    finish();
+                }
+            }
+
         }
     }
 }

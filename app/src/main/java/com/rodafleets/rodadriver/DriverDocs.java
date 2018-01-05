@@ -20,10 +20,15 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.storage.StorageTask;
+import com.google.firebase.storage.UploadTask;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 import com.rodafleets.rodadriver.rest.ResponseCode;
 import com.rodafleets.rodadriver.rest.RodaRestClient;
+import com.rodafleets.rodadriver.services.DocumentService;
 import com.rodafleets.rodadriver.utils.AppConstants;
 import com.rodafleets.rodadriver.utils.ApplicationSettings;
 import com.rodafleets.rodadriver.utils.ImageUtils;
@@ -32,11 +37,12 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.conn.ConnectTimeoutException;
 
-public class DriverDocs extends AppCompatActivity implements ImageUtils.ImageAttachmentListener{
+public class DriverDocs extends AppCompatActivity implements ImageUtils.ImageAttachmentListener {
 
     private TextView driverDocsText;
 
@@ -64,7 +70,10 @@ public class DriverDocs extends AppCompatActivity implements ImageUtils.ImageAtt
     File[] filesToUpload;
     int position = 0;
 
-    private String tempFileName="";
+    Uri[] uris;
+    AtomicInteger uploadCount = new AtomicInteger(0);
+    private String tempFileName = "";
+    private String driverId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,8 +82,16 @@ public class DriverDocs extends AppCompatActivity implements ImageUtils.ImageAtt
         this.requestWindowFeature(Window.FEATURE_ACTION_BAR);
 //        this.getSupportActionBar().hide();
         setContentView(R.layout.activity_driver_docs);
-
         initComponents();
+        getDriverIdFromIntent(getIntent());
+    }
+
+    private void getDriverIdFromIntent(Intent intent) {
+        if(null==intent){
+            finish();
+        }else{
+            driverId = intent.getStringExtra("driverNumber");
+        }
     }
 
     private void initComponents() {
@@ -105,15 +122,16 @@ public class DriverDocs extends AppCompatActivity implements ImageUtils.ImageAtt
 
         imageUtils = new ImageUtils(this);
 
-        document1ImageView = (ImageView)findViewById(R.id.document1ImageView);
-        document2ImageView = (ImageView)findViewById(R.id.document2ImageView);
-        document3ImageView = (ImageView)findViewById(R.id.document3ImageView);
+        document1ImageView = (ImageView) findViewById(R.id.document1ImageView);
+        document2ImageView = (ImageView) findViewById(R.id.document2ImageView);
+        document3ImageView = (ImageView) findViewById(R.id.document3ImageView);
 
         document1ToUpload.setOnTouchListener(uploadImageListener1);
         document2ToUpload.setOnTouchListener(uploadImageListener2);
         document3ToUpload.setOnTouchListener(uploadImageListener3);
 
         filesToUpload = new File[3];
+        uris = new Uri[3];
     }
 
     public void onUploadDriverDocs(View view) {
@@ -130,7 +148,7 @@ public class DriverDocs extends AppCompatActivity implements ImageUtils.ImageAtt
         public boolean onTouch(View v, MotionEvent event) {
             tempFileName = document1ToUpload.getText().toString();
             //check if ref name for the document to be uploaded is entered, if not don't allow them to proceed.
-            if(tempFileName.equals("")) {
+            if (tempFileName.equals("")) {
                 document1Layout.setError(getString(R.string.sign_up_document_name_required_error));
             } else {
                 document1Layout.setErrorEnabled(false);
@@ -147,7 +165,7 @@ public class DriverDocs extends AppCompatActivity implements ImageUtils.ImageAtt
         public boolean onTouch(View v, MotionEvent event) {
             tempFileName = document2ToUpload.getText().toString();
             //check if ref name for the document to be uploaded is entered, if not don't allow them to proceed.
-            if(tempFileName.equals("")) {
+            if (tempFileName.equals("")) {
                 document2Layout.setError(getString(R.string.sign_up_document_name_required_error));
             } else {
                 document2Layout.setErrorEnabled(false);
@@ -163,7 +181,7 @@ public class DriverDocs extends AppCompatActivity implements ImageUtils.ImageAtt
         public boolean onTouch(View v, MotionEvent event) {
             tempFileName = document3ToUpload.getText().toString();
             //check if ref name for the document to be uploaded is entered, if not don't allow them to proceed.
-            if(tempFileName.equals("")) {
+            if (tempFileName.equals("")) {
                 document3Layout.setError(getString(R.string.sign_up_document_name_required_error));
             } else {
                 document3Layout.setErrorEnabled(false);
@@ -178,8 +196,8 @@ public class DriverDocs extends AppCompatActivity implements ImageUtils.ImageAtt
     private Boolean callImagePicker(EditText v, MotionEvent event) {
         final int DRAWABLE_RIGHT = 2;
 
-        if(event.getAction() == MotionEvent.ACTION_UP) {
-            if(event.getRawX() >= (v.getRight() - v.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
+        if (event.getAction() == MotionEvent.ACTION_UP) {
+            if (event.getRawX() >= (v.getRight() - v.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
                 //we are not handling camera in this case. so call launchGallery instead of picker.
                 //imageUtils.imagepicker(1);
                 imageUtils.launchGallery(1);
@@ -204,37 +222,62 @@ public class DriverDocs extends AppCompatActivity implements ImageUtils.ImageAtt
     @Override
     public void image_attachment(int from, String filename, Bitmap bitmap, Uri uri) {
         tempFileName = tempFileName.trim() + filename.substring(filename.lastIndexOf("."));
-        String path =  Environment.getExternalStorageDirectory() + File.separator + AppConstants.IMAGES_DIRECTORY_NAME + File.separator;
+        String path = Environment.getExternalStorageDirectory() + File.separator + AppConstants.IMAGES_DIRECTORY_NAME + File.separator;
         File imageFile = imageUtils.createImage(bitmap, tempFileName, path);
 
         filesToUpload[position] = imageFile;
+        uris[position] = uri;
         imageViewToUpdate.setImageBitmap(bitmap);
 
         Log.i(AppConstants.APP_NAME, "file name from File object = " + imageFile.getName());
     }
 
     private void upload() {
-        RequestParams params = new RequestParams();
+        //RequestParams params = new RequestParams();
+        uploadCount = new AtomicInteger(0);
         try {
-            for (File image: filesToUpload) {
-                int j=1;
-                if(image != null) {
+            for (int i = 0; i < 3; i++) {
+                final Uri docUri = this.uris[i];
+                if (null != docUri) {
+                    uploadCount.getAndIncrement();
+                    final StorageTask<UploadTask.TaskSnapshot> taskSnapshotStorageTask = DocumentService.uploadDriverLicense(docUri, driverId, i);
+                    taskSnapshotStorageTask.addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                            final int remaining = uploadCount.decrementAndGet();
+                            if (remaining <= 0) {
+                                progressBar.setVisibility(View.GONE);
+                                startNextActivity();
+                            }
+                        }
+
+                    });
+                }
+            }
+           /* for (File image : filesToUpload) {
+                int j = 1;
+                if (image != null) {
                     params.put("document" + j, image);
                 }
                 j++;
             }
-        } catch (FileNotFoundException e){
-            Log.i(AppConstants.APP_NAME, "FileNotFoundException = " + e.getMessage());
+        }*/
+        } catch (Exception e) {
+            Log.i(AppConstants.APP_NAME, "Doc upload exception = " + e.getMessage());
         }
 
-        if(imageViewToUpdate == null) {
+        if (imageViewToUpdate == null) {
             Snackbar sb = Snackbar.make(constraintLayout, getString(R.string.sign_up_document_required_error), Snackbar.LENGTH_LONG);
             sb.show();
         } else {
             progressBar.setIndeterminate(true);
             progressBar.setVisibility(View.VISIBLE);
-            int driverId = ApplicationSettings.getDriverId(DriverDocs.this);
-            RodaRestClient.uploadDriverDocuments(driverId, params, saveDriverDocsResponseHandler);
+
+            // int driverId = ApplicationSettings.getDriverId(DriverDocs.this);
+            //DocumentService.uploadDriverLicense(uris[0]);
+            //RodaRestClient.uploadDriverDocuments(driverId, params, saveDriverDocsResponseHandler);
+            // progressBar.setVisibility(View.GONE);
+            //startNextActivity();
         }
     }
 
@@ -266,7 +309,7 @@ public class DriverDocs extends AppCompatActivity implements ImageUtils.ImageAtt
                 int errorCode = errorResponse.getInt("errorCode");
                 Log.i(AppConstants.APP_NAME, "errorCode = " + errorCode);
 
-                if(errorCode == ResponseCode.DUPLICATE_ENTRY) {
+                if (errorCode == ResponseCode.DUPLICATE_ENTRY) {
                     sb = Snackbar.make(constraintLayout, getString(R.string.sign_up_vehicle_number_already_added_error), Snackbar.LENGTH_LONG);
                 } else {
                     sb = Snackbar.make(constraintLayout, getString(R.string.sign_up_default_error), Snackbar.LENGTH_LONG);
@@ -274,7 +317,7 @@ public class DriverDocs extends AppCompatActivity implements ImageUtils.ImageAtt
                 sb.show();
             } catch (Exception e) {
                 Log.e(AppConstants.APP_NAME, "api exception = " + e.getMessage());
-                if ( e.getCause() instanceof ConnectTimeoutException) {
+                if (e.getCause() instanceof ConnectTimeoutException) {
                     sb = Snackbar.make(constraintLayout, getString(R.string.internet_error), Snackbar.LENGTH_LONG);
                 } else {
                     sb = Snackbar.make(constraintLayout, getString(R.string.sign_up_default_error), Snackbar.LENGTH_LONG);

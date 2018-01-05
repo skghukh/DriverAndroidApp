@@ -20,6 +20,7 @@ import com.rodafleets.rodadriver.utils.ApplicationSettings;
 
 import org.json.JSONObject;
 
+import java.sql.SQLOutput;
 import java.util.Map;
 
 public class NotificationService extends FirebaseMessagingService {
@@ -34,7 +35,7 @@ public class NotificationService extends FirebaseMessagingService {
     // [START receive_message]
     @Override
     public void onCreate() {
-        Log.i(TAG, "Service Created");
+        Log.i(TAG, " Notification Service Created");
 
         RodaDriverApplication.vehicleRequestService = this;
     }
@@ -53,17 +54,10 @@ public class NotificationService extends FirebaseMessagingService {
 
         // TODO(developer): Handle FCM messages here.
         // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
-
         String notificationTitle = "";
         String notificationBody = "";
         Map<String, String> data = null;
         Log.d(TAG, "From: " + remoteMessage.getFrom());
-
-        // Check if message contains a data payload.
-        if (remoteMessage.getData().size() > 0) {
-            Log.d(TAG, "Message data payload: " + remoteMessage.getData());
-            data = remoteMessage.getData();
-        }
 
         // Check if message contains a notification payload.
         if (remoteMessage.getNotification() != null) {
@@ -72,21 +66,40 @@ public class NotificationService extends FirebaseMessagingService {
             notificationBody = remoteMessage.getNotification().getBody();
         }
 
-        Intent intent = null;
+        // Check if message contains a data payload.
+        if (remoteMessage.getData().size() > 0) {
+            Log.d(TAG, "Message data payload: " + remoteMessage.getData());
+            data = remoteMessage.getData();
+        }
+
+
+        if("".equalsIgnoreCase(notificationTitle) && null != data){
+            //This is case for data message
+            Intent intent = new Intent("Vehicle_Requested");
+            intent.putExtra("custId",data.get("custId"));
+            intent.putExtra("tripId",data.get("tripId"));
+            final boolean isSent = LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+            if(!isSent){
+
+            }
+        }
+
         if (notificationTitle.equals("Request")) {
-            intent = new Intent("Vehicle_Requested");
+            Intent intent = new Intent("Vehicle_Requested");
             JSONObject vehicleRequest = new JSONObject(data);
             ApplicationSettings.setVehicleRequest(this, vehicleRequest);
+            LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
         } else if (notificationTitle.equals("Accept")) {
-            intent = new Intent("Bid_Accepted");
+            Intent intent = new Intent("Bid_Accepted");
             if (remoteMessage.getData().size() > 0) {
                 Map<String, String> dataMessage = remoteMessage.getData();
                 intent.putExtra("tripId", dataMessage.get("tripId"));
                 intent.putExtra("requestId", dataMessage.get("requestId"));
+                LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
             }
         }
 
-        boolean isListened = LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+
 
         // Also if you intend on generating your own notifications as a result of a received FCM
         // message, here is where that should be initiated. See sendNotification method below.

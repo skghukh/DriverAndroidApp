@@ -6,7 +6,7 @@ import org.json.JSONObject;
 public class VehicleRequest {
 
     private int id;
-    private int customerId;
+    private long customerId;
     private int vehicleTypeId;
     private double originLat;
     private double originLng;
@@ -19,6 +19,10 @@ public class VehicleRequest {
     private String destinationAddress;
     private String distance;
     private String customerName;
+
+    public VehicleRequest(){
+        //default constructor
+    }
 
     public VehicleRequest(JSONObject jsonObject) throws JSONException {
 
@@ -56,11 +60,11 @@ public class VehicleRequest {
         this.id = id;
     }
 
-    public int getCustomerId() {
+    public long getCustomerId() {
         return customerId;
     }
 
-    public void setCustomerId(int customerId) {
+    public void setCustomerId(long customerId) {
         this.customerId = customerId;
     }
 
@@ -159,4 +163,6 @@ public class VehicleRequest {
     public void setCustomerName(String customerName) {
         this.customerName = customerName;
     }
+
+
 }

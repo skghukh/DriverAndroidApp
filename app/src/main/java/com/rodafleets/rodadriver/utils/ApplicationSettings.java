@@ -3,19 +3,18 @@ package com.rodafleets.rodadriver.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.rodafleets.rodadriver.model.Driver;
-import com.rodafleets.rodadriver.model.VehicleType;
+import com.rodafleets.rodadriver.model.FBDriver;
+import com.rodafleets.rodadriver.model.FBVehicleRequest;
+import com.rodafleets.rodadriver.model.TripRequest;
+import com.rodafleets.rodadriver.model.VehicleRequest;
 
 import org.json.JSONObject;
-
-import java.util.ArrayList;
 
 public final class ApplicationSettings {
 
     private static final String SETTINGS_NAME = "RodaDriverSettings";
     private static final String APP_LANGUAGE = "APP_LANGUAGE";
     private static final String DRIVER_ID = "DRIVER_ID";
-    private static final String OTP_SESSION_ID = "OTP_SESSION_ID";
     private static final String DRIVER = "DRIVER";
     private static final String VERIFIED = "VERIFIED";
     private static final String VEHICLE_INFO_SAVED = "VEHICLE_INFO_SAVED";
@@ -24,6 +23,22 @@ public final class ApplicationSettings {
     private static final String VEHICLE_REQUEST = "VEHICLE_REQUEST";
     private static long REQUEST_ID;
     private static long TRIP_ID;
+    private static TripRequest tripReq;
+    private static final String DRIVER_UID = "DRIVER_UID";
+    private static final String DRIVER_EID = "DRIVER_EID";
+    private static final String DRIVER_NAME = "DRIVER_NAME";
+    private static FBDriver fbDriver;
+    private static FBVehicleRequest fbVehicleRequest;
+
+    public static VehicleRequest getVehicleRequest() {
+        return vehicleRequest;
+    }
+
+    public static void setVehicleRequest(VehicleRequest vehicleRequest) {
+        ApplicationSettings.vehicleRequest = vehicleRequest;
+    }
+
+    private static VehicleRequest vehicleRequest;
 
     private static SharedPreferences getSharedPreferences(Context context) {
         return context.getSharedPreferences(SETTINGS_NAME, 0);
@@ -55,6 +70,36 @@ public final class ApplicationSettings {
         editor.commit();
     }
 
+    public static String getDriverUId(Context context) {
+        return getSharedPreferences(context).getString(DRIVER_ID, null);
+    }
+
+    public static void setDriverUId(Context context, String uid) {
+        SharedPreferences.Editor editor = getEditor(context);
+        editor.putString(DRIVER_UID, uid);
+        editor.commit();
+    }
+
+    public static void setDriverEid(Context context, String eid) {
+        SharedPreferences.Editor editor = getEditor(context);
+        editor.putString(DRIVER_EID, eid);
+        editor.commit();
+    }
+
+    public static String getDriverEid(Context context) {
+        return getSharedPreferences(context).getString(DRIVER_EID, null);
+    }
+
+    public static void setDriverName(Context context, String name) {
+        SharedPreferences.Editor editor = getEditor(context);
+        editor.putString(DRIVER_NAME, name);
+        editor.commit();
+    }
+
+    public static String getDriverName(Context context) {
+        return getSharedPreferences(context).getString(DRIVER_NAME, null);
+    }
+
     public static int getDriverId(Context context) {
         return getSharedPreferences(context).getInt(DRIVER_ID, 0);
     }
@@ -67,16 +112,6 @@ public final class ApplicationSettings {
 
     public static String getDriver(Context context) {
         return getSharedPreferences(context).getString(DRIVER, "");
-    }
-
-    public static void setOtpSessionId(Context context, String OtpSessionId) {
-        SharedPreferences.Editor editor = getEditor(context);
-        editor.putString(OTP_SESSION_ID, OtpSessionId);
-        editor.commit();
-    }
-
-    public static String getOtpSessionId(Context context) {
-        return getSharedPreferences(context).getString(OTP_SESSION_ID, "");
     }
 
     public static void setVerified(Context context, Boolean verified) {
@@ -146,7 +181,31 @@ public final class ApplicationSettings {
 
     }
 
+    public static TripRequest getTripReq() {
+        return tripReq;
+    }
+
+    public static void setTripReq(TripRequest tripReq) {
+        ApplicationSettings.tripReq = tripReq;
+    }
+
     public static void setTripId(long tripId) {
         TRIP_ID = tripId;
+    }
+
+    public static FBDriver getFbDriver() {
+        return fbDriver;
+    }
+
+    public static void setFbDriver(FBDriver fbDriver) {
+        ApplicationSettings.fbDriver = fbDriver;
+    }
+
+    public static FBVehicleRequest getFbVehicleRequest() {
+        return fbVehicleRequest;
+    }
+
+    public static void setFbVehicleRequest(FBVehicleRequest fbVehicleRequest) {
+        ApplicationSettings.fbVehicleRequest = fbVehicleRequest;
     }
 }
