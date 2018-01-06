@@ -22,7 +22,7 @@ public class Driver {
     private String lastName;
     private String gender;
     private Boolean verified;
-    private ArrayList<VehicleRequest> vehicleRequests;
+    private ArrayList<FBVehicleRequest> vehicleRequests;
 
     public Driver(JSONObject jsonObject) throws JSONException {
         this.id = jsonObject.getInt("id");
@@ -82,7 +82,7 @@ public class Driver {
         this.verified = verified;
     }
 
-    public ArrayList<VehicleRequest> getVehicleRequests() {
+    public ArrayList<FBVehicleRequest> getVehicleRequests() {
         return vehicleRequests;
     }
 

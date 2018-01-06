@@ -66,7 +66,17 @@ public class FirebaseReferenceService {
     }
 
     public static DatabaseReference getCurrentTripDetails(String driverId) {
-        return getFBInstance().getReference(driverPath + "/" + driverId + "currentTrip");
+        return getFBInstance().getReference(driverPath + "/" + driverId + "/currentTrip");
+    }
+
+    public static void removeCurrentTrip(String driverId){
+        final Task<Void> removeCurrentTrip = getFBInstance().getReference(driverPath + "/" + driverId + "/currentTrip").removeValue();
+        firebaseOperationThreadPool.submit(new Runnable() {
+            @Override
+            public void run() {
+                removeCurrentTrip.getResult();
+            }
+        });
     }
 
     public static DatabaseReference getTripReferece(String custId, String tripId) {

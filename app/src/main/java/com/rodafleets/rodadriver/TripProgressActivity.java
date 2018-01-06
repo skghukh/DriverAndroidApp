@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
@@ -27,7 +28,7 @@ import com.rodafleets.rodadriver.custom.SwipeButtonCustomItems;
 import com.rodafleets.rodadriver.custom.slideview.SlideView;
 import com.rodafleets.rodadriver.model.FBVehicleRequest;
 import com.rodafleets.rodadriver.model.TripRequest;
-import com.rodafleets.rodadriver.model.VehicleRequest;
+import com.rodafleets.rodadriver.model.FBVehicleRequest;
 import com.rodafleets.rodadriver.rest.RodaRestClient;
 import com.rodafleets.rodadriver.services.FirebaseReferenceService;
 import com.rodafleets.rodadriver.utils.AppConstants;
@@ -83,7 +84,7 @@ public class TripProgressActivity extends MapActivity {
     private TextView rateCustomerTxt;
     private SlideView goOnlineBtn;
 
-    private VehicleRequest vehicleRequest;
+    private FBVehicleRequest vehicleRequest;
     private TripRequest tripReq;
 
     private Handler mHandler = new Handler();
@@ -105,17 +106,16 @@ public class TripProgressActivity extends MapActivity {
 
     private void resumeViewForCurrentTrip(String tripstatus) {
         tripstatus = tripstatus.toLowerCase();
-        if (tripstatus.equalsIgnoreCase("loading")) {
+        if (tripstatus.equalsIgnoreCase("scheduled")) {
             resumeStartLoading();
-        }
-        if (tripstatus.equalsIgnoreCase("inprogress")) {
+        } else if (tripstatus.equalsIgnoreCase("loading")) {
             resumeStartTrip();
-        }
-        if (tripstatus.equalsIgnoreCase("unloading")) {
+        } else if (tripstatus.equalsIgnoreCase("inprogress")) {
             resumestartUnloading();
-        }
-        if (tripstatus.equalsIgnoreCase("completed")) {
+        } else if (tripstatus.equalsIgnoreCase("unloading")) {
             resumeFinishTrip();
+        } else if (tripstatus.equalsIgnoreCase("paydue")) {
+            resumeFareSummaryView();
         }
     }
 
@@ -197,7 +197,7 @@ public class TripProgressActivity extends MapActivity {
 
         try {
             JSONObject jsonObject = new JSONObject(ApplicationSettings.getVehicleRequest(TripProgressActivity.this));
-            VehicleRequest vehicleRequest = new VehicleRequest(jsonObject);
+            //VehicleRequest vehicleRequest = new VehicleRequest(jsonObject);
             Log.e(TAG, vehicleRequest.toString());
             //₹
             customerName.setText(vehicleRequest.getCustomerName().toUpperCase());
@@ -415,7 +415,7 @@ public class TripProgressActivity extends MapActivity {
             @Override
             public void onSlideComplete(SlideView slideView) {
                 hideAllViews();
-                final VehicleRequest vehicleRequest = ApplicationSettings.getVehicleRequest();
+                final FBVehicleRequest vehicleRequest = ApplicationSettings.getVehicleRequest();
                 rateCustomerTxt.setText("Rate " + vehicleRequest.getCustomerName());
                 paidByTxt.setText("Payment made by e-wallet");
                 long fare = vehicleRequest.getApproxFareInCents() / 100;
@@ -424,7 +424,7 @@ public class TripProgressActivity extends MapActivity {
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        updateTripStatus(ApplicationSettings.getTripReq().getCustId(), ApplicationSettings.getTripReq().getTripId(), "Completed");
+                        updateTripStatus(ApplicationSettings.getTripReq().getCustId(), ApplicationSettings.getTripReq().getTripId(), "paydue");
                         // RodaRestClient.updateTripStatus(ApplicationSettings.getTripId(), ApplicationSettings.getRequestId(), 10, tripStatusUpdateHandler);
                     }
                 });
@@ -462,7 +462,22 @@ public class TripProgressActivity extends MapActivity {
         goOnlineBtn.setOnSlideCompleteListener(new SlideView.OnSlideCompleteListener() {
             @Override
             public void onSlideComplete(SlideView slideView) {
-                startNextActivity();
+                //TODO remove current trip here. and update trip status to completed.
+                AsyncTask.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        ApplicationSettings.getFbDriver().setCurrentTrip(null);
+                        FirebaseReferenceService.removeCurrentTrip(ApplicationSettings.getDriverEid(TripProgressActivity.this));
+                        updateTripStatus(ApplicationSettings.getTripReq().getCustId(), ApplicationSettings.getTripReq().getTripId(), "completed");
+                    }
+                });
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        startNextActivity();
+                    }
+                });
+
             }
         });
     }
@@ -490,7 +505,7 @@ public class TripProgressActivity extends MapActivity {
 
                 JSONObject jsonObject = new JSONObject(ApplicationSettings.getVehicleRequest(TripProgressActivity.this));
 
-                vehicleRequest = new VehicleRequest(jsonObject);
+                //vehicleRequest = new FBVehicleRequest(jsonObject);
                 final String tripId = intent.getStringExtra("tripId");
                 final String requestId = intent.getStringExtra("requestId");
                 ApplicationSettings.setRequestId(Long.parseLong(requestId));
@@ -516,7 +531,7 @@ public class TripProgressActivity extends MapActivity {
     };
 
     private void onTripConfirmOperation() {
-        final VehicleRequest vehicleRequest = ApplicationSettings.getVehicleRequest();
+        final FBVehicleRequest vehicleRequest = ApplicationSettings.getVehicleRequest();
         customerName.setText(vehicleRequest.getCustomerName().toUpperCase());
         fromAddress.setText(vehicleRequest.getOriginAddress());
         acceptanceStatus.setText("ACCEPTED");
@@ -554,6 +569,12 @@ public class TripProgressActivity extends MapActivity {
         customerView.setVisibility(View.GONE);
         addressView.setVisibility(View.VISIBLE);
         endTripView.setVisibility(View.VISIBLE);
+    }
+
+    private void resumeFareSummaryView() {
+        customerView.setVisibility(View.GONE);
+        addressView.setVisibility(View.VISIBLE);
+        fareSummaryView.setVisibility(View.VISIBLE);
     }
 
     private void updateTripStatus(String custId, String tripId, String status) {

@@ -4,7 +4,7 @@ import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
 
-import com.rodafleets.rodadriver.model.VehicleRequest;
+import com.rodafleets.rodadriver.model.FBVehicleRequest;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -58,11 +58,11 @@ public class Utils {
         }
     }
 
-    public static ArrayList<VehicleRequest> toVehicleRequestArrayList(JSONArray array) throws JSONException {
-        ArrayList<VehicleRequest> list = new ArrayList();
+    public static ArrayList<FBVehicleRequest> toVehicleRequestArrayList(JSONArray array) throws JSONException {
+        ArrayList<FBVehicleRequest> list = new ArrayList();
         for (int i = 0; i < array.length(); i++) {
             JSONObject jsonObject = array.getJSONObject(i);
-            list.add(new VehicleRequest(jsonObject));
+           // list.add(new FBVehicleRequest(jsonObject));
 
         }
         return list;

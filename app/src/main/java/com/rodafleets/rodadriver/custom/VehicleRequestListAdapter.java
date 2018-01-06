@@ -22,14 +22,14 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.rodafleets.rodadriver.R;
-import com.rodafleets.rodadriver.model.VehicleRequest;
+import com.rodafleets.rodadriver.model.FBVehicleRequest;
 import com.rodafleets.rodadriver.model.VehicleType;
 import com.rodafleets.rodadriver.utils.AppConstants;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 
-public class VehicleRequestListAdapter extends ArrayAdapter<VehicleRequest> {
+public class VehicleRequestListAdapter extends ArrayAdapter<FBVehicleRequest> {
 
     // Initialise custom font, for example:
     private Context context;
@@ -39,11 +39,11 @@ public class VehicleRequestListAdapter extends ArrayAdapter<VehicleRequest> {
     private Bitmap greenIcon;
     private Bitmap redIcon;
 
-    private ArrayList<VehicleRequest> vehicleRequests;
+    private ArrayList<FBVehicleRequest> vehicleRequests;
 
     private final HashSet<MapView> mMaps = new HashSet<MapView>();
 
-    public VehicleRequestListAdapter(Context context, int resource, ArrayList<VehicleRequest> items) {
+    public VehicleRequestListAdapter(Context context, int resource, ArrayList<FBVehicleRequest> items) {
         super(context, resource, items);
         this.context = context;
         this.vehicleRequests = items;
@@ -88,7 +88,7 @@ public class VehicleRequestListAdapter extends ArrayAdapter<VehicleRequest> {
             MapsInitializer.initialize(context);
             map = googleMap;
 
-            VehicleRequest data = (VehicleRequest) mapView.getTag();
+            FBVehicleRequest data = (FBVehicleRequest) mapView.getTag();
 
             if (data != null) {
                 setMapLocation(map, data);
@@ -109,7 +109,7 @@ public class VehicleRequestListAdapter extends ArrayAdapter<VehicleRequest> {
         }
     }
 
-    private void setMapLocation(GoogleMap map, VehicleRequest vehicleRequest) {
+    private void setMapLocation(GoogleMap map, FBVehicleRequest vehicleRequest) {
 
         if (vehicleRequest != null) {
 
@@ -152,7 +152,7 @@ public class VehicleRequestListAdapter extends ArrayAdapter<VehicleRequest> {
 
         ViewHolder holder = null;
 
-        VehicleRequest request = vehicleRequests.get(position);
+        FBVehicleRequest request = vehicleRequests.get(position);
 
         View rowView = convertView;
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);

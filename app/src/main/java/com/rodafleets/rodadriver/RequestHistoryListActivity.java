@@ -13,7 +13,7 @@ import android.widget.ListView;
 
 import com.rodafleets.rodadriver.custom.VehicleRequestListAdapter;
 import com.rodafleets.rodadriver.model.Driver;
-import com.rodafleets.rodadriver.model.VehicleRequest;
+import com.rodafleets.rodadriver.model.FBVehicleRequest;
 import com.rodafleets.rodadriver.utils.AppConstants;
 import com.rodafleets.rodadriver.utils.ApplicationSettings;
 
@@ -26,9 +26,9 @@ public class RequestHistoryListActivity extends ParentActivity {
     public static final String TAG = AppConstants.APP_NAME;
 
     private ListView vehicleRequestListView;
-    private VehicleRequest selectedVehicleRequest;
+    private FBVehicleRequest selectedVehicleRequest;
 
-    private ArrayList<VehicleRequest> vehicleRequestList;
+    private ArrayList<FBVehicleRequest> vehicleRequestList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -40,7 +40,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.rodafleets.rodadriver.model.TripRequest;
-import com.rodafleets.rodadriver.model.VehicleRequest;
+import com.rodafleets.rodadriver.model.FBVehicleRequest;
 import com.rodafleets.rodadriver.services.FirebaseReferenceService;
 import com.rodafleets.rodadriver.utils.AppConstants;
 import com.rodafleets.rodadriver.utils.ApplicationSettings;
@@ -66,7 +66,7 @@ public class MapActivity extends ParentActivity implements OnMapReadyCallback,
     private Bitmap redIcon;
     private Bitmap greenIcon;
     private Bitmap carIcon;
-    protected VehicleRequest vehicleRequest;
+    protected FBVehicleRequest vehicleRequest;
     TripRequest tripReq;
 
     @Override
@@ -124,7 +124,7 @@ public class MapActivity extends ParentActivity implements OnMapReadyCallback,
             tripRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    final VehicleRequest request = dataSnapshot.getValue(VehicleRequest.class);
+                    final FBVehicleRequest request = dataSnapshot.getValue(FBVehicleRequest.class);
                     System.out.println(request);
                     vehicleRequest = request;
                     ApplicationSettings.setVehicleRequest(vehicleRequest);
@@ -248,7 +248,7 @@ public class MapActivity extends ParentActivity implements OnMapReadyCallback,
 
         if (!ApplicationSettings.getVehicleRequest(this).equals("")) {
 
-            VehicleRequest vehicleRequest;
+            FBVehicleRequest vehicleRequest;
             LatLngBounds.Builder builder = new LatLngBounds.Builder();
             int padding = 30; // offset from edges of the map in pixels
 
@@ -257,7 +257,7 @@ public class MapActivity extends ParentActivity implements OnMapReadyCallback,
 
                 JSONObject jsonObject = new JSONObject(ApplicationSettings.getVehicleRequest(MapActivity.this));
 
-                vehicleRequest = new VehicleRequest(jsonObject);
+                vehicleRequest = null;//new FBVehicleRequest(jsonObject);
 
                 //Place pickup location marker
                 LatLng pickupPointLatLng = new LatLng(vehicleRequest.getOriginLat(), vehicleRequest.getOriginLng());

@@ -6,7 +6,7 @@ import android.content.SharedPreferences;
 import com.rodafleets.rodadriver.model.FBDriver;
 import com.rodafleets.rodadriver.model.FBVehicleRequest;
 import com.rodafleets.rodadriver.model.TripRequest;
-import com.rodafleets.rodadriver.model.VehicleRequest;
+import com.rodafleets.rodadriver.model.FBVehicleRequest;
 
 import org.json.JSONObject;
 
@@ -30,15 +30,15 @@ public final class ApplicationSettings {
     private static FBDriver fbDriver;
     private static FBVehicleRequest fbVehicleRequest;
 
-    public static VehicleRequest getVehicleRequest() {
+    public static FBVehicleRequest getVehicleRequest() {
         return vehicleRequest;
     }
 
-    public static void setVehicleRequest(VehicleRequest vehicleRequest) {
+    public static void setVehicleRequest(FBVehicleRequest vehicleRequest) {
         ApplicationSettings.vehicleRequest = vehicleRequest;
     }
 
-    private static VehicleRequest vehicleRequest;
+    private static FBVehicleRequest vehicleRequest;
 
     private static SharedPreferences getSharedPreferences(Context context) {
         return context.getSharedPreferences(SETTINGS_NAME, 0);

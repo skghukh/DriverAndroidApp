@@ -25,7 +25,7 @@ import com.rodafleets.rodadriver.custom.slideview.SlideView;
 import com.rodafleets.rodadriver.model.FBDriver;
 import com.rodafleets.rodadriver.model.FBVehicleRequest;
 import com.rodafleets.rodadriver.model.TripRequest;
-import com.rodafleets.rodadriver.model.VehicleRequest;
+import com.rodafleets.rodadriver.model.FBVehicleRequest;
 import com.rodafleets.rodadriver.model.VehicleRequestResponse;
 import com.rodafleets.rodadriver.services.FirebaseReferenceService;
 import com.rodafleets.rodadriver.utils.AppConstants;
@@ -146,7 +146,7 @@ public class VehicleRequestActivity extends MapActivity {
                                 TripRequest req = new TripRequest(fbDriver.getCurrentTrip().getCustId(),fbDriver.getCurrentTrip().getTripid(),FirebaseReferenceService.getTripReferece(fbDriver.getCurrentTrip().getCustId(),fbDriver.getCurrentTrip().getTripid()));
                                 req.setStatusRef(req.getTripRef().child("status"));
                                 ApplicationSettings.setTripReq(req);
-                                //ApplicationSettings.setVehicleRequest(listeningVehicleRequest);
+                                ApplicationSettings.setVehicleRequest(listeningVehicleRequest);
                                 startNextActivityWithStatus(status[0]);
                             } else {
                                 //TODO Remove Current trip reference.
@@ -297,7 +297,7 @@ public class VehicleRequestActivity extends MapActivity {
         try {
 
             JSONObject jsonObject = new JSONObject(ApplicationSettings.getVehicleRequest(VehicleRequestActivity.this));
-            vehicleRequest = new VehicleRequest(jsonObject);
+            //vehicleRequest = new FBVehicleRequest(jsonObject);
             showVehicleRequestOnUI();
         } catch (Exception e) {
             //handle error
@@ -322,7 +322,7 @@ public class VehicleRequestActivity extends MapActivity {
         customerName.setText(vehicleRequest.getCustomerName().toUpperCase());
         fromAddress.setText(vehicleRequest.getOriginAddress());
         toAddress.setText(vehicleRequest.getDestinationAddress());
-        distance.setText(vehicleRequest.getDistance());
+        distance.setText("3000");//vehicleRequest.getDistance());
         long fare = vehicleRequest.getApproxFareInCents() / 100;
         makeOfferBtn.setText("₹" + fare);
         requestView.setVisibility(View.VISIBLE);
