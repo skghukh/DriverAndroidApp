@@ -8,6 +8,7 @@ import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -81,6 +82,7 @@ public class VehicleDetailsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_vehicle_details);
         initComponents();
         getDriverDetails(getIntent());
+
     }
 
     private void getDriverDetails(Intent intent) {

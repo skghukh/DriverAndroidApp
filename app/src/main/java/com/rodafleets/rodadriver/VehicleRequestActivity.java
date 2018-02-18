@@ -4,13 +4,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.AppCompatSeekBar;
 import android.support.v7.widget.CardView;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -20,20 +20,14 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
-import com.loopj.android.http.JsonHttpResponseHandler;
 import com.rodafleets.rodadriver.custom.slideview.SlideView;
 import com.rodafleets.rodadriver.model.FBDriver;
 import com.rodafleets.rodadriver.model.FBVehicleRequest;
 import com.rodafleets.rodadriver.model.TripRequest;
-import com.rodafleets.rodadriver.model.FBVehicleRequest;
 import com.rodafleets.rodadriver.model.VehicleRequestResponse;
 import com.rodafleets.rodadriver.services.FirebaseReferenceService;
 import com.rodafleets.rodadriver.utils.AppConstants;
 import com.rodafleets.rodadriver.utils.ApplicationSettings;
-
-import org.json.JSONObject;
-
-import cz.msebera.android.httpclient.Header;
 
 public class VehicleRequestActivity extends MapActivity {
 
@@ -70,34 +64,30 @@ public class VehicleRequestActivity extends MapActivity {
     private void handleIntent(Intent intent) {
         String custId = intent.getStringExtra("custId");
         String tripId = intent.getStringExtra("tripId");
-        showVehicleRequestFromNotification(custId, tripId);
+        if (null != custId && null != tripId)
+            showVehicleRequestFromNotification(custId, tripId);
     }
 
     protected void initComponents() {
         super.initComponents();
-        requestView = (CardView) findViewById(R.id.requestView);
+        requestView = findViewById(R.id.requestView);
 
-        customerName = (TextView) findViewById(R.id.customerName);
-        fromAddress = (TextView) findViewById(R.id.fromAddress);
-        toAddress = (TextView) findViewById(R.id.toAddress);
-        distance = (TextView) findViewById(R.id.distance);
-        loadingUnloadingTxt = (TextView) findViewById(R.id.loadingUnloadingTxt);
-        makeOfferTxt = (TextView) findViewById(R.id.makeOfferTxt);
+        customerName = findViewById(R.id.customerName);
+        fromAddress = findViewById(R.id.fromAddress);
+        toAddress = findViewById(R.id.toAddress);
+        distance = findViewById(R.id.distance);
+        loadingUnloadingTxt = findViewById(R.id.loadingUnloadingTxt);
+        makeOfferTxt = findViewById(R.id.makeOfferTxt);
 
-        callCustomerBtn = (Button) findViewById(R.id.callCustomerBtn);
-        callAdmin = (TextView) findViewById(R.id.callAdmin);
-        makeOfferBtn = (SlideView) findViewById(R.id.makeOfferBtn);
+        callCustomerBtn = findViewById(R.id.callCustomerBtn);
+        callAdmin = findViewById(R.id.callAdmin);
+        makeOfferBtn = findViewById(R.id.makeOfferBtn);
 
         initMap();
         setFonts();
         initMakeOfferBtn();
         getDriverStatus();
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("Vehicle_Requested"));
-        boolean fromNotification = getIntent().getBooleanExtra("FROM_NOTIFICATION", false);
-        if (fromNotification) {
-            Log.i(TAG, "opened from notification");
-            showVehicleRequestFromReceiver();
-        }
     }
 
     private void getDriverStatus() {
@@ -142,8 +132,8 @@ public class VehicleRequestActivity extends MapActivity {
                                 return;
                             }
                             String[] status = listeningVehicleRequest.getStatus().split("\\_");
-                            if (status.length>0 && status[1] !=null && status[1].equalsIgnoreCase(ApplicationSettings.getDriverEid(VehicleRequestActivity.this))) {
-                                TripRequest req = new TripRequest(fbDriver.getCurrentTrip().getCustId(),fbDriver.getCurrentTrip().getTripid(),FirebaseReferenceService.getTripReferece(fbDriver.getCurrentTrip().getCustId(),fbDriver.getCurrentTrip().getTripid()));
+                            if (status.length > 0 && status[1] != null && status[1].equalsIgnoreCase(ApplicationSettings.getDriverEid(VehicleRequestActivity.this))) {
+                                TripRequest req = new TripRequest(fbDriver.getCurrentTrip().getCustId(), fbDriver.getCurrentTrip().getTripid(), FirebaseReferenceService.getTripReferece(fbDriver.getCurrentTrip().getCustId(), fbDriver.getCurrentTrip().getTripid()));
                                 req.setStatusRef(req.getTripRef().child("status"));
                                 ApplicationSettings.setTripReq(req);
                                 ApplicationSettings.setVehicleRequest(listeningVehicleRequest);
@@ -164,8 +154,6 @@ public class VehicleRequestActivity extends MapActivity {
         }
 
     }
-
-
 
 
     private void setFonts() {
@@ -217,56 +205,49 @@ public class VehicleRequestActivity extends MapActivity {
     }
 
     private void bidRequest() {
-        if (null != tripReq) {
-            final DatabaseReference tripRef = tripReq.getTripRef();
-            final DatabaseReference statusRef = tripRef.child("status");
-            tripReq.setStatusRef(statusRef);
-            //TODO:- check here if statusRef is already scheduled, show msg here, and don't add response.
-            final DatabaseReference responseRef = tripRef.child("responses/" + ApplicationSettings.getDriverEid(VehicleRequestActivity.this));
-            VehicleRequestResponse response = new VehicleRequestResponse();
-            response.setDistance("5");
-            // response.setDriverId("1");
-            //response.setDriverRating("5");
-            response.setOfferedFare("10000");
-            responseRef.setValue(response, new DatabaseReference.CompletionListener() {
-                @Override
-                public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                    System.out.println("Writing is successfull");
-                    ApplicationSettings.setTripReq(tripReq);
-                    startNextActivity();
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                if (null != tripReq) {
+                    final DatabaseReference tripRef = tripReq.getTripRef();
+                    final DatabaseReference statusRef = tripRef.child("status");
+                    tripReq.setStatusRef(statusRef);
+                    float[] dist = new float[1];
+                    Location.distanceBetween(vehicleRequest.getOriginLat(), vehicleRequest.getOriginLng(), TrackerService.getLastLocation().getLatitude(), TrackerService.getLastLocation().getLongitude(), dist);
+                    //TODO:- check here if statusRef is already scheduled, show msg here, and don't add response.
+                    final DatabaseReference responseRef = tripRef.child("responses/" + ApplicationSettings.getDriverEid(VehicleRequestActivity.this));
+                    VehicleRequestResponse response = new VehicleRequestResponse();
+                    response.setDistance(dist[0] + "");
+                    response.setVehicleId(ApplicationSettings.getFbDriver().getVehicleDetails().getVehicleNumber());
+                    response.setName(ApplicationSettings.getDriverName(VehicleRequestActivity.this));
+                    response.setRating(ApplicationSettings.getFbDriver().getRating() + "");
+                    response.setOfferedFare(vehicleRequest.getApproxFareInCents() + "");
+                    responseRef.setValue(response, new DatabaseReference.CompletionListener() {
+                        @Override
+                        public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                            System.out.println("Writing is successfull");
+                            ApplicationSettings.setTripReq(tripReq);
+                            startNextActivity();
+                        }
+                    });
+
+                } else {
+                    //Show error message here.
                 }
-            });
 
-         /*   DatabaseReference pushRef = responseRef.push();
-           final Task<Void> voidTask = pushRef.setValue(response);
-            if(voidTask.isSuccessful()){
-                startNextActivity();
-            }*/
-
-        } else {
-            //Show error message here.
-        }
-
-        /*
-        int driverId = ApplicationSettings.getDriverId(VehicleRequestActivity.this);
-        RodaRestClient.bidRequest(vehicleRequest.getId(), driverId, vehicleRequest.getApproxFareInCents(), bidRequestResponseHandler);
-        */
+            }
+        });
     }
 
     public void onRejectBtnClick(View view) {
-
         onRejectHandler();
-
-        /*
-        int driverId = ApplicationSettings.getDriverId(VehicleRequestActivity.this);
-        RodaRestClient.rejectRequest(vehicleRequest.getId(), driverId, rejectRequestResponseHandler);
-        */
     }
 
     private void onRejectHandler() {
         clearMap();
         requestView.setVisibility(View.GONE);
         vehicleRequest = null;
+        tripReq = null;
     }
 
 
@@ -275,7 +256,10 @@ public class VehicleRequestActivity extends MapActivity {
     }
 
     private void startNextActivity() {
-        this.startActivity(new Intent(this, TripProgressActivity.class));
+        final Intent intent = new Intent(this, TripProgressActivity.class);
+        intent.putExtra("custName", vehicleRequest.getCustomerName());
+        intent.putExtra("source", vehicleRequest.getOriginAddress());
+        this.startActivity(intent);
         finish();
     }
 
@@ -289,21 +273,9 @@ public class VehicleRequestActivity extends MapActivity {
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            showVehicleRequestFromReceiver();
+            handleIntent(intent);
         }
     };
-
-    private void showVehicleRequestFromReceiver() {
-        try {
-
-            JSONObject jsonObject = new JSONObject(ApplicationSettings.getVehicleRequest(VehicleRequestActivity.this));
-            //vehicleRequest = new FBVehicleRequest(jsonObject);
-            showVehicleRequestOnUI();
-        } catch (Exception e) {
-            //handle error
-            Log.e(TAG, "vehicleRequest jsonException = " + e.getMessage());
-        }
-    }
 
     private void showVehicleRequestFromNotification(String custId, String tripId) {
         subscribeForTripUpdate(custId, tripId, new Runnable() {
@@ -322,44 +294,11 @@ public class VehicleRequestActivity extends MapActivity {
         customerName.setText(vehicleRequest.getCustomerName().toUpperCase());
         fromAddress.setText(vehicleRequest.getOriginAddress());
         toAddress.setText(vehicleRequest.getDestinationAddress());
-        distance.setText("3000");//vehicleRequest.getDistance());
-        long fare = vehicleRequest.getApproxFareInCents() / 100;
+        distance.setText(vehicleRequest.getDistanceKM() + " KM");
+        long fare = vehicleRequest.getApproxFareInCents();
         makeOfferBtn.setText("₹" + fare);
         requestView.setVisibility(View.VISIBLE);
         requestView.bringToFront();
     }
 
-    private JsonHttpResponseHandler bidRequestResponseHandler = new JsonHttpResponseHandler() {
-
-        public void onSuccess(int statusCode, Header[] headers, JSONObject jsonResponseObject) {
-            Log.i(AppConstants.APP_NAME, "response = " + jsonResponseObject.toString());
-            startNextActivity();
-        }
-
-        public final void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-//            if(errorCode == ResponseCode.INVALID_CREDENTIALS) {
-//                sb = Snackbar.make(constraintLayout, getString(R.string.sign_in_invalid_credentials_error), Snackbar.LENGTH_LONG);
-//            } else {
-//                sb = Snackbar.make(constraintLayout, getString(R.string.default_error), Snackbar.LENGTH_LONG);
-//            }
-        }
-    };
-
-    private JsonHttpResponseHandler rejectRequestResponseHandler = new JsonHttpResponseHandler() {
-
-        public void onSuccess(int statusCode, Header[] headers, JSONObject jsonResponseObject) {
-            Log.i(AppConstants.APP_NAME, "response = " + jsonResponseObject.toString());
-            ApplicationSettings.setVehicleRequest(VehicleRequestActivity.this, null);
-            clearMap();
-            requestView.setVisibility(View.GONE);
-        }
-
-        public final void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-//            if(errorCode == ResponseCode.INVALID_CREDENTIALS) {
-//                sb = Snackbar.make(constraintLayout, getString(R.string.sign_in_invalid_credentials_error), Snackbar.LENGTH_LONG);
-//            } else {
-//                sb = Snackbar.make(constraintLayout, getString(R.string.default_error), Snackbar.LENGTH_LONG);
-//            }
-        }
-    };
 }

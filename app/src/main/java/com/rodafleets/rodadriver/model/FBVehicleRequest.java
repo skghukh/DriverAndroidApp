@@ -21,12 +21,13 @@ public class FBVehicleRequest {
     private String originAddress;
     private String destinationAddress;
     private String acceptedFare;
-   // private String carrierId;
+    // private String carrierId;
     private String customerName;
     private long timestamp;
     private String recName;
     private String recNum;
     private String status;
+    private String distanceKM;
 
     public FBVehicleRequest() {
         //default Constructor
@@ -174,5 +175,13 @@ public class FBVehicleRequest {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getDistanceKM() {
+        return null == distanceKM ? "NA" : distanceKM;
+    }
+
+    public void setDistanceKM(String distanceKM) {
+        this.distanceKM = distanceKM;
     }
 }

@@ -5,23 +5,15 @@ package com.rodafleets.rodadriver.model;
  */
 
 public class VehicleRequestResponse {
-
-    // private String driverId;
     private String distance;
     private String offeredFare;
-    //private String driverRating;
+    private String rating;
+    private String name;
+    private String vehicleId;
+    private String vehicleType;
 
-
-    /* public String getDriverId() {
-         return driverId;
-     }
-
-     public void setDriverId(String driverId) {
-         this.driverId = driverId;
-     }
- */
     public String getDistance() {
-        return distance;
+        return null == distance ? "NA" : distance;
     }
 
     public void setDistance(String distance) {
@@ -36,13 +28,37 @@ public class VehicleRequestResponse {
         this.offeredFare = offeredFare;
     }
 
-   /* public String getDriverRating() {
-        return driverRating;
+
+    public String getRating() {
+        return rating == null ? "NA" : rating;
     }
 
-    public void setDriverRating(String driverRating) {
-        this.driverRating = driverRating;
-    }*/
+    public void setRating(String rating) {
+        this.rating = rating;
+    }
 
+    public String getName() {
+        return null == name ? "NA" : name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getVehicleId() {
+        return null == vehicleId ? "NA" : vehicleId;
+    }
+
+    public void setVehicleId(String vehicleId) {
+        this.vehicleId = vehicleId;
+    }
+
+    public String getVehicleType() {
+        return null == vehicleType ? "NA" : vehicleType;
+    }
+
+    public void setVehicleType(String vehicleType) {
+        this.vehicleType = vehicleType;
+    }
 }
 

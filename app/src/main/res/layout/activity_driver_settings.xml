@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.rodafleets.rodadriver.DriverSettings">
+
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/appbarlayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/AppTheme.PopupOverlay" />
+
+    </android.support.design.widget.AppBarLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="?android:attr/actionBarSize"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf='@id/appbarlayout'>
+
+        <RelativeLayout
+            android:id="@+id/personal_details_view"
+            android:layout_width="match_parent"
+            android:layout_height="97dp"
+            android:gravity="center_vertical">
+
+
+            <ImageView
+                android:id="@+id/driver_thumbnail"
+                android:layout_width="48dp"
+                android:layout_height="43.3dp"
+                android:layout_alignTop="@+id/details_button"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="26dp"
+                app:srcCompat="@drawable/ic_user_black" />
+
+            <TextView
+                android:id="@+id/personal_details_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/driver_thumbnail"
+                android:layout_marginLeft="14dp"
+                android:layout_marginStart="14dp"
+                android:layout_toEndOf="@+id/driver_thumbnail"
+                android:layout_toRightOf="@+id/driver_thumbnail"
+                android:fontFamily="@font/poppins_light"
+                android:text="NAME"
+                android:textColor="@android:color/black"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/personal_detials_number"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/driver_thumbnail"
+                android:layout_alignLeft="@+id/personal_details_name"
+                android:layout_alignStart="@+id/personal_details_name"
+                android:fontFamily="@font/poppins_light"
+                android:maxWidth="150sp"
+                android:singleLine="false"
+                android:text="Phone number"
+                android:textColor="#7d7d7d"
+                android:textSize="12sp" />
+
+            <ImageView
+                android:id="@+id/details_button"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="26dp"
+                android:onClick="openPersonalDetails"
+                app:srcCompat="@drawable/quantum_ic_skip_next_grey600_36" />
+
+
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_alignBottom="@id/personal_details_view"
+            android:layout_centerHorizontal="true"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:background="#e5e5e5" />
+
+        <RelativeLayout
+            android:id="@+id/vehicle_details_selector"
+            android:layout_width="match_parent"
+            android:layout_height="97dp"
+            android:gravity="center_vertical">
+
+
+            <ImageView
+                android:id="@+id/vehicle_image"
+                android:layout_width="20dp"
+                android:layout_height="50dp"
+                android:layout_alignTop="@+id/vehicle_details_next"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="35dp"
+                app:srcCompat="@drawable/vehicle" />
+
+            <TextView
+                android:id="@+id/vehicle_details_selector_message"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="88dp"
+                android:fontFamily="@font/poppins_light"
+                android:text="VEHICLE DETAILS"
+                android:textColor="@android:color/black"
+                android:textSize="14sp" />
+
+            <ImageView
+                android:id="@+id/vehicle_details_next"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="26dp"
+                android:onClick="openVehicleDetails"
+                app:srcCompat="@drawable/quantum_ic_skip_next_grey600_36" />
+
+
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_alignBottom="@id/vehicle_details_selector"
+            android:layout_centerHorizontal="true"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:background="#e5e5e5" />
+
+        <RelativeLayout
+            android:id="@+id/document_selector_layout"
+            android:layout_width="match_parent"
+            android:layout_height="97dp">
+
+
+            <ImageView
+                android:id="@+id/document_selector_thumbnail"
+                android:layout_width="48dp"
+                android:layout_height="43.3dp"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="26dp"
+                app:srcCompat="@drawable/ic_document" />
+
+            <TextView
+                android:id="@+id/document_selector_message"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="88dp"
+                android:fontFamily="@font/poppins_light"
+                android:text="DOCUMENTS"
+                android:textColor="@android:color/black"
+                android:textSize="14sp" />
+
+            <ImageView
+                android:id="@+id/document_selector_details_button"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="26dp"
+                android:onClick="openDocumentSelector"
+                app:srcCompat="@drawable/quantum_ic_skip_next_grey600_36" />
+
+
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_alignBottom="@id/document_selector_layout"
+            android:layout_centerHorizontal="true"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:background="#e5e5e5" />
+
+        <RelativeLayout
+            android:id="@+id/account_details_selector"
+            android:layout_width="match_parent"
+            android:layout_height="135dp"
+            android:gravity="center_vertical">
+
+
+            <ImageView
+                android:id="@+id/vehicle_thumbnail"
+                android:layout_width="48dp"
+                android:layout_height="43.3dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginLeft="26dp"
+                android:layout_marginStart="26dp"
+                app:srcCompat="@drawable/ic_account" />
+
+            <TextView
+                android:id="@+id/account_details_selector_message"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/vehicle_thumbnail"
+                android:layout_marginLeft="14dp"
+                android:layout_marginStart="14dp"
+                android:layout_toEndOf="@+id/vehicle_thumbnail"
+                android:layout_toRightOf="@+id/vehicle_thumbnail"
+                android:fontFamily="@font/poppins_light"
+                android:text="ACCOUNT DETAILS"
+                android:textColor="@android:color/black"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/account_details_selector_message2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/account_details_selector_message"
+                android:layout_alignStart="@+id/account_details_selector_message"
+                android:layout_below="@+id/account_details_selector_message"
+                android:fontFamily="@font/poppins_light"
+                android:maxWidth="150sp"
+                android:singleLine="false"
+                android:text="Add your account details in order to receive payment."
+                android:textColor="#e11c2a"
+                android:textSize="12sp" />
+
+            <ImageView
+                android:id="@+id/account_details_next_button"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="26dp"
+                android:onClick="openAccountDetails"
+                app:srcCompat="@drawable/quantum_ic_skip_next_grey600_36" />
+
+
+        </RelativeLayout>
+
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_alignBottom="@id/account_details_selector"
+            android:layout_centerHorizontal="true"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:background="#e5e5e5" />
+
+        <!--  <include layout="@layout/settings_personal_selector_layout" />
+
+          <include layout="@layout/settings_vehicle_details_selector" />
+
+          <include layout="@layout/settings_documents_details_selector" />
+
+          <include layout="@layout/settings_account_details_selector" />-->
+    </LinearLayout>
+
+</android.support.design.widget.CoordinatorLayout>

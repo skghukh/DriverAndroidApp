@@ -1,9 +1,15 @@
 package com.rodafleets.rodadriver.model;
 
+import com.google.firebase.database.IgnoreExtraProperties;
+
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by sverma4 on 1/1/18.
  */
 
+@IgnoreExtraProperties
 public class FBDriver {
     private long rating;
     private DriverTrip currentTrip;
@@ -11,6 +17,8 @@ public class FBDriver {
     private FBVehicle vehicleDetails;
     private String aToken;
     private String gender;
+    private String offline;
+    private long lastSettledDate;
 
     public FBDriver(){
         //default Constructor
@@ -68,5 +76,21 @@ public class FBDriver {
 
     public void setGender(String gender) {
         this.gender = gender;
+    }
+
+    public String getOffline() {
+        return offline;
+    }
+
+    public void setOffline(String offline) {
+        this.offline = offline;
+    }
+
+    public long getLastSettledDate() {
+        return lastSettledDate;
+    }
+
+    public void setLastSettledDate(long lastSettledDate) {
+        this.lastSettledDate = lastSettledDate;
     }
 }

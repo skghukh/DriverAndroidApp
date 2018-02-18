@@ -32,6 +32,7 @@ import com.rodafleets.rodadriver.services.DocumentService;
 import com.rodafleets.rodadriver.utils.AppConstants;
 import com.rodafleets.rodadriver.utils.ApplicationSettings;
 import com.rodafleets.rodadriver.utils.ImageUtils;
+import com.rodafleets.rodadriver.utils.Utils;
 
 import org.json.JSONObject;
 
@@ -87,29 +88,29 @@ public class DriverDocs extends AppCompatActivity implements ImageUtils.ImageAtt
     }
 
     private void getDriverIdFromIntent(Intent intent) {
-        if(null==intent){
+        if (null == intent) {
             finish();
-        }else{
+        } else {
             driverId = intent.getStringExtra("driverNumber");
         }
     }
 
     private void initComponents() {
 
-        driverDocsText = (TextView) findViewById(R.id.driverDocsText);
+        driverDocsText = findViewById(R.id.driverDocsText);
 
-        document1ToUpload = (EditText) findViewById(R.id.document1ToUpload);
-        document2ToUpload = (EditText) findViewById(R.id.document2ToUpload);
-        document3ToUpload = (EditText) findViewById(R.id.document3ToUpload);
+        document1ToUpload = findViewById(R.id.document1ToUpload);
+        document2ToUpload = findViewById(R.id.document2ToUpload);
+        document3ToUpload = findViewById(R.id.document3ToUpload);
 
-        document1Layout = (TextInputLayout) findViewById(R.id.document1Layout);
-        document2Layout = (TextInputLayout) findViewById(R.id.document2Layout);
-        document3Layout = (TextInputLayout) findViewById(R.id.document3Layout);
+        document1Layout = findViewById(R.id.document1Layout);
+        document2Layout = findViewById(R.id.document2Layout);
+        document3Layout = findViewById(R.id.document3Layout);
 
-        constraintLayout = (ConstraintLayout) findViewById(R.id.constraintLayout);
-        progressBar = (ProgressBar) findViewById(R.id.loading);
+        constraintLayout = findViewById(R.id.constraintLayout);
+        progressBar = findViewById(R.id.loading);
 
-        existingDriver = (TextView) findViewById(R.id.existingDriver);
+        existingDriver = findViewById(R.id.existingDriver);
 
         Typeface poppinsRegular = Typeface.createFromAsset(getAssets(), AppConstants.FONT_POPPINS_REGULAR);
         Typeface sintonyBold = Typeface.createFromAsset(getAssets(), AppConstants.FONT_SINTONY_BOLD);
@@ -122,9 +123,9 @@ public class DriverDocs extends AppCompatActivity implements ImageUtils.ImageAtt
 
         imageUtils = new ImageUtils(this);
 
-        document1ImageView = (ImageView) findViewById(R.id.document1ImageView);
-        document2ImageView = (ImageView) findViewById(R.id.document2ImageView);
-        document3ImageView = (ImageView) findViewById(R.id.document3ImageView);
+        document1ImageView = findViewById(R.id.document1ImageView);
+        document2ImageView = findViewById(R.id.document2ImageView);
+        document3ImageView = findViewById(R.id.document3ImageView);
 
         document1ToUpload.setOnTouchListener(uploadImageListener1);
         document2ToUpload.setOnTouchListener(uploadImageListener2);
@@ -233,52 +234,40 @@ public class DriverDocs extends AppCompatActivity implements ImageUtils.ImageAtt
     }
 
     private void upload() {
-        //RequestParams params = new RequestParams();
-        uploadCount = new AtomicInteger(0);
-        try {
-            for (int i = 0; i < 3; i++) {
-                final Uri docUri = this.uris[i];
-                if (null != docUri) {
-                    uploadCount.getAndIncrement();
-                    final StorageTask<UploadTask.TaskSnapshot> taskSnapshotStorageTask = DocumentService.uploadDriverLicense(docUri, driverId, i);
-                    taskSnapshotStorageTask.addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                            final int remaining = uploadCount.decrementAndGet();
-                            if (remaining <= 0) {
-                                progressBar.setVisibility(View.GONE);
-                                startNextActivity();
-                            }
-                        }
-
-                    });
-                }
-            }
-           /* for (File image : filesToUpload) {
-                int j = 1;
-                if (image != null) {
-                    params.put("document" + j, image);
-                }
-                j++;
-            }
-        }*/
-        } catch (Exception e) {
-            Log.i(AppConstants.APP_NAME, "Doc upload exception = " + e.getMessage());
-        }
-
         if (imageViewToUpdate == null) {
             Snackbar sb = Snackbar.make(constraintLayout, getString(R.string.sign_up_document_required_error), Snackbar.LENGTH_LONG);
             sb.show();
         } else {
+            Utils.enableWindowActivity(getWindow(), false);
             progressBar.setIndeterminate(true);
             progressBar.setVisibility(View.VISIBLE);
-
-            // int driverId = ApplicationSettings.getDriverId(DriverDocs.this);
-            //DocumentService.uploadDriverLicense(uris[0]);
-            //RodaRestClient.uploadDriverDocuments(driverId, params, saveDriverDocsResponseHandler);
-            // progressBar.setVisibility(View.GONE);
-            //startNextActivity();
+            progressBar.bringToFront();
+            try {
+                for (int i = 0; i < 3; i++) {
+                    final Uri docUri = this.uris[i];
+                    if (null != docUri) {
+                        uploadCount.getAndIncrement();
+                        final StorageTask<UploadTask.TaskSnapshot> taskSnapshotStorageTask = DocumentService.uploadDriverLicense(docUri, driverId, i);
+                        taskSnapshotStorageTask.addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                                final int remaining = uploadCount.decrementAndGet();
+                                if (remaining <= 0) {
+                                    progressBar.setVisibility(View.GONE);
+                                    startNextActivity();
+                                }
+                            }
+                        });
+                    }
+                }
+            } catch (Exception e) {
+                progressBar.setVisibility(View.GONE);
+                Snackbar.make(constraintLayout, "Something went wrong", Snackbar.LENGTH_LONG).show();
+                Log.i(AppConstants.APP_NAME, "Doc upload exception = " + e.getMessage());
+                Utils.enableWindowActivity(getWindow(), true);
+            }
         }
+        uploadCount = new AtomicInteger(0);
     }
 
     private JsonHttpResponseHandler saveDriverDocsResponseHandler = new JsonHttpResponseHandler() {

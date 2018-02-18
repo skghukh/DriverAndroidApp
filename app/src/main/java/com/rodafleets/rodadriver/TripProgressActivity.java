@@ -13,30 +13,26 @@ import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.Window;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.loopj.android.http.JsonHttpResponseHandler;
-import com.rodafleets.rodadriver.custom.SwipeButton;
-import com.rodafleets.rodadriver.custom.SwipeButtonCustomItems;
 import com.rodafleets.rodadriver.custom.slideview.SlideView;
+import com.rodafleets.rodadriver.model.FBTrip;
 import com.rodafleets.rodadriver.model.FBVehicleRequest;
 import com.rodafleets.rodadriver.model.TripRequest;
-import com.rodafleets.rodadriver.model.FBVehicleRequest;
-import com.rodafleets.rodadriver.rest.RodaRestClient;
 import com.rodafleets.rodadriver.services.FirebaseReferenceService;
 import com.rodafleets.rodadriver.utils.AppConstants;
 import com.rodafleets.rodadriver.utils.ApplicationSettings;
 
 import org.json.JSONObject;
-
-import java.util.HashMap;
 
 import cz.msebera.android.httpclient.Header;
 
@@ -54,11 +50,20 @@ public class TripProgressActivity extends MapActivity {
     private TextView navigate;
     private TextView fromAddress;
 
+
+    //Reached At Location
+    private CardView reachedAtLocationView;
+    private TextView reachedAtLocationTxt1;
+    private SlideView reachedAtLocationBtn;
+    private TextView reachedAtLocationTxt2;
+
+
     //Start Loading View
     private CardView startLoadingView;
     private TextView arrivedAtOriginTxt;
     private SlideView startLoadingBtn;
     private TextView startLoadingTxt;
+
 
     // Start Trip View
     private CardView startTripView;
@@ -88,7 +93,35 @@ public class TripProgressActivity extends MapActivity {
     private TripRequest tripReq;
 
     private Handler mHandler = new Handler();
+    private LatLng sourceLatLng;
+    private LatLng destLatLng;
 
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        super.onMapReady(googleMap);
+        addPicupPointDropPointMarkers(sourceLatLng, destLatLng);
+    }
+
+    private void addPicupPointDropPointMarkers(LatLng sourceLatLng, LatLng destLatLng) {
+        if (null == sourceLatLng || null == destLatLng) return;
+        if (mMarkers.get("p") != null) {
+            mMarkers.get("p").setPosition(sourceLatLng);
+        } else {
+            MarkerOptions markerOptions = new MarkerOptions();
+            markerOptions.position(sourceLatLng);
+            markerOptions.icon(greenIcon);
+            mMarkers.put("p", mGoogleMap.addMarker(markerOptions));
+        }
+        if (mMarkers.get("d") != null) {
+            mMarkers.get("d").setPosition(destLatLng);
+        } else {
+            MarkerOptions markerOptions = new MarkerOptions();
+            markerOptions.position(destLatLng);
+            markerOptions.icon(redIcon);
+            mMarkers.put("d", mGoogleMap.addMarker(markerOptions));
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,6 +132,8 @@ public class TripProgressActivity extends MapActivity {
         this.tripReq = ApplicationSettings.getTripReq();
         if (null == tripstatus) {
             setTripStatusListener();
+            customerName.setText(getIntent().getStringExtra("custName"));
+            fromAddress.setText(getIntent().getStringExtra("source"));
         } else {
             resumeViewForCurrentTrip(tripstatus);
         }
@@ -107,6 +142,8 @@ public class TripProgressActivity extends MapActivity {
     private void resumeViewForCurrentTrip(String tripstatus) {
         tripstatus = tripstatus.toLowerCase();
         if (tripstatus.equalsIgnoreCase("scheduled")) {
+            resumeReachedAtLocation();
+        } else if (tripstatus.equalsIgnoreCase("arrived")) {
             resumeStartLoading();
         } else if (tripstatus.equalsIgnoreCase("loading")) {
             resumeStartTrip();
@@ -117,6 +154,10 @@ public class TripProgressActivity extends MapActivity {
         } else if (tripstatus.equalsIgnoreCase("paydue")) {
             resumeFareSummaryView();
         }
+        final FBVehicleRequest vehicleRequest = ApplicationSettings.getVehicleRequest();
+        sourceLatLng = new LatLng(vehicleRequest.getOriginLat(), vehicleRequest.getOriginLng());
+        destLatLng = new LatLng(vehicleRequest.getDestinationLat(), vehicleRequest.getDestinationLng());
+        addPicupPointDropPointMarkers(vehicleRequest.getOriginLat(), vehicleRequest.getOriginLng(), vehicleRequest.getDestinationLat(), vehicleRequest.getDestinationLng());
     }
 
     private void setTripStatusListener() {
@@ -127,18 +168,31 @@ public class TripProgressActivity extends MapActivity {
                 if (null == dataSnapshot || null == dataSnapshot.getValue()) {
                     return;
                 }
+
                 final String newStatus = (String) dataSnapshot.getValue();
                 final String[] status = newStatus.split("\\_");
-                if (status[1].equalsIgnoreCase(ApplicationSettings.getDriverEid(TripProgressActivity.this)) && (status[0].equalsIgnoreCase("scheduled") || status[0].equalsIgnoreCase("inprogress") || status[0].equalsIgnoreCase("completed"))) {
-                    //Check if this driver is carrier.
-                    onTripConfirmOperation();
+
+                if (status[1].equalsIgnoreCase(ApplicationSettings.getDriverEid(TripProgressActivity.this))) {
+                    //Trip belogs to this driver
+                    if ("scheduled".equalsIgnoreCase(status[0])) {
+                        onTripConfirmOperation();
+                        //statusRef.removeEventListener(this);
+                    } else if ("cancelled".equalsIgnoreCase(status[0]) || "expired".equalsIgnoreCase(status[0])) {
+                        statusRef.removeEventListener(this);
+                        FirebaseReferenceService.removeCurrentTrip(ApplicationSettings.getDriverEid(TripProgressActivity.this));
+                        vehicleRequest = null;
+                        tripReq = null;
+                        finishAndLaunchMainActivity();
+                    } else if ("loading".equalsIgnoreCase(status[0]) || "unloading".equalsIgnoreCase(status[0]) || "inprogress".equalsIgnoreCase(status[0])) {
+                        statusRef.removeEventListener(this);
+                    }
+                } else {
+                    //Trip doesn't below to this driver
                     statusRef.removeEventListener(this);
-                } else if (newStatus == "cancelled" || newStatus.equalsIgnoreCase("expired")) {
-                    //Stop listening for this trip.
-                    //TODO:- remove current trip from driver.
-                    statusRef.removeEventListener(this);
-                    finish();
+                    tripReq = null;
+                    finishAndLaunchMainActivity();
                 }
+
             }
 
             @Override
@@ -149,46 +203,18 @@ public class TripProgressActivity extends MapActivity {
         statusRef.addValueEventListener(tripStatusListener);
     }
 
+    private void finishAndLaunchMainActivity() {
+        startActivity(new Intent(getApplicationContext(), VehicleRequestActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+        finish();
+    }
+
     protected void initComponents() {
 
         super.initComponents();
 
         initMap();
 
-        customerView = (CardView) findViewById(R.id.customerView);
-        addressView = (CardView) findViewById(R.id.addressView);
-        startLoadingView = (CardView) findViewById(R.id.startLoadingView);
-        startTripView = (CardView) findViewById(R.id.startTripView);
-        startUnloadingView = (CardView) findViewById(R.id.startUnloadingView);
-        endTripView = (CardView) findViewById(R.id.endTripView);
-        fareSummaryView = (CardView) findViewById(R.id.fareSummaryView);
-
-        customerName = (TextView) findViewById(R.id.customerName);
-        acceptanceStatus = (TextView) findViewById(R.id.acceptanceStatus);
-
-        navigate = (TextView) findViewById(R.id.navigate);
-        fromAddress = (TextView) findViewById(R.id.fromAddress);
-
-        arrivedAtOriginTxt = (TextView) findViewById(R.id.arrivedAtOriginTxt);
-        startLoadingTxt = (TextView) findViewById(R.id.startLoadingTxt);
-
-        startTripTxt = (TextView) findViewById(R.id.startTripTxt);
-
-        arrivedAtDestinationTxt = (TextView) findViewById(R.id.arrivedAtDestinationTxt);
-        startUnloadingTxt = (TextView) findViewById(R.id.startUnloadingTxt);
-
-        endTripTxt = (TextView) findViewById(R.id.endTripTxt);
-
-        fareSummaryTxt = (TextView) findViewById(R.id.fareSummaryTxt);
-        paidByTxt = (TextView) findViewById(R.id.paidByTxt);
-        fareTxt = (TextView) findViewById(R.id.fareTxt);
-        rateCustomerTxt = (TextView) findViewById(R.id.rateCustomerTxt);
-
-        startLoadingBtn = (SlideView) findViewById(R.id.startLoadingBtn);
-        startTripBtn = (SlideView) findViewById(R.id.startTripBtn);
-        startUnloadingBtn = (SlideView) findViewById(R.id.startUnloadingBtn);
-        endTripBtn = (SlideView) findViewById(R.id.endTripBtn);
-        goOnlineBtn = (SlideView) findViewById(R.id.goOnlineBtn);
+        findRequiredViews();
 
         setFonts();
         initSwipeButtonEvents();
@@ -207,6 +233,48 @@ public class TripProgressActivity extends MapActivity {
             //handle error
             Log.e(TAG, "vehicleRequest jsonException = " + e.getMessage());
         }
+    }
+
+    private void findRequiredViews() {
+        customerView = findViewById(R.id.customerView);
+        addressView = findViewById(R.id.addressView);
+        startLoadingView = findViewById(R.id.startLoadingView);
+        startTripView = findViewById(R.id.startTripView);
+        startUnloadingView = findViewById(R.id.startUnloadingView);
+        endTripView = findViewById(R.id.endTripView);
+        fareSummaryView = findViewById(R.id.fareSummaryView);
+
+        customerName = findViewById(R.id.customerName);
+        acceptanceStatus = findViewById(R.id.acceptanceStatus);
+
+        navigate = findViewById(R.id.navigate);
+        fromAddress = findViewById(R.id.fromAddress);
+
+        arrivedAtOriginTxt = findViewById(R.id.arrivedAtOriginTxt);
+        startLoadingTxt = findViewById(R.id.startLoadingTxt);
+
+        startTripTxt = findViewById(R.id.startTripTxt);
+
+        arrivedAtDestinationTxt = findViewById(R.id.arrivedAtDestinationTxt);
+        startUnloadingTxt = findViewById(R.id.startUnloadingTxt);
+
+        endTripTxt = findViewById(R.id.endTripTxt);
+
+        fareSummaryTxt = findViewById(R.id.fareSummaryTxt);
+        paidByTxt = findViewById(R.id.paidByTxt);
+        fareTxt = findViewById(R.id.fareTxt);
+        rateCustomerTxt = findViewById(R.id.rateCustomerTxt);
+
+        startLoadingBtn = findViewById(R.id.startLoadingBtn);
+        startTripBtn = findViewById(R.id.startTripBtn);
+        startUnloadingBtn = findViewById(R.id.startUnloadingBtn);
+        endTripBtn = findViewById(R.id.endTripBtn);
+        goOnlineBtn = findViewById(R.id.goOnlineBtn);
+
+        reachedAtLocationBtn = findViewById(R.id.reachedAtLocationBtn);
+        reachedAtLocationView = findViewById(R.id.reachedAtLocationView);
+        reachedAtLocationTxt1 = findViewById(R.id.reachedAtLocationTxt1);
+        reachedAtLocationTxt2 = findViewById(R.id.reachedAtLocationTxt2);
     }
 
     private void setFonts() {
@@ -231,22 +299,60 @@ public class TripProgressActivity extends MapActivity {
         paidByTxt.setTypeface(poppinsSemiBold);
         fareTxt.setTypeface(poppinsLight);
         rateCustomerTxt.setTypeface(poppinsSemiBold);
-
-//        startLoadingBtn.setTypeface(poppinsSemiBold);
-//        startTripBtn.setTypeface(poppinsSemiBold);
-//        startUnloadingBtn.setTypeface(poppinsSemiBold);
-//        endTripBtn.setTypeface(poppinsSemiBold);
-//        goOnlineBtn.setTypeface(poppinsSemiBold);
     }
 
     private void initSwipeButtonEvents() {
-
+        initReachedAtLocationBtn();
         initStartLoadingBtn();
         initStartTripBtn();
         initStartUnloadingBtn();
         initEndTripBtn();
         initGoOnlineBtn();
 
+    }
+
+
+    private void initReachedAtLocationBtn() {
+        reachedAtLocationBtn.getSlider().setOnTouchListener(new AppCompatSeekBar.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+
+                int action = event.getAction();
+
+                switch (action) {
+                    case MotionEvent.ACTION_DOWN:
+                        // Disallow ScrollView to intercept touch events.
+                        v.getParent().requestDisallowInterceptTouchEvent(true);
+                        break;
+
+                    case MotionEvent.ACTION_UP:
+                        // Allow ScrollView to intercept touch events.
+                        v.getParent().requestDisallowInterceptTouchEvent(false);
+                        break;
+                }
+
+                v.onTouchEvent(event);
+
+                reachedAtLocationBtn.getSlider().onTouchEvent(event);
+
+                return false;
+            }
+        });
+
+        reachedAtLocationBtn.setOnSlideCompleteListener(new SlideView.OnSlideCompleteListener() {
+            @Override
+            public void onSlideComplete(SlideView slideView) {
+                hideAllViews();
+                startLoadingView.setVisibility(View.VISIBLE);
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateTripStatus(ApplicationSettings.getTripReq().getCustId(), ApplicationSettings.getTripReq().getTripId(), "arrived");
+                        //RodaRestClient.updateTripStatus(ApplicationSettings.getTripId(), ApplicationSettings.getRequestId(), 1, tripStatusUpdateHandler);
+                    }
+                });
+            }
+        });
     }
 
     private void initStartLoadingBtn() {
@@ -417,8 +523,8 @@ public class TripProgressActivity extends MapActivity {
                 hideAllViews();
                 final FBVehicleRequest vehicleRequest = ApplicationSettings.getVehicleRequest();
                 rateCustomerTxt.setText("Rate " + vehicleRequest.getCustomerName());
-                paidByTxt.setText("Payment made by e-wallet");
-                long fare = vehicleRequest.getApproxFareInCents() / 100;
+                paidByTxt.setText("Payment made by cash");//e-wallet
+                long fare = vehicleRequest.getApproxFareInCents();
                 fareTxt.setText("₹" + fare);
                 fareSummaryView.setVisibility(View.VISIBLE);
                 mHandler.post(new Runnable() {
@@ -466,15 +572,17 @@ public class TripProgressActivity extends MapActivity {
                 AsyncTask.execute(new Runnable() {
                     @Override
                     public void run() {
+                        FirebaseReferenceService.addCashPaid(ApplicationSettings.getDriverEid(TripProgressActivity.this), ApplicationSettings.getTripReq().getCustId(), ApplicationSettings.getTripReq().getTripId(), 1000);
                         ApplicationSettings.getFbDriver().setCurrentTrip(null);
                         FirebaseReferenceService.removeCurrentTrip(ApplicationSettings.getDriverEid(TripProgressActivity.this));
                         updateTripStatus(ApplicationSettings.getTripReq().getCustId(), ApplicationSettings.getTripReq().getTripId(), "completed");
-                    }
-                });
-                mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        startNextActivity();
+                        FirebaseReferenceService.onTripCompleted(ApplicationSettings.getDriverEid(TripProgressActivity.this), ApplicationSettings.getTripReq().getCustId(), ApplicationSettings.getTripReq().getTripId());
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                startNextActivity();
+                            }
+                        });
                     }
                 });
 
@@ -489,6 +597,7 @@ public class TripProgressActivity extends MapActivity {
         startTripView.setVisibility(View.GONE);
         startUnloadingView.setVisibility(View.GONE);
         endTripView.setVisibility(View.GONE);
+        reachedAtLocationView.setVisibility(View.GONE);
     }
 
     private void startNextActivity() {
@@ -532,19 +641,28 @@ public class TripProgressActivity extends MapActivity {
 
     private void onTripConfirmOperation() {
         final FBVehicleRequest vehicleRequest = ApplicationSettings.getVehicleRequest();
+        addPicupPointDropPointMarkers(vehicleRequest.getOriginLat(), vehicleRequest.getOriginLng(), vehicleRequest.getDestinationLat(), vehicleRequest.getDestinationLng());
         customerName.setText(vehicleRequest.getCustomerName().toUpperCase());
         fromAddress.setText(vehicleRequest.getOriginAddress());
         acceptanceStatus.setText("ACCEPTED");
-        FirebaseReferenceService.addDriversCurrentTrip(ApplicationSettings.getDriverEid(TripProgressActivity.this), tripReq.getTripId(), tripReq.getCustId());
+        final String driverEid = ApplicationSettings.getDriverEid(TripProgressActivity.this);
+        FirebaseReferenceService.addDriversCurrentTrip(driverEid, tripReq.getTripId(), tripReq.getCustId());
+
         Handler h = new Handler();
         h.postDelayed(new Runnable() {
             public void run() {
                 customerView.setVisibility(View.GONE);
                 addressView.setVisibility(View.VISIBLE);
-                startLoadingView.setVisibility(View.VISIBLE);
+                reachedAtLocationView.setVisibility(View.VISIBLE);
             }
         }, 2000);
 
+    }
+
+    private void resumeReachedAtLocation() {
+        customerView.setVisibility(View.GONE);
+        addressView.setVisibility(View.VISIBLE);
+        reachedAtLocationView.setVisibility(View.VISIBLE);
     }
 
     private void resumeStartLoading() {

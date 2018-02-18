@@ -9,7 +9,7 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/launcher_logo"
+        android:icon="@mipmap/roda_icon"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
@@ -27,9 +27,10 @@
         <activity android:name=".VehicleDetailsActivity" />
         <activity android:name=".DriverDocs" />
         <activity android:name=".VehicleRequestListActivity" />
-        <activity android:name=".VehicleRequestActivity" >
+        <activity android:name=".VehicleRequestActivity">
             <intent-filter>
                 <action android:name="com.rodafleets.rodadriver.TRIP_REQUEST" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
@@ -50,14 +51,40 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCNUPU5BnrpbhAZjloAyNbzUanOTlrh1O4" />
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
 
-       <!-- <service
+        <!--
+            <service
             android:name=".services.LocationUpdateService"
-            android:exported="false" /> -->
+            android:exported="false" />
+        -->
         <service
             android:name=".TrackerService"
             android:enabled="true"
             android:exported="true" />
+
+        <activity
+            android:name=".DriverSettings"
+            android:label="@string/title_activity_driver_settings"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".PersonalInfoSettings"
+            android:label="@string/title_activity_personal_info_settings"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".vehicle_details_settings"
+            android:label="@string/title_activity_vehicle_details_settings"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".account_details_settings"
+            android:label="@string/title_activity_account_details_settings"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".PaymentAndTrips"
+            android:label="@string/title_activity_payment_and_trips"
+            android:theme="@style/AppTheme"></activity>
     </application>
 
 </manifest>

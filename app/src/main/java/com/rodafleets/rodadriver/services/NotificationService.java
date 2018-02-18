@@ -36,7 +36,6 @@ public class NotificationService extends FirebaseMessagingService {
     @Override
     public void onCreate() {
         Log.i(TAG, " Notification Service Created");
-
         RodaDriverApplication.vehicleRequestService = this;
     }
 
@@ -73,15 +72,13 @@ public class NotificationService extends FirebaseMessagingService {
         }
 
 
-        if("".equalsIgnoreCase(notificationTitle) && null != data){
+        if("Pickup Request".equalsIgnoreCase(notificationTitle) && null != data){
             //This is case for data message
             Intent intent = new Intent("Vehicle_Requested");
             intent.putExtra("custId",data.get("custId"));
             intent.putExtra("tripId",data.get("tripId"));
-            final boolean isSent = LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-            if(!isSent){
-
-            }
+            intent.putExtra("FROM_NOTIFICATION",true);
+            LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
         }
 
         if (notificationTitle.equals("Request")) {

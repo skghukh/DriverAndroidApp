@@ -28,7 +28,7 @@ public class FBVehicle {
     }
 
     public String getVehicleNumber() {
-        return vehicleNumber;
+        return null == vehicleNumber ? "NA" : vehicleNumber;
     }
 
     public void setVehicleNumber(String vehicleNumber) {
@@ -44,7 +44,7 @@ public class FBVehicle {
     }
 
     public String getManufacturer() {
-        return manufacturer;
+        return null == manufacturer ? "NA" : manufacturer;
     }
 
     public void setManufacturer(String manufacturer) {
@@ -52,7 +52,7 @@ public class FBVehicle {
     }
 
     public String getModel() {
-        return model;
+        return model == null ? "NA" : model;
     }
 
     public void setModel(String model) {
@@ -60,7 +60,7 @@ public class FBVehicle {
     }
 
     public String getOwnerFirstName() {
-        return ownerFirstName;
+        return ownerFirstName == null ? "NA" : ownerFirstName;
     }
 
     public void setOwnerFirstName(String ownerFirstName) {
@@ -68,7 +68,7 @@ public class FBVehicle {
     }
 
     public String getOwnerLastName() {
-        return ownerLastName;
+        return ownerLastName == null ? "NA" : ownerLastName;
     }
 
     public void setOwnerLastName(String ownerLastName) {
@@ -76,7 +76,7 @@ public class FBVehicle {
     }
 
     public String getOwnerPhoneNumber() {
-        return ownerPhoneNumber;
+        return null == ownerPhoneNumber ? "NA" : ownerPhoneNumber;
     }
 
     public void setOwnerPhoneNumber(String ownerPhoneNumber) {

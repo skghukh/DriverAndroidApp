@@ -53,11 +53,12 @@ public class TrackerService extends Service {
     private static FirebaseUser currentUser;
     private static String driverId;
     private FirebaseAuth mAuth;
+    private static Location lastLocation;
 
     @Override
     public IBinder onBind(Intent intent) {
         driverId = intent.getStringExtra("driverEId");
-        System.out.println("OnBind driverId is "+driverId);
+        System.out.println("OnBind driverId is " + driverId);
         return null;
     }
 
@@ -68,7 +69,7 @@ public class TrackerService extends Service {
             Log.d("Service", "null");
         else {
             Log.d("Service", "not null");
-            driverId =  (String) extras.get("driverEId");
+            driverId = (String) extras.get("driverEId");
             Log.d("Service", "In Service driverid is " + driverId);
             buildNotification();
             loginToFirebase();
@@ -107,6 +108,11 @@ public class TrackerService extends Service {
         }
     };
 
+
+    public static Location getLastLocation() {
+        return lastLocation;
+    }
+
     private void loginToFirebase() {
         // String email = getString(R.string.firebase_email);
         // String password = getString(R.string.firebase_password);
@@ -128,7 +134,7 @@ public class TrackerService extends Service {
                 }
             });
         } else {
-            Toast.makeText(this, "User " + currentUser.getUid() + "  is already loged in ", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "User " + currentUser.getUid() + "  is already loged in ", Toast.LENGTH_SHORT).show();
             requestLocationUpdates();
         }
 
@@ -152,6 +158,7 @@ public class TrackerService extends Service {
                     DatabaseReference ref = FirebaseReferenceService.getFBInstance().getReference(path);
                     Location location = locationResult.getLastLocation();
                     if (location != null) {
+                        lastLocation = location;
                         GeoFire geoFire = new GeoFire(ref);
                         geoFire.setLocation(String.valueOf(driverId), new GeoLocation(location.getLatitude(), location.getLongitude()));
                         Log.d(TAG, "location update " + location);

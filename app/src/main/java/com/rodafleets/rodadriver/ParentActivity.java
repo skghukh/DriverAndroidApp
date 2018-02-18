@@ -1,5 +1,6 @@
 package com.rodafleets.rodadriver;
 
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
@@ -14,12 +15,19 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.rodafleets.rodadriver.model.FBDriver;
+import com.rodafleets.rodadriver.services.FirebaseReferenceService;
 import com.rodafleets.rodadriver.utils.AppConstants;
+import com.rodafleets.rodadriver.utils.ApplicationSettings;
 
 public class ParentActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -32,15 +40,21 @@ public class ParentActivity extends AppCompatActivity implements NavigationView.
     Typeface sintonyRegular;
     Typeface sintonyBold;
 
-    private DrawerLayout mDrawerLayout;
+    protected DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
 
     private Toolbar toolbar;
 
+    private static String driverName;
+    private static TextView driverNameView;
+    private static Button goOfflineBtn;
+
+    private AlphaAnimation changeStatusAnimation = new AlphaAnimation(1F, 0.75F);
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main_menu, menu);
+        //getMenuInflater().inflate(R.menu.main_menu, menu);
         return true;
     }
 
@@ -50,10 +64,21 @@ public class ParentActivity extends AppCompatActivity implements NavigationView.
         initializeSideMenu();
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        boolean isDrawerOpen = mDrawerLayout.isDrawerOpen(Gravity.LEFT);
+        if (!isDrawerOpen) {
+            mDrawerLayout.openDrawer(Gravity.LEFT);
+        } else {
+            mDrawerLayout.closeDrawer(Gravity.LEFT);
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     public void initializeSideMenu() {
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if(mDrawerLayout == null){
+        if (mDrawerLayout == null) {
             Log.i("MENU", "DrawerLayout is null");
         }
         mDrawerToggle = new ActionBarDrawerToggle(
@@ -71,7 +96,25 @@ public class ParentActivity extends AppCompatActivity implements NavigationView.
             /** Called when a drawer has settled in a completely open state. */
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
-//                getActionBar().setTitle(mDrawerTitle);
+                FBDriver fbDriver = null;
+                if (null == driverNameView) {
+                    driverNameView = findViewById(R.id.driverName);
+                }
+                if (null == goOfflineBtn) {
+                    goOfflineBtn = findViewById(R.id.goOfflineBtn);
+                }
+
+                    driverNameView.setText(ApplicationSettings.getDriverName(ParentActivity.this));
+                goOfflineBtn.setClickable(true);
+                fbDriver = ApplicationSettings.getFbDriver();
+                if (null == fbDriver || null == fbDriver.getOffline()) {
+                    goOfflineBtn.setText("GO OFFLINE");
+                    goOfflineBtn.setTag("ONLINE");
+                } else if (fbDriver.getOffline().equalsIgnoreCase("TRUE")) {
+                    goOfflineBtn.setText("GO ONLINE");
+                    goOfflineBtn.setTag("OFFLINE");
+                }
+
             }
         };
 
@@ -111,13 +154,7 @@ public class ParentActivity extends AppCompatActivity implements NavigationView.
                 break;
             }
 
-            case R.id.menu_payment: {
-                //do somthing
-                break;
-            }
-
             case R.id.menu_settings: {
-                //do somthing
                 break;
             }
         }
@@ -125,7 +162,6 @@ public class ParentActivity extends AppCompatActivity implements NavigationView.
         mDrawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
-
 
     public void loadFonts() {
         poppinsRegular = Typeface.createFromAsset(getAssets(), AppConstants.FONT_POPPINS_REGULAR);
@@ -138,4 +174,33 @@ public class ParentActivity extends AppCompatActivity implements NavigationView.
         sintonyBold = Typeface.createFromAsset(getAssets(), AppConstants.FONT_SINTONY_BOLD);
     }
 
+
+    public void openSettings(View view) {
+        Intent intent = new Intent(this, DriverSettings.class);
+        startActivity(intent);
+    }
+
+    public void openTripsPayments(View view) {
+        Intent intent = new Intent(this, PaymentAndTrips.class);
+        startActivity(intent);
+    }
+
+    public void onGoOfflineBtnClick(View view) {
+        if (((String) view.getTag()).equalsIgnoreCase("OFFLINE")) {
+            FirebaseReferenceService.goOnline(ParentActivity.this, ApplicationSettings.getDriverEid(ParentActivity.this));
+            if (null != goOfflineBtn) goOfflineBtn.setText("online...");
+
+        } else if (((String) view.getTag()).equalsIgnoreCase("ONLINE")) {
+            ApplicationSettings.getFbDriver().setOffline("TRUE");
+            FirebaseReferenceService.goOffline(ParentActivity.this, ApplicationSettings.getDriverEid(ParentActivity.this));
+            if (null != goOfflineBtn) goOfflineBtn.setText("offline...");
+        }
+        goOfflineBtn.setClickable(false);
+    }
+
+    public void logOut(View view) {
+        FirebaseReferenceService.logout(ParentActivity.this);
+        startActivity(new Intent(this, SignInActivity.class));
+        finish();
+    }
 }

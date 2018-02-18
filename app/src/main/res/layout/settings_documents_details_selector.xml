@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="135dp"
+    android:gravity="center_vertical">
+
+
+    <ImageView
+        android:id="@+id/driver_thumbnail"
+        android:layout_width="48dp"
+        android:layout_height="43.3dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="26dp"
+        android:layout_marginStart="26dp"
+        app:srcCompat="@drawable/user_thumbnail" />
+
+    <TextView
+        android:id="@+id/driver_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/driver_thumbnail"
+        android:layout_marginLeft="14dp"
+        android:layout_marginStart="14dp"
+        android:layout_toEndOf="@+id/driver_thumbnail"
+        android:layout_toRightOf="@+id/driver_thumbnail"
+        android:fontFamily="@font/poppins_light"
+        android:text="ACCOUNT DETAILS"
+        android:textColor="@android:color/black"
+        android:textSize="14sp"
+        />
+
+    <TextView
+        android:id="@+id/driver_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/driver_thumbnail"
+        android:layout_alignLeft="@+id/driver_name"
+        android:layout_alignStart="@+id/driver_name"
+        android:textSize="12sp"
+        android:textColor="#e11c2a"
+        android:fontFamily="@font/poppins_light"
+        android:singleLine="false"
+        android:maxWidth="150sp"
+        android:text="Add your account details in order to receive payment." />
+
+    <ImageView
+        android:id="@+id/details_button"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="26dp"
+        app:srcCompat="@drawable/quantum_ic_skip_next_grey600_36" />
+
+
+</RelativeLayout>

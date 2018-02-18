@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.rodafleets.rodadriver.account_details_settings">
+
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/AppTheme.PopupOverlay" />
+
+    </android.support.design.widget.AppBarLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="?android:attr/actionBarSize"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:id="@+id/account_details_message"
+            android:layout_width="match_parent"
+            android:layout_height="88dp"
+            android:layout_gravity="center_horizontal|center_vertical">
+
+            <TextView
+                android:id="@+id/account_details_message_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="26dp"
+                android:layout_marginRight="32dp"
+                android:fontFamily="@font/poppins_light"
+                android:singleLine="false"
+                android:text="Please provide your bank details so that we can transfer your money to your account."
+                android:textColor="#7d7d7d"
+                android:textSize="12sp" />
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="12dp"
+            android:layout_alignTop="@id/model"
+            android:layout_centerHorizontal="true"
+            android:background="#e5e5e5" />
+
+        <EditText
+            android:id="@+id/account_holder_name"
+            android:layout_width="322dp"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginLeft="26dp"
+            android:layout_marginTop="20dp"
+            android:ems="10"
+            android:hint="Full Name as on Account "
+            android:inputType="textPersonName"
+            android:text="" />
+
+        <EditText
+            android:id="@+id/bank_name"
+            android:layout_width="322dp"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginLeft="26dp"
+            android:layout_marginTop="20dp"
+            android:ems="10"
+            android:hint="Name of the Bank"
+            android:inputType="textPersonName"
+            android:text="" />
+
+        <EditText
+            android:id="@+id/branch"
+            android:layout_width="322dp"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginLeft="26dp"
+            android:layout_marginTop="24dp"
+            android:ems="10"
+            android:hint="Branch "
+            android:inputType="textPersonName"
+            android:text="" />
+
+        <EditText
+            android:id="@+id/account_number"
+            android:layout_width="322dp"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginLeft="26dp"
+            android:layout_marginTop="20dp"
+            android:ems="10"
+            android:hint="Account Number "
+            android:inputType="textPersonName"
+            android:text="" />
+
+        <EditText
+            android:id="@+id/ifsc_code"
+            android:layout_width="322dp"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginLeft="26dp"
+            android:layout_marginTop="20dp"
+            android:ems="10"
+            android:hint="IFSC code"
+            android:inputType="textPersonName"
+            android:text="" />
+
+        <Button
+            android:id="@+id/save_account_details"
+            android:layout_width="match_parent"
+            android:layout_height="42dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="32dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:background="#765267"
+            android:text="SAVE"
+            android:onClick="saveAccountDetails"/>
+
+
+    </LinearLayout>
+
+
+</android.support.design.widget.CoordinatorLayout>

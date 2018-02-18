@@ -72,7 +72,7 @@ public class SignUpVerificationActivity extends AppCompatActivity {
     private String mFirstName;
     private String mLastName;
     private String mPhoneNumber;
-    private String  gender;
+    private String gender;
 
     private ProgressDialog progressDialog;
 
@@ -187,8 +187,8 @@ public class SignUpVerificationActivity extends AppCompatActivity {
 
     private void startNextActivity() {
         final Intent intent = new Intent(this, VehicleDetailsActivity.class);
-        intent.putExtra("fname",mFirstName);
-        intent.putExtra("lname",mLastName);
+        intent.putExtra("fname", mFirstName);
+        intent.putExtra("lname", mLastName);
         intent.putExtra("number", mPhoneNumber);
         this.startActivity(intent);
         finish();
@@ -219,7 +219,7 @@ public class SignUpVerificationActivity extends AppCompatActivity {
             progressDialog.setMessage(getString(R.string.sign_up_saving));
             progressDialog.show();
             int driverId = ApplicationSettings.getDriverId(SignUpVerificationActivity.this);
-           // String sessionId = ApplicationSettings.getOtpSessionId(SignUpVerificationActivity.this);
+            // String sessionId = ApplicationSettings.getOtpSessionId(SignUpVerificationActivity.this);
             RodaRestClient.verifyOTP(mSessionId, otp, mOtpVerificationHandler);
             //RodaRestClient.saveDriver(driverId, pwd, otp, sessionId, responseHandler);
         }
@@ -261,12 +261,12 @@ public class SignUpVerificationActivity extends AppCompatActivity {
                                         });
                                         ApplicationSettings.setVerified(SignUpVerificationActivity.this, true);
                                         FBDriver driver = new FBDriver(gender);
-                                        FirebaseReferenceService.addDriver(user.getEmail().split("\\@")[0],driver);
+                                        FirebaseReferenceService.addDriver(user.getEmail().split("\\@")[0], driver);
                                         progressDialog.dismiss();
                                         startNextActivity();
                                     } else {
                                         final String errorCode = ((FirebaseAuthException) task.getException()).getErrorCode();
-                                        System.out.println("Signup exception is "+errorCode);
+                                        System.out.println("Signup exception is " + errorCode);
 
                                         //TODO If sign in fails, display a message to the user.
                                         Log.w(TAG, "createUserWithEmail:failure", task.getException());
@@ -277,7 +277,7 @@ public class SignUpVerificationActivity extends AppCompatActivity {
                                                     Toast.LENGTH_SHORT).show();
 
                                         } else {
-                                            Toast.makeText(SignUpVerificationActivity.this, "Authentication failed.",
+                                            Toast.makeText(SignUpVerificationActivity.this, "Authentication failed."+task.getException().getLocalizedMessage(),
                                                     Toast.LENGTH_SHORT).show();
                                         }
                                     }

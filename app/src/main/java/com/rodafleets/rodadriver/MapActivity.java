@@ -5,14 +5,16 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
+import android.support.v4.content.res.ResourcesCompat;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -24,28 +26,22 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.rodafleets.rodadriver.model.TripRequest;
 import com.rodafleets.rodadriver.model.FBVehicleRequest;
+import com.rodafleets.rodadriver.model.TripRequest;
 import com.rodafleets.rodadriver.services.FirebaseReferenceService;
 import com.rodafleets.rodadriver.utils.AppConstants;
 import com.rodafleets.rodadriver.utils.ApplicationSettings;
 
-import org.json.JSONObject;
+import java.util.HashMap;
 
 public class MapActivity extends ParentActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
@@ -58,25 +54,20 @@ public class MapActivity extends ParentActivity implements OnMapReadyCallback,
     GoogleMap mGoogleMap;
     LocationRequest mLocationRequest;
     GoogleApiClient mGoogleApiClient;
-    Location mLastLocation;
-    Marker mCurrLocationMarker;
-    Marker pickupPointMarker;
-    Marker dropPointMarker;
 
-    private Bitmap redIcon;
-    private Bitmap greenIcon;
-    private Bitmap carIcon;
+    protected BitmapDescriptor redIcon;
+    protected BitmapDescriptor greenIcon;
+    private BitmapDescriptor carIcon;
     protected FBVehicleRequest vehicleRequest;
     TripRequest tripReq;
+
+    protected HashMap<String, Marker> mMarkers = new HashMap<>();
 
     @Override
     public void onPause() {
         super.onPause();
-//        //stop location updates when Activity is no longer active
-//        if (mGoogleApiClient != null) {
-//            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-//        }
     }
+
 
     public void initMap() {
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
@@ -86,6 +77,13 @@ public class MapActivity extends ParentActivity implements OnMapReadyCallback,
     public void clearMap() {
         mGoogleMap.clear();
     }
+
+    protected void clearAllMarkers() {
+        for (Marker marker : mMarkers.values()) {
+            marker.remove();
+        }
+    }
+
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -111,21 +109,24 @@ public class MapActivity extends ParentActivity implements OnMapReadyCallback,
         }
         initMarkerBitmaps();
         startLocationService();
-        // loginToFirebase();
+        clearAllMarkers();
+
     }
 
 
-
-
-    protected void subscribeForTripUpdate(String custId, String tripId, final Runnable callback) {
-        if (null == tripReq) {
-            DatabaseReference tripRef = FirebaseReferenceService.getTripReferece(custId, tripId);
-            tripReq = new TripRequest(custId, tripId, tripRef);
+    protected void subscribeForTripUpdate(final String custId, final String tripId, final Runnable callback) {
+        if (null == tripReq && null != custId && null != tripId) {
+            final DatabaseReference tripRef = FirebaseReferenceService.getTripReferece(custId, tripId);
             tripRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     final FBVehicleRequest request = dataSnapshot.getValue(FBVehicleRequest.class);
-                    System.out.println(request);
+                    Long timeStamp = request.getTimestamp();
+                    if (System.currentTimeMillis() - timeStamp > 180000 || (null != request.getStatus() && (request.getStatus().equalsIgnoreCase("cancelled") || request.getStatus().equalsIgnoreCase("expired")))) {
+                        Snackbar.make(mDrawerLayout, "Request Expired", Snackbar.LENGTH_SHORT).show();
+                        return;
+                    }
+                    tripReq = new TripRequest(custId, tripId, tripRef);
                     vehicleRequest = request;
                     ApplicationSettings.setVehicleRequest(vehicleRequest);
                     MapActivity.this.runOnUiThread(callback);
@@ -144,10 +145,6 @@ public class MapActivity extends ParentActivity implements OnMapReadyCallback,
 
 
     private void startLocationService() {
-        //This is mysql based tracker.
-        // Intent background = new Intent(this, LocationUpdateService.class);
-        // background.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
-        //this.startService(background);
 
         //Below is Firebase based tracker.
         GetLocationRequestAndStartTrackerService();
@@ -213,83 +210,43 @@ public class MapActivity extends ParentActivity implements OnMapReadyCallback,
 
     private void initMarkerBitmaps() {
 
-        int marker_height = 45;
-        int marker_width = 32;
+        greenIcon = getBitmapDescriptor(R.drawable.ic_picup_point);
+        redIcon = getBitmapDescriptor(R.drawable.ic_drop_point);
+        carIcon = getBitmapDescriptor(R.drawable.ic_truck);
+    }
 
-        int car_height = 30;
-        int car_width = 37;
-
-        greenIcon = BitmapFactory.decodeResource(getResources(), R.drawable.marker_green);
-        redIcon = BitmapFactory.decodeResource(getResources(), R.drawable.marker_red);
-        carIcon = BitmapFactory.decodeResource(getResources(), R.drawable.car_icon);
-
-        greenIcon = Bitmap.createScaledBitmap(greenIcon, marker_width, marker_height, false);
-        redIcon = Bitmap.createScaledBitmap(redIcon, marker_width, marker_height, false);
-        carIcon = Bitmap.createScaledBitmap(carIcon, car_width, car_height, false);
-
+    protected void addPicupPointDropPointMarkers(double originLat, double originLng, double destinationLat, double destinationLng) {
+        if (null == mGoogleMap) return;
+        if (mMarkers.get("p") != null) {
+            mMarkers.get("p").setPosition(new LatLng(originLat, originLng));
+        } else {
+            MarkerOptions markerOptions = new MarkerOptions();
+            markerOptions.position(new LatLng(originLat, originLng));
+            markerOptions.icon(greenIcon);
+            mMarkers.put("p", mGoogleMap.addMarker(markerOptions));
+        }
+        if (mMarkers.get("d") != null) {
+            mMarkers.get("d").setPosition(new LatLng(destinationLat, destinationLng));
+        } else {
+            MarkerOptions markerOptions = new MarkerOptions();
+            markerOptions.position(new LatLng(destinationLat, destinationLng));
+            markerOptions.icon(greenIcon);
+            mMarkers.put("d", mGoogleMap.addMarker(markerOptions));
+        }
     }
 
     @Override
     public void onLocationChanged(Location location) {
-        mLastLocation = location;
-        if (mCurrLocationMarker != null) {
-            mCurrLocationMarker.remove();
-        }
-
-        //Place current location marker
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-
-        MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.position(latLng);
-
-        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(carIcon));
-
-        mCurrLocationMarker = mGoogleMap.addMarker(markerOptions);
-
-        if (!ApplicationSettings.getVehicleRequest(this).equals("")) {
-
-            FBVehicleRequest vehicleRequest;
-            LatLngBounds.Builder builder = new LatLngBounds.Builder();
-            int padding = 30; // offset from edges of the map in pixels
-
-            builder.include(mCurrLocationMarker.getPosition());
-            try {
-
-                JSONObject jsonObject = new JSONObject(ApplicationSettings.getVehicleRequest(MapActivity.this));
-
-                vehicleRequest = null;//new FBVehicleRequest(jsonObject);
-
-                //Place pickup location marker
-                LatLng pickupPointLatLng = new LatLng(vehicleRequest.getOriginLat(), vehicleRequest.getOriginLng());
-
-                MarkerOptions pickUpMarkerOptions = new MarkerOptions();
-                pickUpMarkerOptions.position(pickupPointLatLng);
-                pickUpMarkerOptions.icon(BitmapDescriptorFactory.fromBitmap(greenIcon));
-
-                pickupPointMarker = mGoogleMap.addMarker(pickUpMarkerOptions);
-                builder.include(pickupPointMarker.getPosition());
-
-                //Place drop location marker
-                LatLng dropPointLatlng = new LatLng(vehicleRequest.getDestinationLat(), vehicleRequest.getDestinationLng());
-                MarkerOptions dropMarkerOptions = new MarkerOptions();
-
-                dropMarkerOptions.position(dropPointLatlng);
-                dropMarkerOptions.icon(BitmapDescriptorFactory.fromBitmap(redIcon));
-
-                dropPointMarker = mGoogleMap.addMarker(dropMarkerOptions);
-                builder.include(dropPointMarker.getPosition());
-
-            } catch (Exception e) {
-                //handle error
-                Log.e(TAG, "vehicleRequest jsonException in MapActivity = " + e.getMessage());
-            }
-
-            LatLngBounds bounds = builder.build();
-            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, padding));
+        if (mMarkers.get("c") != null) {
+            mMarkers.get("c").setPosition(latLng);
         } else {
+            MarkerOptions markerOptions = new MarkerOptions();
+            markerOptions.position(latLng);
+            markerOptions.icon(carIcon);
+            mMarkers.put("c", mGoogleMap.addMarker(markerOptions));
             mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f));
         }
-
         mGoogleMap.setMyLocationEnabled(false);
         mGoogleMap.getUiSettings().setMyLocationButtonEnabled(false);
     }
@@ -321,8 +278,6 @@ public class MapActivity extends ParentActivity implements OnMapReadyCallback,
                         })
                         .create()
                         .show();
-
-
             } else {
                 // No explanation needed, we can request the permission.
                 ActivityCompat.requestPermissions(this,
@@ -330,6 +285,17 @@ public class MapActivity extends ParentActivity implements OnMapReadyCallback,
                         MY_PERMISSIONS_REQUEST_LOCATION);
             }
         }
+    }
+
+
+    private BitmapDescriptor getBitmapDescriptor(int id) {
+        Drawable vectorDrawable = ResourcesCompat.getDrawable(getResources(), id, null);
+        Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(),
+                vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        vectorDrawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        vectorDrawable.draw(canvas);
+        return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
 
     @Override

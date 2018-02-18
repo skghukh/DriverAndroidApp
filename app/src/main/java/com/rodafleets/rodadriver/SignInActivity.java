@@ -129,17 +129,7 @@ public class SignInActivity extends AppCompatActivity {
             progressBar.setIndeterminate(true);
             progressBar.setVisibility(View.VISIBLE);
             Utils.enableWindowActivity(getWindow(), false);
-            /*
-            String token = ApplicationSettings.getRegistrationId(this);
-            if (token.equals("")) {
-                token = FirebaseInstanceId.getInstance().getToken();
-                ApplicationSettings.setRegistrationId(this, token);
-                FirebaseReferenceService.updateDriverToken(ApplicationSettings.getDriverEid(SignInActivity.this).split("\\@")[0],token);
-            }*/
             signInUsingEmailAndPassword(number, pwd);
-
-
-            //RodaRestClient.login(number, pwd, token, signInResponseHandler);
         }
     }
 
@@ -154,8 +144,6 @@ public class SignInActivity extends AppCompatActivity {
                             Log.i(TAG, "signInWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
                             Log.d(TAG, "User login is successfull for " + user.getUid() + " : " + user.getDisplayName() + " : " + user.getPhoneNumber());
-                            //updateUI(user);
-                            // ApplicationSettings.setDriverId(SignInActivity.this,user.getUid());
                             ApplicationSettings.setDriverUId(SignInActivity.this, user.getUid());
                             ApplicationSettings.setDriverName(SignInActivity.this, user.getDisplayName());
                             ApplicationSettings.setDriverEid(SignInActivity.this, user.getEmail().split("\\@")[0]);
@@ -167,20 +155,22 @@ public class SignInActivity extends AppCompatActivity {
                                 ApplicationSettings.setRegistrationId(SignInActivity.this, token);
                                 FirebaseReferenceService.updateDriverToken(ApplicationSettings.getDriverEid(SignInActivity.this).split("\\@")[0], token);
                             }
+                            progressBar.setVisibility(View.GONE);
                             startNextActivity();
                         } else {
+                            progressBar.setVisibility(View.GONE);
+                            Utils.enableWindowActivity(getWindow(), true);
                             final String errorCode = ((FirebaseAuthException) task.getException()).getErrorCode();
                             if (errorCode.equalsIgnoreCase("ERROR_WRONG_PASSWORD")) {
-                                Snackbar.make(constraintLayout, " Incorrect Password or Id ", Snackbar.LENGTH_SHORT);
+                                Snackbar.make(constraintLayout, " Incorrect Password or Id ", Snackbar.LENGTH_SHORT).show();
                             } else if (errorCode.equalsIgnoreCase("ERROR_USER_NOT_FOUND")) {
-                                Snackbar.make(constraintLayout, "Invalid User, Please Sign UP", Snackbar.LENGTH_SHORT);
+                                Snackbar.make(constraintLayout, "Invalid User, Please Sign UP", Snackbar.LENGTH_SHORT).show();
                             } else if (errorCode.equalsIgnoreCase("ERROR_USER_DISABLED")) {
-                                Snackbar.make(constraintLayout, "Account Suspended - Contact Roda", Snackbar.LENGTH_SHORT);
+                                Snackbar.make(constraintLayout, "Account Suspended - Contact Roda", Snackbar.LENGTH_SHORT).show();
                             } else {
                                 Log.i(TAG, "Signin exception is " + errorCode);
-                                Snackbar.make(constraintLayout, "OOPS! something went wrong", Snackbar.LENGTH_SHORT);
+                                Snackbar.make(constraintLayout, "OOPS! something went wrong", Snackbar.LENGTH_SHORT).show();
                             }
-                            progressBar.setVisibility(View.INVISIBLE);
                         }
                     }
                 });

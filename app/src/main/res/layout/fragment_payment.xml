@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/bill_period_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="26dp"
+        android:layout_marginTop="63dp"
+        android:fontFamily="@font/poppins"
+        android:text="BILL PERIOD:"
+        android:textColor="#a7a7a7"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/bill_period_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/bill_period_message"
+        android:layout_marginLeft="226dp"
+        android:fontFamily="@font/poppins_bold"
+        android:text="..."
+        android:textColor="#000000"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/last_date_of_payment_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/bill_period_message"
+        android:layout_marginLeft="26dp"
+        android:layout_marginTop="19dp"
+        android:text="LAST DATE OF PAYMENT:"
+        android:textColor="#a7a7a7"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/last_date_of_payment_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/last_date_of_payment_message"
+        android:layout_marginLeft="226dp"
+        android:fontFamily="@font/poppins_bold"
+        android:text="TextView"
+        android:textColor="#000000"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/total_earnings_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/last_date_of_payment_message"
+        android:layout_marginLeft="26dp"
+        android:layout_marginTop="19dp"
+        android:text="TOTAL EARNINGS:"
+        android:textColor="#a7a7a7"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/total_earnings_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/total_earnings_message"
+        android:layout_marginLeft="226dp"
+        android:fontFamily="@font/poppins_bold"
+        android:text="TextView"
+        android:textColor="#000000"
+        android:textSize="20sp" />
+
+    <LinearLayout
+        android:id="@+id/total_pays"
+        android:layout_width="308dp"
+        android:layout_height="70dp"
+        android:layout_below="@+id/total_earnings_value"
+        android:layout_marginLeft="26dp"
+        android:layout_marginRight="26dp"
+        android:layout_marginTop="26dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+
+        <ImageView
+            android:id="@+id/cash_earning_img"
+            android:layout_width="35dp"
+            android:layout_height="20dp"
+            android:layout_marginLeft="22dp"
+            app:srcCompat="@drawable/ic_cash" />
+
+        <TextView
+            android:id="@+id/cash_earning_val"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12dp"
+            android:text="INR ..."
+            android:textColor="#1c0113"
+            android:textSize="12sp" />
+
+        <View
+            android:id="@+id/v_separator"
+            android:layout_width="2dp"
+            android:layout_height="36dp"
+            android:layout_below="@id/dest_layout"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="5dp"
+            android:background="#e5e5e5" />
+
+        <ImageView
+            android:id="@+id/wallet_earning_image"
+            android:layout_width="35dp"
+            android:layout_height="20dp"
+            android:layout_marginLeft="22dp"
+            app:srcCompat="@drawable/ic_e_wallet" />
+
+        <TextView
+            android:id="@+id/wallet_earning_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12dp"
+            android:text="INR ..."
+            android:textColor="#1c0113"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="183dp"
+        android:layout_below="@+id/total_pays"
+        android:background="#ffb900"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="90dp"
+        android:gravity="top"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/you_owe_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="26dp"
+            android:layout_marginTop="15dp"
+            android:fontFamily="@font/poppins"
+            android:text="You OWE Roda"
+            android:textColor="#ffffff"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/you_owe_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top"
+            android:layout_marginLeft="26dp"
+            android:fontFamily="@font/poppins"
+            android:gravity="top"
+            android:text="INR ..."
+            android:textColor="#ffffff"
+            android:textSize="34sp" />
+
+        <Button
+            android:id="@+id/pay_now_button"
+            android:layout_width="302dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="26dp"
+            android:background="#765267"
+            android:fontFamily="@font/sintony"
+            android:text="PAY NOW"
+            android:textColor="#ffffff"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+</RelativeLayout>
